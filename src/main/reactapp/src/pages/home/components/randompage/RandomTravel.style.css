@@ -1,0 +1,47 @@
+@font-face {
+    font-family: 'NoonnuBasicGothicRegular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noon-2410@1.0/NoonnuBasicGothicRegular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.random-title-a {
+    font-family: 'NoonnuBasicGothicRegular';
+    color: aqua;
+    font-size: 30px;
+
+}
+
+.random-title-b {
+    font-family: 'NoonnuBasicGothicRegular';
+    color: black;
+    font-size: 30px;
+}
+
+.random-title {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+
+}
+
+@media (max-width: 768px) {
+
+    /* 모바일 해상도 기준 */
+    .random-title-a {
+        font-family: 'NoonnuBasicGothicRegular';
+        color: aqua;
+        font-size: 15px;
+
+    }
+
+    .random-title-b {
+        font-family: 'NoonnuBasicGothicRegular';
+        color: black;
+        font-size: 15px;
+    }
+
+    .randomtravel {
+        display: none;
+    }
+}

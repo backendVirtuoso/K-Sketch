@@ -1,0 +1,28 @@
+# server port
+server:
+  port: 8080
+
+# database
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sampledb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: 1234
+  jwt:
+    secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbbdfsfefasdfefsdfasdvasefresafesadfaesfsdsf
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: foo # server 1
+      # group-id: trip # server 2
+    template:
+      default-topic: chatroom
+  redis:
+    host: localhost
+    port: 6379
+
+# mybatis
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  config-location: classpath:mybatis-config.xml

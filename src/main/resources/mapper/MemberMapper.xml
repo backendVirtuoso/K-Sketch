@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.trip.app.mapper.MemberMapper">
+    <insert id="memberSave" parameterType="memberDTO">
+        insert into user (loginId, password, name, phoneNumber, gender, birth, role)
+        values (#{loginId}, #{password}, #{name}, #{phoneNumber}, #{gender}, #{birth}, "user")
+    </insert>
+
+    <select id="findByUsername" parameterType="String" resultType="memberDTO">
+        select * from user where loginId = #{username}
+    </select>
+</mapper>
