@@ -14,10 +14,9 @@ public class MemberController {
     private MemberService memberService;
 
     @PostMapping("/api/join")
-    public void joinMember(@RequestBody MemberDTO memberDTO) {
-        System.out.println("여기까지 보자:" + memberDTO);
-        memberService.regist(memberDTO);
+    public int joinMember(@RequestBody MemberDTO memberDTO) {
+        System.out.println("여기까지 보자: " + memberDTO);
+        // 회원가입 처리 후 성공/실패 값 반환
+        return memberService.regist(memberDTO);
     }
-
-
 }
