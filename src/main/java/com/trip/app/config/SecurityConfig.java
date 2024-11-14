@@ -66,8 +66,8 @@ public class SecurityConfig {
         http.httpBasic((auth) -> auth.disable());
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/api/festivals").authenticated()
-                .requestMatchers("/", "/api/kafkachat/**", "/ws/**").permitAll());
+                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/kafkachat/**").authenticated()
+                .requestMatchers("/", "/ws/**", "/api/join").permitAll());
 
         LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
         loginFilter.setFilterProcessesUrl("/api/login");

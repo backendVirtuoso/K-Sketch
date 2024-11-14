@@ -11,11 +11,13 @@ const CategoryWrapper = styled.div`
 const Category = styled.div`
   text-align: center;
   margin: 5px;
-  background-color: #cfccd6;
+  background-color: ${(props) => (props.isSelected ? "#79beee" : "#cfccd6")};
+  color: ${(props) => (props.isSelected ? "white" : "black")};
   padding: 10px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s;
 
   &:hover {
     background-color: #79beee;
@@ -39,11 +41,17 @@ const Category = styled.div`
   }
 `;
 
-const Categories = ({ categories, onClick }) => {
+const Categories = ({ categories, selectedCategory, onClick }) => {
   return (
     <CategoryWrapper>
-      {categories.map((category, i) => (
-        <Category key={category.rnum} onClick={() => onClick(category)}>
+      {categories.map((category) => (
+        <Category
+          key={category.rnum}
+          isSelected={
+            selectedCategory && selectedCategory.rnum === category.rnum
+          }
+          onClick={() => onClick(category)}
+        >
           {category.name}
         </Category>
       ))}

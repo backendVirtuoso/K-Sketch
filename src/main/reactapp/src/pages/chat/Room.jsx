@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './scss/room.scss'
 
 const Room = () => {
   const [roomName, setRoomName] = useState('');
@@ -61,7 +62,6 @@ const Room = () => {
       <h3 className="text-center mb-4">채팅방 리스트</h3>
       <div className="input-group mb-4">
         <div className="input-group-prepend">
-          <span className="input-group-text">방 제목</span>
         </div>
         <input
           type="text"
@@ -72,7 +72,7 @@ const Room = () => {
           placeholder="채팅방 제목을 입력하세요"
         />
         <div className="input-group-append">
-          <button className="btn btn-primary" type="button" onClick={createRoom}>채팅방 개설</button>
+          <button className="btn btn-primary" type="button" onClick={createRoom}>방만들기</button>
         </div>
       </div>
       <ul className="list-group">

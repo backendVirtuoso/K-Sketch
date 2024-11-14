@@ -18,27 +18,30 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder; // 비밀번호 암호화를 위함
 
-
     @Override
-    public void regist(MemberDTO memberDTO) {
-        // 폼에서 작성된 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
-        // 암호화된 비밀번호 재설정
-        memberDTO.setPassword(encodedPassword);
+    public int regist(MemberDTO memberDTO) {
+        try {
+            // 비밀번호 암호화
+            String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
+            memberDTO.setPassword(encodedPassword);
 
-        memberMapper.memberSave(memberDTO);
+            // 회원 저장
+            int result = memberMapper.memberSave(memberDTO);
+            return result > 0 ? 1 : 0;  // 성공 시 1 반환, 실패 시 0 반환
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0; // 예외가 발생하면 실패 반환
+        }
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         MemberDTO memberData = memberMapper.findByUsername(username);
 
-        if(memberData != null) {
+        if (memberData != null) {
             return new CustomUserDetails(memberData);
         }
 
         throw new UsernameNotFoundException("User not found with username: " + username);
     }
-
 }
-
