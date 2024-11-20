@@ -22,7 +22,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil){
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
@@ -36,7 +36,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         try {
             // JSON 요청 본문 읽기
             memberDTO = objectMapper.readValue(request.getInputStream(), MemberDTO.class);
-        } catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("Failed to parse request body", e);
         }
 
@@ -73,20 +73,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 응답 헤더에 JWT 토큰 추가
         response.addHeader("Authorization", "Bearer " + token);
 
-        // JWT 토큰을 응답 본문에 추가
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
+        // 유저 아이디를 응답 헤더에 추가
+        response.addHeader("Username", username);
 
-        // JWT 토큰과 로그인 성공 메세지 출력하기
+        // JWT 토큰과 유저 아이디를 응답 본문에 추가
+        response.setContentType("application/json");
+        response.getWriter().write("{\"token\":\"" + token + "\", \"username\":\"" + username + "\"}");
+
+        // JWT 토큰과 로그인 성공 메시지 출력
         System.out.println("JWT 토큰 발급 성공 : " + token);
         System.out.println("로그인 성공 : 사용자 아이디 = " + username + ", 구분 = " + role);
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed){
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         // 로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
         System.out.println("로그인 실패");
     }
-
 }
