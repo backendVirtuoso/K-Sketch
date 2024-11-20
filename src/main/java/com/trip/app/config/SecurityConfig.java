@@ -91,7 +91,7 @@ public class SecurityConfig {
                 .addLogoutHandler(new LogoutHandler() {
                     @Override
                     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                        // 추가적인 로그아웃 처리 여기서 (Ex -> 토큰 무효화, 토큰 블랙리스트 등등)
+                        // 추가적인 로그아웃 처리 여기서 (Ex -> 토큰 무효 화, 토큰 블랙리스트 등등)
                     }
                 }));
 

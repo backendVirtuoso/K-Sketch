@@ -20,25 +20,34 @@ public class ApiController {
             @PathVariable("apiType") String apiType,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "contentId", required = false) String contentId,
-            @RequestParam(value = "contentTypeId", required = false) String contentTypeId) {
+            @RequestParam(value = "contentTypeId", required = false) String contentTypeId,
+            @RequestParam(value = "categoryCode", required = false) String categoryCode) {
 
         try {
             return switch (apiType) {
                 case "stay" -> {
-                    String stayList = apiService.getApiPlacesData("stay", null, keyword, contentTypeId);
+                    String stayList = apiService.getApiPlacesData("stay", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(stayList);
                 }
                 case "common" -> {
-                    String commonInfo = apiService.getApiPlacesData("common", String.valueOf(contentId), keyword, contentTypeId);
+                    String commonInfo = apiService.getApiPlacesData("common", String.valueOf(contentId), keyword, contentTypeId, null);
                     yield ResponseEntity.ok(commonInfo);
                 }
                 case "festival" -> {
-                    String festivalData = apiService.getApiPlacesData("festival", null, keyword, contentTypeId);
+                    String festivalData = apiService.getApiPlacesData("festival", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(festivalData);
                 }
                 case "search" -> {
-                    String searchData = apiService.getApiPlacesData("search", null, keyword, contentTypeId);
+                    String searchData = apiService.getApiPlacesData("search", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(searchData);
+                }
+                case "areaCode" -> {
+                    String areaCode = apiService.getApiPlacesData("areaCode", null, keyword, contentTypeId, null);
+                    yield ResponseEntity.ok(areaCode);
+                }
+                case "areaList" -> {
+                    String areaList = apiService.getApiPlacesData("areaList", null, keyword, contentTypeId, categoryCode);
+                    yield ResponseEntity.ok(areaList);
                 }
                 default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid API type");
             };
