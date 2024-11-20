@@ -66,7 +66,7 @@ public class SecurityConfig {
         http.httpBasic((auth) -> auth.disable());
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/kafkachat/**").authenticated()
+                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList", "/api/kafkachat/**").authenticated()
                 .requestMatchers("/", "/ws/**", "/api/join").permitAll());
 
         LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
@@ -85,7 +85,7 @@ public class SecurityConfig {
                 .addLogoutHandler(new LogoutHandler() {
                     @Override
                     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                        // 추가적인 로그아웃 처리 여기서 (Ex -> 토큰 무효화, 토큰 블랙리스트 등등)
+                        // 추가적인 로그아웃 처리 여기서 (Ex -> 토큰 무효 화, 토큰 블랙리스트 등등)
                     }
                 }));
 

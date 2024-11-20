@@ -17,7 +17,6 @@ import QuickMenuComponent from "./pages/QuickMenuComponent";
 import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
 import ApiPlaces from "./pages/place/ApiPlaces";
-import Path from "./pages/tmap/Path";
 
 const App = () => {
   const selector = useSelector((state) => state);
@@ -40,7 +39,6 @@ const App = () => {
           element={<RoomDetail />}
         />
         <Route path="/tmappath" element={<TmapPath />} />
-        <Route path="/path" element={<Path />} />
         <Route path="travelwith">
           <Route index element={<TravelList />} />
           <Route path=":id" element={<TravelDetail />} />
