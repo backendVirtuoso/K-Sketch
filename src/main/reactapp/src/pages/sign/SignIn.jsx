@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import './scss/signIn.scss';
 import { Link } from 'react-router-dom';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from "react-redux";
+import { confirmModal } from "../../reducer/confirmModal";
 import axios from 'axios';
 
 export default function SignIn() {
@@ -9,16 +11,27 @@ export default function SignIn() {
     const [pwd, setPwd] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+     //  컨펌모달 매서드
+     const confirmModalMethod = (msg, msg2) => {
+        const obj = {
+            isConfirmModal: true,
+            isMsg: msg,
+            isMsg2: msg2
+        }
+        dispatch(confirmModal(obj));
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!id || !pwd) {
-            setError("모든필드를 입력해주세요");
+            setError("모든 필드를 입력해주세요");
         } else {
             setError("");
 
-            // 로그인요청을 보내는 로직 추가
+            // 로그인 요청
             axios
                 .post("http://localhost:8080/api/login", {
                     loginId: id,
@@ -26,15 +39,18 @@ export default function SignIn() {
                 })
                 .then((response) => {
                     console.log("로그인 성공", response.data);
-                    // 로그인성공후 필요한 작업 (예: 토큰 저장 또는 리디렉션)
+
+                    // 토큰과 유저 아이디 저장
                     localStorage.setItem("token", response.data.token);
-                    // setIsLoggedIn(true);
-                    // navigate("/");
+                    localStorage.setItem("username", response.data.username); // 유저 ID 저장
+
+                    // 리디렉션 처리
                     window.location.replace("/");
                 })
                 .catch((error) => {
+                    confirmModalMethod('아이디 비밀번호를 확인해 주세요');
                     console.log("로그인 에러", error);
-                    setError("로그인에 실패했습니다. 아이디 비밀번호를 확인하세요 ");
+                    setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.");
                 });
         }
     };
