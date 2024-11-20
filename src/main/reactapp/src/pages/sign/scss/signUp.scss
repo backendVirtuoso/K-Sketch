@@ -1,110 +1,111 @@
-#signUp{
-        width: 1200px;
-        margin: auto;
-        padding-top: 40px;
-    .container{
+#signUp {
+    width: 1200px;
+    margin: auto;
+    padding-top: 40px;
+    .container {
         width: 100%;
-        .title{
+        .title {
             text-align: center;
             width: 100%;
-            h3{
-                color: #000;
+            h3 {
+                color: #87CEFA; /* 밝은 하늘색으로 변경 */
                 font-size: 24px;
                 font-weight: 700;
                 letter-spacing: 0;
             }
-            .location{
+            .location {
                 margin-top: 23px;
                 padding-bottom: 12px;
-                border-bottom: 4px solid #000;
+                border-bottom: 4px solid #87CEFA; /* 밝은 하늘색 밑줄 */
                 font-size: 12px;
                 line-height: 13px;
                 text-align: left;
-                span{
-                    a{
-                        color:#999;
+                span {
+                    a {
+                        color: #A1C6EA; /* 밝은 하늘색과 유사한 톤 */
                     }
-                    img{
+                    img {
                         padding: 0 5px;
                         transform: translateY(1px);
-                    }      
+                    }
                 }
-                strong{
+                strong {
                     padding-left: 5px;
                     font-weight: 500;
                     vertical-align: bottom;
+                    color: #A1C6EA;
                 }
             }
         }
-        .content{
+        .content {
             width: 100%;
-            .top{
+            .top {
                 padding-top: 80px;
                 width: 750px;
                 margin: 0 auto;
-                .benefit{
+                .benefit {
                     width: 100%;
                     display: flex;
                     justify-content: space-between;
-                    .left{
-                        h3{
+                    .left {
+                        h3 {
                             font-size: 24px;
                             line-height: 24px;
                             font-weight: 500;
                         }
-                        p{
+                        p {
                             margin-top: 19px;
                             line-height: 20px;
                             color: #666;
                             font-size: 14px;
                         }
                     }
-                    .right{
-                        ul{
+                    .right {
+                        ul {
                             display: flex;
-                            li{
+                            li {
                                 margin-left: 45px;
-                               span{
-                                line-height: 40px;
-                                margin: 0 auto;
-                                padding: 0 7px 0 10px;
-                                display: block;
-                                background: url(../../../../public/images/sign/signup/ico_benefit_blk.webp) no-repeat;
-                                width: 100px;
-                                height: 40px;
-                                color: #fff;
-                               }
-                               em{
-                                display: inline-block;
-                                margin-top: 10px;
-                                font-size: 14px;
-                                line-height: 20px;
-                                color: #000;
-                               }
+                                span {
+                                    line-height: 40px;
+                                    margin: 0 auto;
+                                    padding: 0 7px 0 10px;
+                                    display: block;
+                                    background: url(../../../../public/images/sign/signup/ico_benefit_blk.webp) no-repeat;
+                                    width: 100px;
+                                    height: 40px;
+                                    color: #fff;
+                                }
+                                em {
+                                    display: inline-block;
+                                    margin-top: 10px;
+                                    font-size: 14px;
+                                    line-height: 20px;
+                                    color: #000;
+                                }
                             }
                         }
                     }
                 }
-                .family{
+                .family {
                     display: flex;
                     position: relative;
                     justify-content: center;
                     margin-top: 20px;
                     padding: 22px 0 23px;
                     background-color: #f4f4f4;
-                    p{
+                    p {
                         font-weight: 600;
                     }
-                    i{
+                    i {
                         padding-left: 65px;
                         margin-right: 65px;
                     }
-                    span{}
+                    span {}
                 }
-                .text-box{
+                .text-box {
                     margin-top: 20px;
-                    p{
-                        background: url(../../../../public/images/sign/signup/ico_alert.webp)0 2px no-repeat;
+                    p {
+                        background: url(../../../../public/images/sign/signup/ico_alert.webp) 0 2px no-repeat;
                         padding-left: 22px;
                         color: #666;
                         font-size: 14px;
@@ -113,54 +114,54 @@
                     }
                 }
             }
-            .text-box{
+            .text-box {
                 padding-top: 50px;
                 width: 100%;
                 text-align: center;
-                h2{
+                h2 {
                     color: red;
                     font-weight: 600;
                     font-size: 18px;
                 }
             }
-            form{
+            form {
                 width: 750px;
                 margin: 80px auto 0 auto;
-                .form_title{
-                    h3{
-                        color: #000;
+                .form_title {
+                    h3 {
+                        color: #87CEFA; /* 밝은 하늘색 텍스트 */
                         font-size: 16px;
                         font-weight: 500;
                     }
                 }
-                .form_box{
-                    border-top: 1px solid #000;
+                .form_box {
+                    border-top: 1px solid #87CEFA; /* 밝은 하늘색 테두리 */
                     margin-top: 20px;
                     padding: 25px 0;
-                    li{
+                    li {
                         display: flex;
                         padding-bottom: 20px;
                         flex-flow: column;
-                        .input_box{
+                        .input_box {
                             display: flex;
                             justify-content: flex-start;
                             align-items: center;
-                            label{
+                            label {
                                 width: 160px;
                                 display: flex;
                                 font-size: 14px;
                                 line-height: 20px;
                                 text-align: left;
                                 font-weight: 600;
-                                span{
+                                span {
                                     margin-left: 3px;
-                                    background: url(../../../../public/images/sign/signup/ico_required.webp)no-repeat;
+                                    background: url(../../../../public/images/sign/signup/ico_required.webp) no-repeat;
                                     width: 4px;
                                     height: 4px;
                                     display: block;
                                 }
                             }
-                            input[type='text']{     
+                            input[type='text'] {
                                 width: 528px;
                                 padding: 0 10px;
                                 font-size: 13px;
@@ -168,9 +169,8 @@
                                 border: 1px solid #ddd;
                                 vertical-align: middle;
                                 height: 40px;
-                            
                             }
-                            input[type='password']{
+                            input[type='password'] {
                                 width: 528px;
                                 padding: 0 10px;
                                 font-size: 13px;
@@ -181,7 +181,7 @@
                             }
                             select {
                                 width: 528px;
-                                padding: 8px; 
+                                padding: 8px;
                                 border: 1px solid #ccc;
                                 background-color: #fff;
                                 font-size: 14px;
@@ -189,108 +189,105 @@
                                 cursor: pointer;
                                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                                 transition: all 0.3s ease;
-                            
-                                // 기본 화살표 제거
+
                                 -webkit-appearance: none;
                                 -moz-appearance: none;
                                 appearance: none;
-                            
-                                // 커스텀 화살표 (아래 방향으로 회전된 모양)
+
                                 background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23999' d='M2 2L0 0h4z'/%3E%3C/svg%3E");
                                 background-repeat: no-repeat;
                                 background-position: right 10px center;
-                                background-size: 8px; // 화살표 크기 축소
-                            
+                                background-size: 8px;
+
                                 &:hover {
-                                  border-color: #999;
+                                    border-color: #999;
                                 }
-                            
+
                                 &:focus {
-                                  outline: none;
-                                  border-color: #007bff;
-                                  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+                                    outline: none;
+                                    border-color: #87CEFA; /* 밝은 하늘색 포커스 상태 */
+                                    box-shadow: 0 0 0 3px rgba(135, 206, 250, 0.2); /* 밝은 하늘색 */
                                 }
-                              }
-                            
-                            .address-search-btn{
+                            }
+
+                            .address-search-btn {
                                 width: 200px;
-                                height:40px;
+                                height: 40px;
                                 color: #fff;
-                                background-color: #000;
+                                background-color: #87CEFA; /* 밝은 하늘색 배경 */
                                 border: 0;
                                 border-radius: 3px;
                                 font-size: 16px;
                                 font-weight: 600;
                                 cursor: pointer;
-                                &:hover{
+                                &:hover {
                                     opacity: 0.7;
                                 }
-                                
                             }
-                          
-                            .duplicationButton_box{
+
+                            .duplicationButton_box {
                                 padding-left: 10px;
-                                button{
+                                button {
                                     font-weight: 600;
                                     font-size: 11px;
                                     height: 40px;
                                     width: 60px;
-                                    background: #000;
+                                    background: #87CEFA; /* 밝은 하늘색 */
                                     color: #fff;
-                                    border: 1px solid #000;
+                                    border: 1px solid #87CEFA;
                                     border-radius: 3px;
                                     cursor: pointer;
-                                    &:hover{
+                                    &:hover {
                                         opacity: 0.7;
                                     }
                                 }
                             }
                         }
-                        .hide_text_box{
+                        .hide_text_box {
                             transform: translateX(160px);
                             padding: 5px 0;
                             width: 100%;
-                            p{
+                            p {
                                 font-size: 12px;
                                 color: #f03f40;
-                                &.ok{
+                                &.ok {
                                     color: #00BC70;
                                 }
                             }
                         }
                     }
-                    .birth_box{
+                    .birth_box {
                         width: 100%;
                         margin-top: 20px;
                         display: flex;
                         flex-flow: column;
                         justify-content: center;
-                        .gap{
+                        .gap {
                             width: 100%;
                             display: flex;
-                            label{
+                            label {
                                 width: 160px;
-                                    display: flex;
-                                    font-size: 14px;
-                                    line-height: 20px;
-                                    text-align: left;
-                                    font-weight: 600;
-                                    span{
-                                        margin-left: 3px;
-                                        background: url(../../../../public/images/sign/signup/ico_required.webp)no-repeat;
-                                        width: 4px;
-                                        height: 4px;
-                                        display: block;
-                                    }
+                                display: flex;
+                                font-size: 14px;
+                                line-height: 20px;
+                                text-align: left;
+                                font-weight: 600;
+                                span {
+                                    margin-left: 3px;
+                                    background: url(../../../../public/images/sign/signup/ico_required.webp) no-repeat;
+                                    width: 4px;
+                                    height: 4px;
+                                    display: block;
+                                }
                             }
-                            ul{
+                            ul {
                                 width: 300px;
                                 transform: translateY(-10px);
                                 display: flex;
-                                li{
-                                    width:60px;
+                                li {
+                                    width: 60px;
                                     height: 60px;
-                                    input{
+                                    input {
                                         text-align: center;
                                         height: 100%;
                                         width: 100%;
@@ -298,32 +295,31 @@
                                         font-size: 18px;
                                         border: 0;
                                     }
-                                    i{
+                                    i {
                                         display: block;
                                         transform: translateY(8px);
-                                        padding: 0 30px ;
+                                        padding: 0 30px;
                                         font-size: 20px;
                                     }
                                 }
                             }
                         }
-                        .hide_text_box{
+                        .hide_text_box {
                             transform: translateX(160px);
                             padding: 5px 0;
                             width: 100%;
-                            p{
+                            p {
                                 font-size: 12px;
                                 color: #f03f40;
-                               
                             }
                         }
                     }
-                    .button_box{
+                    .button_box {
                         margin-top: 40px;
                         width: 100%;
                         display: flex;
                         justify-content: center;
-                        button{
+                        button {
                             cursor: pointer;
                             font-weight: 600;
                             border: 0;
@@ -332,45 +328,45 @@
                             line-height: 47px;
                             border-radius: 5px;
                             font-size: 16px;
-                            background-color: #000;
-                            border-color: #000;
+                            background-color: #87CEFA; /* 밝은 하늘색 버튼 */
+                            border-color: #87CEFA;
                             color: #fff;
-                            &:hover{
+                            &:hover {
                                 opacity: 0.7;
                             }
                         }
                     }
                 }
             }
-            .easy-signUp{
+            .easy-signUp {
                 justify-content: space-between;
                 display: flex;
-                border-top: 1px solid #000;
+                border-top: 1px solid #87CEFA; /* 밝은 하늘색 테두리 */
                 width: 750px;
                 margin: 50px auto 0 auto;
                 padding: 50px 0 100px 0;
-                .left{
-                    h4{
+                .left {
+                    h4 {
                         font-size: 22px;
                         font-weight: 400;
                     }
-                    p{
+                    p {
                         margin-top: 20px;
                         color: #666;
                         font-size: 13px;
                         line-height: 18px;
                     }
                 }
-                .right{
+                .right {
                     display: flex;
-                    a{
-                        &:nth-child(1){
+                    a {
+                        &:nth-child(1) {
                             position: relative;
                             display: block;
                             background: url(../../../../public/images/sign/signup/bg_naver2.webp) no-repeat;
                             width: 59px;
                             height: 59px;
-                            span{
+                            span {
                                 position: absolute;
                                 bottom: -25px;
                                 left: 50%;
@@ -380,14 +376,14 @@
                                 white-space: nowrap;
                             }
                         }
-                        &:nth-child(2){
+                        &:nth-child(2) {
                             position: relative;
                             margin-left: 40px;
                             display: block;
                             background: url(../../../../public/images/sign/signup/bg_kakao2.webp) no-repeat;
                             width: 59px;
                             height: 59px;
-                            span{
+                            span {
                                 position: absolute;
                                 bottom: -25px;
                                 left: 50%;
@@ -400,8 +396,6 @@
                     }
                 }
             }
-                
         }
-        
     }
 }
