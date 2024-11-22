@@ -65,9 +65,15 @@ public class SecurityConfig {
         http.formLogin((auth) -> auth.disable());
         http.httpBasic((auth) -> auth.disable());
         http.authorizeHttpRequests((auth) -> auth
+                // 특정 요청 패턴에 대해 인증 요구
+                .requestMatchers("/api/kafkachat/room").permitAll() // 방 목록은 인증 없이 조회 가능
+                .requestMatchers("/api/kafkachat/rooms").permitAll() // 방 정보도 인증 없이 가능
+                .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated() // 방 생성 및 입장은 인증 필요
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/api/festivals").authenticated()
-                .requestMatchers("/", "/api/kafkachat/**", "/ws/**").permitAll());
+                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search").authenticated()
+                .requestMatchers("/", "/ws/**", "/api/join").permitAll()
+                .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email","/api/search-pw-email","/api/pw-change").permitAll()
+        );
 
         LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
         loginFilter.setFilterProcessesUrl("/api/login");
@@ -85,10 +91,12 @@ public class SecurityConfig {
                 .addLogoutHandler(new LogoutHandler() {
                     @Override
                     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                        // 추가적인 로그아웃 처리 여기서 (Ex -> 토큰 무효화, 토큰 블랙리스트 등등)
+                        // 추가적인 로그아웃 처리 여기서 (Ex -> 토큰 무효 화, 토큰 블랙리스트 등등)
                     }
                 }));
 
         return http.build();
     }
+
+
 }

@@ -1,11 +1,12 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import { Carousel } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import logo from "../logo.png";
+import logo from "../logo3.png";
 import Categories from "./Categories";
 import Detail from "./Detail";
+import CardDetail from "./CardDetail";
 
 const Container = styled.div`
   font-family: Arial, sans-serif;
@@ -83,11 +84,14 @@ const MenuList = () => {
   const [datas, setDatas] = useState([]);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [modal, setModal] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showCardDetail, setShowCardDetail] = useState(false);
+  const dataCache = useMemo(() => new Map(), []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(
         "http://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey=yrgC%2B43SMF1XX%2Bb2wdT%2FLStUfM%2BUtudnH1zLiN40e0zQPaLsA7YUt6A1pdgBhSOE0YFbj0Q92OgugmuP9Yjcxg%3D%3D&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json"
@@ -97,19 +101,30 @@ const MenuList = () => {
       setError("데이터를 불러오는 중 오류가 발생했습니다.");
       console.error(err);
     }
-  };
+  }, []);
 
-  const fetchFilteredData = async (categoryCode) => {
-    try {
-      const response = await axios.get(
-        `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=yrgC%2B43SMF1XX%2Bb2wdT%2FLStUfM%2BUtudnH1zLiN40e0zQPaLsA7YUt6A1pdgBhSOE0YFbj0Q92OgugmuP9Yjcxg%3D%3D&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&areaCode=${categoryCode}&_type=json`
-      );
-      setDatas(response.data.response.body.items.item);
-    } catch (err) {
-      setError("필터링된 데이터를 불러오는 중 오류가 발생했습니다.");
-      console.error(err);
-    }
-  };
+  const fetchFilteredData = useCallback(
+    async (categoryCode) => {
+      // categoryCode가 null이면 전체 데이터 가져오기
+      const url = categoryCode
+        ? `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=yrgC%2B43SMF1XX%2Bb2wdT%2FLStUfM%2BUtudnH1zLiN40e0zQPaLsA7YUt6A1pdgBhSOE0YFbj0Q92OgugmuP9Yjcxg%3D%3D&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&areaCode=${categoryCode}&_type=json`
+        : `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=yrgC%2B43SMF1XX%2Bb2wdT%2FLStUfM%2BUtudnH1zLiN40e0zQPaLsA7YUt6A1pdgBhSOE0YFbj0Q92OgugmuP9Yjcxg%3D%3D&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`;
+
+      try {
+        setLoading(true);
+        const response = await axios.get(url);
+        const items = response.data.response.body.items.item;
+        setDatas(items);
+        dataCache.set(categoryCode || "all", items); // 전체 데이터는 "all" 키로 캐시
+      } catch (err) {
+        setError("데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [dataCache]
+  );
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -139,10 +154,15 @@ const MenuList = () => {
 
   return (
     <Container>
+      {showCardDetail ? <CardDetail data={selectedData} logo={logo} /> : null}
       <h3 style={{ textAlign: "center" }}>
         <strong style={{ color: "skyblue" }}>'국내천국'</strong>MENU
       </h3>
-      <Categories categories={categories} onClick={handleCategoryClick} />
+      <Categories
+        selectedCategory={selectedCategory}
+        categories={categories}
+        onClick={handleCategoryClick}
+      />
       {error && <Error>{error}</Error>}
 
       <CustomCarousel indicators={false}>
@@ -164,7 +184,14 @@ const MenuList = () => {
         ))}
       </CustomCarousel>
 
-      {modal ? <Detail data={selectedData} onClose={closeModal} /> : null}
+      {modal ? (
+        <Detail
+          setModal={setModal}
+          setShowCardDetail={setShowCardDetail}
+          data={selectedData}
+          onClose={closeModal}
+        />
+      ) : null}
     </Container>
   );
 };

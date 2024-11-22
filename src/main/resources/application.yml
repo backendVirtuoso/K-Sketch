@@ -6,7 +6,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/sampledb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3307/sampledb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: 1234
   jwt:
@@ -18,11 +18,16 @@ spring:
       # group-id: trip # server 2
     template:
       default-topic: chatroom
-  redis:
-    host: localhost
-    port: 6379
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 # mybatis
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   config-location: classpath:mybatis-config.xml
+
+# API
+service:
+  placeKey: "aEszZJrRS7J3uIHinlD6%2BXf40lXZ0bwXuXsakXfMelXFrpdnIqaKb2r1qffl8v954ZIh2UNtlbh%2FhL0%2B2%2FeV2g%3D%3D"

@@ -1,32 +1,58 @@
 .navlink {
-    display: flex;
-    position: absolute;
-    right: 30px;
+  display: flex;
+  position: absolute;
+  right: 30px;
 }
 
 .searchform-layout {
-    margin-top: 5px;
-    border-radius: 40px;
+  margin-top: 5px;
+  border-radius: 40px;
 }
 
 .fauser {
-    padding-top: 7.5px;
-    margin-left: 25px;
-    margin-right: 35px;
-    cursor: pointer;
+  padding-top: 7.5px;
+  margin-left: 25px;
+  margin-right: 35px;
+  cursor: pointer;
 }
 
 .action {
-    margin-left: 25px;
+  margin-left: 25px;
 }
 
 .navbarstyle {
-    display: flex;
-    justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.header {
+  background: url(../로고\ 메이커\ 프로젝트.mp4) no repeat;
+  display: flex;
+  align-items: center;
+  height: 50px;
+  overflow: hidden;
+}
+
+.header video {
+  height: 100%;
+  width: auto;
 }
 
 .searchform-layout2 {
-    border-radius: 40px;
+  border-radius: 40px;
+}
+
+.navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+  z-index: 1050;
+}
+
+body {
+  padding-top: 90px;
 }
 
 @media (max-width: 768px) {

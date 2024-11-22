@@ -3,11 +3,34 @@
 
 <mapper namespace="com.trip.app.mapper.MemberMapper">
     <insert id="memberSave" parameterType="memberDTO">
-        insert into user (loginId, password, name, phoneNumber, gender, birth, role)
-        values (#{loginId}, #{password}, #{name}, #{phoneNumber}, #{gender}, #{birth}, "user")
+        insert into user (loginId, password, name, email, phoneNumber, gender, birth, role)
+        values (#{loginId}, #{password}, #{name}, #{email}, #{phoneNumber}, #{gender}, #{birth}, "user")
     </insert>
 
     <select id="findByUsername" parameterType="String" resultType="memberDTO">
         select * from user where loginId = #{username}
     </select>
+
+    <select id="checkDuplicateId" parameterType="String" resultType="MemberDTO">
+        select * from user where loginId = #{loginId}
+    </select>
+
+    <select id="checkDuplicateEmail" parameterType="String" resultType="MemberDTO">
+        select * from user where email = #{email}
+    </select>
+
+    <select id="findIdByNameAndEmail" parameterType="map" resultType="MemberDTO">
+        select loginId, createAt from user where name = #{name} and email = #{email}
+    </select>
+
+    <select id="findPwByIdAndEmail" parameterType="map" resultType="MemberDTO">
+        select loginId from user where loginId = #{loginId} and email = #{email}
+    </select>
+
+    <update id="updatePassword" parameterType="MemberDTO">
+        update user
+        set password = #{password}
+        where loginId = #{loginId}
+    </update>
+
 </mapper>
