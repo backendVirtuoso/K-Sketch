@@ -341,7 +341,7 @@ const TmapPath = () => {
   };
 
   const handleAddPlace = (place) => {
-    // POI 검색 함수
+    // 위경도 정보가 없는 경우 POI 검색 수행
     const searchPOI = async (keyword) => {
       const headers = {
         appKey: '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'

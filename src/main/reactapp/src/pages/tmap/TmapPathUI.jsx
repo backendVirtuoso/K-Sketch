@@ -683,9 +683,22 @@ const TmapPathUI = ({
                                         <i className="bi bi-trash"></i>
                                     </button>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            )}
+                        </>
+                    ) : (
+                        <PlaceSelector
+                            onAddPlace={handleAddPlace}
+                            selectedPlaces={selectedPlaces}
+                            setSelectedPlaces={setSelectedPlaces}
+                        />
+                    )}
+                </div>
+
+                {selectedPlaces.length > 0 && (
+                    <SelectedPlacesPanel
+                        selectedPlaces={selectedPlaces}
+                        onRemovePlace={handleRemovePlace}
+                    />
                 )}
 
                 {/* 지도 영역 */}

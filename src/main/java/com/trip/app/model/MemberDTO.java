@@ -2,6 +2,7 @@ package com.trip.app.model;
 
 import lombok.Data;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Data
 public class MemberDTO {
@@ -13,5 +14,6 @@ public class MemberDTO {
     private String gender;
     private Date birth;
     private String role;
+    private Timestamp createAt;
 
 }

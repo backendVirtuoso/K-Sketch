@@ -1,0 +1,221 @@
+#search {
+    position: relative;
+    margin-bottom: 200px;
+    padding-top: 60px;
+    width: 100%;
+    z-index: 5;
+    background: #f7fcff; /* 전체 배경색 추가 */
+    
+    .container {
+        max-width: 520px;
+        margin: 0 auto;
+        .header_box {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            height: 54px;
+            h2 {
+                width: 100%;
+                font-size: 18px;
+                font-weight: 600;
+                position: relative;
+                text-align: center;
+                color: #87CEFA;
+            }
+            button {
+                display: block;
+                position: absolute;
+                z-index: 1;
+                width: 60px;
+                height: 54px;
+                top: 0;
+                left: 0;
+                background: transparent;
+                border: 0;
+                cursor: pointer;
+                img {
+                    width: 20px;
+                    height: 20px;
+                }
+                &:focus {
+                    outline: 3px solid #87CEFA;
+                    outline-style: dotted;
+                    outline-offset: 1px;
+                }
+                &.big_close {
+                    left: 88%;
+                }
+            }
+        }
+        .content {
+            width: 100%;
+            padding: 10px 20px 40px 20px;
+            .title {
+                width: 100%;
+                text-align: left;
+                margin: 20px 0 5px 0;
+                h1 {
+                    font-size: 23px;
+                    font-weight: 700;
+                    color: #333;
+                    line-height: 120%;
+                    &.title_text {
+                        font-size: 23px;
+                    }
+                }
+                h2 {
+                    font-size: 18px;
+                    font-weight: 500;
+                    color: #666;
+                    padding: 20px 0 15px 0;
+                    line-height: 140%;
+                    &.signup_text {
+                        padding-bottom: 40px;
+                    }
+                }
+                strong {
+                    font-size: 18px;
+                    font-weight: 500;
+                    color: #333;
+                }
+            }
+            form {
+                width: 100%;
+                .form_box {
+                    width: 100%;
+                    li {
+                        margin: 20px 0;
+                        width: 100%;
+                        position: relative;
+                        display: flex;
+                        .col-gap {
+                            width: 100%;
+                            label {
+                                display: block;
+                                height: 30px;
+                                width: 100%;
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: #444;
+                            }
+                            input {
+                                width: 424px;
+                                padding: 0 15px;
+                                height: 50px;
+                                border: 1px solid #87CEFA;
+                                border-radius: 6px;
+                                font-size: 16px;
+                                font-weight: 500;
+                                letter-spacing: -1.5px;
+                                color: #333;
+                                background: #f0f8ff;
+                                &:focus {
+                                    outline: 2px solid #87CEFA;
+                                    outline-offset: 1px;
+                                }
+                            }
+                        }
+                    }
+                    .gap {
+                        width: 100%;
+                        height: 0.5px;
+                        background: #eee;
+                        margin: 30px 0;
+                    }
+                    .authen_btn {
+                        margin-top: 33px;
+                        width: 60px;
+                        height: 40px;
+                        background: #87CEFA;
+                        justify-content: center;
+                        align-items: center;
+                        display: flex;
+                        border-radius: 6px;
+                        color: #fff;
+                        font-weight: bold;
+                        transition: all 0.6s ease-in-out;
+                        &.hp {
+                            margin-top: 0;
+                        }
+                        .duplication_btn {
+                            cursor: pointer;
+                            border-radius: 6px;
+                            border: 1px solid #87CEFA;
+                            width: 60px;
+                            height: 40px;
+                            background: #fff;
+                            color: #87CEFA;
+                            font-size: 12px;
+                            font-weight: 600;
+                            &:hover {
+                                border: 1px solid #005f9e;
+                                background: #005f9e;
+                                color: #fff;
+                            }
+                        }
+                    }
+                    .login_btn {
+                        width: 100%;
+                        button {
+                            width: 100%;
+                            height: 55px;
+                            background: #f0f8ff;
+                            border: 1px solid #87CEFA;
+                            color: #87CEFA;
+                            border-radius: 6px;
+                            cursor: not-allowed;
+                            font-size: 18px;
+                        }
+                    }
+                    > .button_box {
+                        margin-top: 50px;
+                        width: 100%;
+                        display: flex;
+                        justify-content: center;
+                        > button {
+                            text-align: center;
+                            width: 100%;
+                            height: 52px;
+                            background: #87CEFA;
+                            margin-top: 15px;
+                            border: 1px solid #87CEFA;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            color: #fff;
+                            font-size: 18px;
+                            font-weight: 600;
+                            transition: all 0.3s ease-in-out;
+                            &:hover {
+                                border: 1px solid #005f9e;
+                                background: #005f9e;
+                                color: #fff;
+                            }
+                        }
+                    }
+                }
+            }
+            .signUp_btn {
+                width: 424;
+                height: 55px;
+                background: #fff;
+                border: 1px solid #87CEFA;
+                border-radius: 4px;
+                padding: 0 20px;
+                margin-top: 40px;
+                margin-left: 32px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                a {
+                    text-decoration: none;
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #87CEFA;
+
+                }
+            }
+        }
+    }
+}

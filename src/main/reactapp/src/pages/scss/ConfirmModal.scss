@@ -5,74 +5,103 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: transparent;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+    background: rgba(0, 0, 0, 0.6); /* 더 깊은 반투명 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     .container {
         width: 100%;
         height: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        .content {
-            width: 500px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            padding: 30px 20px;
-            text-align: center;
-            .title {
-                width: 100%;
-                display: flex;
-                justify-content: center;
-                flex-flow: column nowrap;
-                align-items: center;
-                h2 {
-                    width: 100%;
-                    padding-top: 5px;
-                    font-size: 26px;
-                    font-weight: 600;
-                    color: #000;
-                    line-height: 120%;
-                    padding: 15px 0 30px 0;
-                }
-                span{
-                    width: 100%;
-                    padding-top: 5px;
-                    font-size: 30px;
-                    font-weight: 600;
-                    color: #aaa;
-                    line-height: 120%;
-                    padding: 10px 0 15px 0;
-                }
+    }
+
+    .content {
+        width: 480px;
+        background: #f0f8ff; /* 연한 하늘색 배경 */
+        border-radius: 20px;
+        overflow: hidden;
+        padding: 40px 30px;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* 더 부드럽고 깊은 그림자 */
+        transition: transform 0.3s ease-in-out; /* 애니메이션 추가 */
+
+        &:hover {
+            transform: translateY(-5px); /* 모달이 살짝 올라오는 효과 */
+        }
+
+        .title {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+
+            h2 {
+                font-size: 22px;
+                font-weight: 700;
+                color: #3b7c93; /* 차분하고 세련된 하늘색 */
+                margin-bottom: 12px;
+                font-family: 'Helvetica Neue', sans-serif;
+                line-height: 1.4;
+                letter-spacing: 0.5px;
             }
-            .text-box{
-                width: 100%;
-                li{
-                    width: 100%;
-                    h4{
-                        font-size: 16px;
-                        font-weight: 600;
-                        color: #aaa;
-                    }
-                }
-            }
-            button {
-                margin-top: 40px;
-                width: 25%;
-                height: 40px;
-                padding: 0 20px;
-                border: 1px solid #000;
-                border-radius: 10px;
-                background: #000;
-                color: #fff;
-                font-size: 15px;
+
+            span {
+                font-size: 18px;
+                color: #6c8c9b;
                 font-weight: 600;
-                cursor: pointer;
-                &:hover{
-                    opacity: 0.7;
+                font-family: 'Helvetica Neue', sans-serif;
+                letter-spacing: 0.5px;
+                line-height: 1.5;
+                margin-top: 10px;
+            }
+        }
+
+        .text-box {
+            width: 100%;
+            margin-bottom: 20px;
+
+            li {
+                width: 100%;
+                padding: 8px 0;
+                border-bottom: 1px solid #ddd;
+
+                h4 {
+                    font-size: 16px;
+                    font-weight: 500;
+                    color: #3b7c93;
+                    margin: 10px 0;
+                    font-family: 'Helvetica Neue', sans-serif;
                 }
+            }
+        }
+
+        button {
+            margin-top: 30px;
+            width: 40%;
+            height: 45px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 25px;
+            background: #3b7c93; /* 진한 하늘색 */
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+
+            &:hover {
+                background-color: #5a9ab6; /* 호버 시 색상 */
+                transform: scale(1.05);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 5px #5a9ab6;
             }
         }
     }
