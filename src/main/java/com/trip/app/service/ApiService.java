@@ -16,7 +16,7 @@ public class ApiService {
     @Value(value = "${service.placeKey}")
     private String servicePlaceKey;
 
-    public String getApiPlacesData(String type, String contentId, String keyword, String contentTypeId) throws IOException {
+    public String getApiPlacesData(String type, String contentId, String keyword, String contentTypeId, String categoryCode) throws IOException {
         StringBuilder urlBuilder = new StringBuilder();
 
         switch (type) {
@@ -75,6 +75,27 @@ public class ApiService {
                     .append("&listYN=Y")
                     .append("&contentTypeId=").append(contentTypeId)
                     .append("&arrange=O");
+                break;
+
+            case "areaCode":
+                urlBuilder.append("https://apis.data.go.kr/B551011/KorService1/areaCode1")
+                        .append("?serviceKey=").append(servicePlaceKey)
+                        .append("&MobileOS=ETC")
+                        .append("&MobileApp=TravelTest")
+                        .append("&numOfRows=20")
+                        .append("&pageNo=1")
+                        .append("&_type=json");
+                break;
+
+            case "areaList":
+                urlBuilder.append("https://apis.data.go.kr/B551011/KorService1/areaBasedList1")
+                        .append("?serviceKey=").append(servicePlaceKey)
+                        .append("&MobileOS=ETC")
+                        .append("&MobileApp=TravelTest")
+                        .append("&numOfRows=100")
+                        .append("&pageNo=1")
+                        .append("&areaCode=").append(categoryCode)
+                        .append("&_type=json");
                 break;
 
             default:

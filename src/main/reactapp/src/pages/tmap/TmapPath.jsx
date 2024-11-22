@@ -340,6 +340,80 @@ const TmapPath = () => {
     map.fitBounds(bounds);
   };
 
+  const handleAddPlace = (place) => {
+    // 위경도 정보가 없는 경우 POI 검색 수행
+    const searchPOI = async (keyword) => {
+      const headers = {
+        appKey: '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+      };
+
+      try {
+        const poiResponse = await fetch(
+            `https://apis.openapi.sk.com/tmap/pois?${new URLSearchParams({
+              version: 1,
+              format: 'json',
+              searchKeyword: keyword,
+              resCoordType: 'WGS84GEO',
+              reqCoordType: 'WGS84GEO',
+              count: 1
+            })}`,
+            { headers }
+        );
+        const poiData = await poiResponse.json();
+
+        if (poiData.searchPoiInfo?.pois?.poi?.length > 0) {
+          const poi = poiData.searchPoiInfo.pois.poi[0];
+          return {
+            lat: parseFloat(poi.noorLat),
+            lon: parseFloat(poi.noorLon),
+            name: poi.name,
+            address: `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error('POI 검색 중 오류:', error);
+        return null;
+      }
+    };
+
+    const addPlaceMarker = async () => {
+      let locationData;
+
+      // mapx, mapy가 있는 경우 직접 사용
+      if (place.mapx && place.mapy) {
+        locationData = {
+          lat: parseFloat(place.mapy),
+          lon: parseFloat(place.mapx),
+          name: place.title,
+          address: place.addr1
+        };
+      } else {
+        // 위치 정보가 없는 경우 POI 검색
+        locationData = await searchPOI(place.title);
+      }
+
+      if (locationData) {
+        // 기존 via 마커 추가 로직과 유사하게 처리
+        const marker = new window.Tmapv2.Marker({
+          position: new window.Tmapv2.LatLng(locationData.lat, locationData.lon),
+          icon: 'https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_p.png',
+          iconSize: new window.Tmapv2.Size(24, 38),
+          map: map
+        });
+
+        setViaPoints(prev => [...prev, locationData]);
+        setCurrentMarkers(prev => [...prev, { type: 'via', marker }]);
+
+        // 지도 중심 이동
+        map.setCenter(new window.Tmapv2.LatLng(locationData.lat, locationData.lon));
+        map.setZoom(16);
+      }
+    };
+
+    addPlaceMarker();
+  };
+
   return (
     <TmapPathUI
       mapRef={mapRef}
@@ -358,6 +432,7 @@ const TmapPath = () => {
       viaPoints={viaPoints}
       routeResult={routeResult}
       transitDetails={transitDetails}
+      handleAddPlace={handleAddPlace}
     />
   );
 };
