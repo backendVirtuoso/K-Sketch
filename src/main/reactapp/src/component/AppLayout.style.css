@@ -55,6 +55,14 @@ body {
   padding-top: 90px;
 }
 
+
+  .logo {
+    margin-top: 20px; /* 위에서 20px만큼 아래로 내림 */
+    display: block; /* block 속성으로 여백과 정렬을 제어 */
+    width: auto; /* 필요에 따라 크기 조정 */
+    height: auto;
+  }
+
 @media (max-width: 768px) {
 
   /* 모바일 해상도 기준 */

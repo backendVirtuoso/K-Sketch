@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 
 import axios from "axios";
 import Footer from "./Footer";
-import logo from "../로고 메이커 프로젝트.mp4";
+import logo from "../로고 메이커 프로젝트.gif";
 
 const AppLayout = () => {
   const navigate = useNavigate();
@@ -61,7 +61,8 @@ const AppLayout = () => {
       <Container fluid>
         <Navbar.Brand href="#" onClick={gotohome} className="header">
           {" "}
-          <video src={logo} autoPlay loop muted className="video" />
+          <img src={logo} alt="Logo" className="logo" />
+
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
@@ -78,7 +79,7 @@ const AppLayout = () => {
             <Nav.Link href="/tmappath">길찾기</Nav.Link>
             <Nav.Link href="/places">장소 api</Nav.Link>
             <Nav.Link href="/path">테스트</Nav.Link>
-            <Nav.Link href="#action2 action">Menu</Nav.Link>
+            <Nav.Link href="/mypage">마이페이지</Nav.Link>
             <div
               className="fauser"
               onClick={isLoggedIn ? handleLogout : handleLogin}
