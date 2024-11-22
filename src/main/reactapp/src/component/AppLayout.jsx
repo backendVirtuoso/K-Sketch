@@ -56,10 +56,10 @@ const AppLayout = () => {
             console.error("로그아웃 중 오류 발생 : ", error);
         }
     };
-
+ 
     return (
         <Navbar expand="lg" className="bg-body-tertiary">
-            <Container fluid>
+            <Container fluid> 
                 <Navbar.Brand href="#" onClick={gotohome}>
                     Navbar scroll
                 </Navbar.Brand>
