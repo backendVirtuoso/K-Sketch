@@ -38,7 +38,7 @@ const App = () => {
         <Route path="/places" element={<ApiPlaces />} />
         <Route path="/kafka" element={<Room />} />
         <Route path="/mypage" element={<MyPage/>}/>
-        <Route
+        <Route 
           path="/api/kafkachat/room/enter/:roomId"
           element={<RoomDetail />}
         />

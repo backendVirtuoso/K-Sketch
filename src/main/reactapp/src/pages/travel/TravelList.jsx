@@ -128,7 +128,7 @@ const TravelList = () => {
         </Row>
       </Container>
     </div>
-  );
+  ); 
 };
 
 export default TravelList;

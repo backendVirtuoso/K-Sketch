@@ -17,7 +17,7 @@ const Mypage = () => {
         .get("http://localhost:8080/api/userinfo", {
           headers: {
             Authorization: `Bearer ${token}`,
-          },
+          }, 
         })
         .then((response) => {
           setUserInfo(response.data);
