@@ -170,7 +170,7 @@ const DateSelector = () => {
         if (startDate && endDate) {
             const dates = [];
             let currentDate = new Date(startDate);
-            
+
             while (currentDate <= endDate) {
                 dates.push({
                     date: new Date(currentDate),
@@ -187,7 +187,7 @@ const DateSelector = () => {
     const calculateTotalHours = (startTime, endTime) => {
         const [startHour] = startTime.split(':').map(Number);
         const [endHour] = endTime.split(':').map(Number);
-        
+
         let hours = endHour - startHour;
         if (hours < 0) {
             hours += 24;
@@ -201,12 +201,12 @@ const DateSelector = () => {
             ...updatedDates[index],
             [type]: value
         };
-        
+
         // 시작 시간이 종료 시간보다 늦은 경우 종료 시간을 자동으로 조정
         if (type === 'startTime') {
             const startHour = parseInt(value.split(':')[0]);
             const endHour = parseInt(updatedDates[index].endTime.split(':')[0]);
-            
+
             if (startHour >= endHour) {
                 updatedDates[index].endTime = `${(startHour + 1).toString().padStart(2, '0')}:00`;
             }
@@ -215,12 +215,12 @@ const DateSelector = () => {
         else if (type === 'endTime') {
             const startHour = parseInt(updatedDates[index].startTime.split(':')[0]);
             const endHour = parseInt(value.split(':')[0]);
-            
+
             if (endHour <= startHour) {
                 updatedDates[index].startTime = `${(endHour - 1).toString().padStart(2, '0')}:00`;
             }
         }
-        
+
         setSelectedDates(updatedDates);
     };
 
@@ -279,11 +279,11 @@ const DateSelector = () => {
                                     </span>
                                 </div>
                                 <div className="text-primary fw-bold">
-                                    {Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24))}박 
+                                    {Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24))}박
                                     {Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24) + 1)}일
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 className="btn btn-primary w-100"
                                 onClick={handleConfirmDates}
                             >
@@ -313,7 +313,7 @@ const DateSelector = () => {
                                 <div className="row g-3">
                                     <div className="col-6">
                                         <label className="form-label small text-muted">시작 시간</label>
-                                        <select 
+                                        <select
                                             className="form-select"
                                             value={dateInfo.startTime}
                                             onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
@@ -333,7 +333,7 @@ const DateSelector = () => {
                                     </div>
                                     <div className="col-6">
                                         <label className="form-label small text-muted">종료 시간</label>
-                                        <select 
+                                        <select
                                             className="form-select"
                                             value={dateInfo.endTime}
                                             onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
@@ -356,7 +356,7 @@ const DateSelector = () => {
                         ))}
                     </div>
                     <div className="mt-3">
-                        <button 
+                        <button
                             className="btn btn-outline-primary me-2"
                             onClick={() => setShowTimeSelector(false)}
                         >
@@ -373,25 +373,25 @@ const DateSelector = () => {
 };
 
 const TmapPathUI = ({
-    mapRef, 
-    keyword, 
-    setKeyword, 
-    searchType, 
-    setSearchType, 
-    pathType, 
-    setPathType, 
-    handleSearch, 
-    searchRoute, 
-    results, 
-    handleSelectLocation, 
-    startPoint, 
-    endPoint, 
-    viaPoints, 
-    routeResult, 
-    transitDetails,
-    handleAddPlace: parentHandleAddPlace,
-    handleRemovePlace: parentHandleRemovePlace
-}) => {
+                        mapRef,
+                        keyword,
+                        setKeyword,
+                        searchType,
+                        setSearchType,
+                        pathType,
+                        setPathType,
+                        handleSearch,
+                        searchRoute,
+                        results,
+                        handleSelectLocation,
+                        startPoint,
+                        endPoint,
+                        viaPoints,
+                        routeResult,
+                        transitDetails,
+                        handleAddPlace: parentHandleAddPlace,
+                        handleRemovePlace: parentHandleRemovePlace
+                    }) => {
     const [currentStep, setCurrentStep] = useState('path');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
 
@@ -421,11 +421,11 @@ const TmapPathUI = ({
                     <button
                         onClick={() => setCurrentStep('path')}
                         className={`btn border-0 p-3 rounded-3 ${
-                            currentStep === 'path' 
-                            ? 'text-primary fw-bold bg-primary bg-opacity-10' 
-                            : 'text-secondary bg-light'
+                            currentStep === 'path'
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
                         }`}
-                        style={{ 
+                        style={{
                             transition: 'all 0.3s ease',
                             opacity: currentStep === 'path' ? 1 : 0.5,
                             whiteSpace: 'nowrap',
@@ -437,15 +437,15 @@ const TmapPathUI = ({
                     >
                         <div className="small text-center" style={{ fontSize: '12px' }}>STEP 0<br/>길찾기 경로</div>
                     </button>
-                    
+
                     <button
                         onClick={() => setCurrentStep('date')}
                         className={`btn border-0 p-3 rounded-3 ${
-                            currentStep === 'date' 
-                            ? 'text-primary fw-bold bg-primary bg-opacity-10' 
-                            : 'text-secondary bg-light'
+                            currentStep === 'date'
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
                         }`}
-                        style={{ 
+                        style={{
                             transition: 'all 0.3s ease',
                             opacity: currentStep === 'date' ? 1 : 0.5,
                             whiteSpace: 'nowrap',
@@ -456,16 +456,16 @@ const TmapPathUI = ({
                         }}
                     >
                         <div className="small text-center" style={{ fontSize: '12px' }}>STEP 1<br/>날짜 선택</div>
-                        </button>
-                    
+                    </button>
+
                     <button
                         onClick={() => setCurrentStep('place')}
                         className={`btn border-0 p-3 rounded-3 ${
-                            currentStep === 'place' 
-                            ? 'text-primary fw-bold bg-primary bg-opacity-10' 
-                            : 'text-secondary bg-light'
+                            currentStep === 'place'
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
                         }`}
-                        style={{ 
+                        style={{
                             transition: 'all 0.3s ease',
                             opacity: currentStep === 'place' ? 1 : 0.5,
                             whiteSpace: 'nowrap',
@@ -634,22 +634,22 @@ const TmapPathUI = ({
                 {/* 선택된 장소 패널 */}
                 {selectedPlaces.length > 0 && (
                     <div style={{
-                            position: 'absolute',
-                            left: '400px',
-                            top: 0,
-                            bottom: 0,
-                            width: '400px',
-                            backgroundColor: 'white',
-                            borderRight: '1px solid #dee2e6',
-                            padding: '10px',
-                            overflowY: 'auto',
-                            boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                            zIndex: 1000,
-                        }} >
+                        position: 'absolute',
+                        left: '400px',
+                        top: 0,
+                        bottom: 0,
+                        width: '400px',
+                        backgroundColor: 'white',
+                        borderRight: '1px solid #dee2e6',
+                        padding: '10px',
+                        overflowY: 'auto',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                        zIndex: 1000,
+                    }} >
                         <div className="p-3 border-bottom">
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <h6 className="m-0">선택한 장소 목록</h6>
-                                <button 
+                                <button
                                     className="btn btn-sm btn-outline-danger"
                                     onClick={() => {
                                         setSelectedPlaces([]);
@@ -683,22 +683,9 @@ const TmapPathUI = ({
                                         <i className="bi bi-trash"></i>
                                     </button>
                                 </div>
-                            )}
-                        </>
-                    ) : (
-                        <PlaceSelector
-                            onAddPlace={handleAddPlace}
-                            selectedPlaces={selectedPlaces}
-                            setSelectedPlaces={setSelectedPlaces}
-                        />
-                    )}
-                </div>
-
-                {selectedPlaces.length > 0 && (
-                    <SelectedPlacesPanel
-                        selectedPlaces={selectedPlaces}
-                        onRemovePlace={handleRemovePlace}
-                    />
+                            ))}
+                        </div>
+                    </div>
                 )}
 
                 {/* 지도 영역 */}
