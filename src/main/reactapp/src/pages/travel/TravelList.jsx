@@ -12,7 +12,7 @@ const TravelList = () => {
   const keyword = query.get("q");
 
   const { data, isLoading, isError, error } = useSearch({ keyword });
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]); 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태

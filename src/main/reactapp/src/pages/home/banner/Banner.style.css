@@ -5,8 +5,8 @@
     margin-bottom: 200px;
 }
   
-@media (max-width: 768px) { /* 모바일 해상도 기준 */
+/* @media (max-width: 768px) { 
     .searchform-banner {
-        display: none; /* 모바일에서 숨기기 */
+        display: none; 
     }
-}
+} */
