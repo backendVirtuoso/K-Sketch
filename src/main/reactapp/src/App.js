@@ -47,7 +47,7 @@ const App = () => {
         <Route path="travelwith">
           <Route index element={<TravelList />} />
           <Route path=":id" element={<TravelDetail />} />
-        </Route>
+        </Route> 
       </Routes>
       {selector.confirmModal.isConfirmModal && <ConfirmModalComponent />}
       <QuickMenuComponent />
