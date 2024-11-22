@@ -340,6 +340,97 @@ const TmapPath = () => {
     map.fitBounds(bounds);
   };
 
+  const handleAddPlace = (place) => {
+    // POI 검색 함수
+    const searchPOI = async (keyword) => {
+      const headers = {
+        appKey: '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+      };
+
+      try {
+        const response = await fetch(
+          `https://apis.openapi.sk.com/tmap/pois?${new URLSearchParams({
+            version: 1,
+            format: 'json',
+            searchKeyword: keyword,
+            resCoordType: 'WGS84GEO',
+            reqCoordType: 'WGS84GEO',
+            count: 1
+          })}`,
+          { headers }
+        );
+        const data = await response.json();
+        
+        if (data.searchPoiInfo?.pois?.poi?.length > 0) {
+          const poi = data.searchPoiInfo.pois.poi[0];
+          return {
+            lat: parseFloat(poi.noorLat),
+            lon: parseFloat(poi.noorLon),
+            name: poi.name,
+            address: `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error('POI 검색 오류:', error);
+        return null;
+      }
+    };
+
+    const addPlaceMarker = async () => {
+      let locationData;
+
+      // 좌표가 있는 경우 (mapx, mapy)
+      if (place.mapx && place.mapy) {
+        locationData = {
+          lat: parseFloat(place.mapy),
+          lon: parseFloat(place.mapx),
+          name: place.title,
+          address: place.addr1
+        };
+      } else {
+        // 좌표가 없는 경우 POI 검색 수행
+        locationData = await searchPOI(place.title);
+      }
+
+      if (locationData) {
+        // 경유지 마커 생성
+        const marker = new window.Tmapv2.Marker({
+          position: new window.Tmapv2.LatLng(locationData.lat, locationData.lon),
+          icon: 'https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_p.png',
+          iconSize: new window.Tmapv2.Size(24, 38),
+          map: map
+        });
+
+        // 경유지 목록에 추가
+        setViaPoints(prev => [...prev, locationData]);
+        setCurrentMarkers(prev => [...prev, { type: 'via', marker }]);
+
+        // 지도 중심 이동
+        map.setCenter(new window.Tmapv2.LatLng(locationData.lat, locationData.lon));
+        map.setZoom(16);
+      }
+    };
+
+    addPlaceMarker();
+  };
+
+  const handleRemovePlace = (place) => {
+    // viaPoints에서 제거
+    setViaPoints(prev => prev.filter(p => p.name !== place.title));
+
+    // 해당 장소의 마커 찾아서 제거
+    const markerToRemove = currentMarkers.find(m => 
+      m.type === 'via' && m.marker.getPosition().lat() === parseFloat(place.mapy) && 
+      m.marker.getPosition().lng() === parseFloat(place.mapx)
+    );
+
+    if (markerToRemove) {
+      markerToRemove.marker.setMap(null);
+      setCurrentMarkers(prev => prev.filter(m => m !== markerToRemove));
+    }
+  };
+
   return (
     <TmapPathUI
       mapRef={mapRef}
@@ -358,6 +449,8 @@ const TmapPath = () => {
       viaPoints={viaPoints}
       routeResult={routeResult}
       transitDetails={transitDetails}
+      handleAddPlace={handleAddPlace}
+      handleRemovePlace={handleRemovePlace}
     />
   );
 };

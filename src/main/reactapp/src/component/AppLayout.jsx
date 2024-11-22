@@ -77,7 +77,7 @@ const AppLayout = () => {
             </Nav.Link>
             <Nav.Link href="/tmappath">길찾기</Nav.Link>
             <Nav.Link href="/places">장소 api</Nav.Link>
-            <Nav.Link href="/path">테스트</Nav.Link>
+            <Nav.Link href="#action2 action">Menu</Nav.Link>
             <Nav.Link href="#action2 action">Menu</Nav.Link>
             <div
               className="fauser"
