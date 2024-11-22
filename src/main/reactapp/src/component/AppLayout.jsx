@@ -71,7 +71,7 @@ const AppLayout = () => {
   return (
     <Navbar expand="lg" className="bg-body-tertiary navbar-fixed">
       <Container fluid>
-        <Navbar.Brand href="#" onClick={gotohome} className="header">
+        <Navbar.Brand href="/" onClick={gotohome} className="header">
           {" "}
           <video src={logo} autoPlay loop muted className="video" />
         </Navbar.Brand>

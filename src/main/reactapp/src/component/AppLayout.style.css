@@ -57,9 +57,9 @@ body {
 
 @media (max-width: 768px) {
 
-  /* 모바일 해상도 기준 */
-  .fauser {
-    padding-top: 7.5px;
-    cursor: pointer;
-  }
-}
+    /* 모바일 해상도 기준 */
+    .fauser {
+        padding-top: 7.5px;
+        cursor: pointer;
+    }
+} 
