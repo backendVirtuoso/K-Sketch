@@ -19,7 +19,7 @@ import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
 import ApiPlaces from "./pages/place/ApiPlaces"; 
 import Path from "./pages/tmap/Path";
 import MyPage from "./pages/mypage/MyPage";
-
+ 
 
 const App = () => {
   const selector = useSelector((state) => state);
