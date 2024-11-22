@@ -18,9 +18,9 @@ import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
 import ApiPlaces from "./pages/place/ApiPlaces"; 
 import Path from "./pages/tmap/Path";
-import MyPage from "./pages/mypage/MyPage";
+import MyPage from "./pages/mypage/MyPage"; 
  
-
+  
 const App = () => {
   const selector = useSelector((state) => state);
   const dispatch = useDispatch();
@@ -28,7 +28,7 @@ const App = () => {
   return (
     <div>
       <AppLayout />
-      <Routes>
+      <Routes>     
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="weather" element={<Weather />} />
