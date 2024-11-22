@@ -74,7 +74,7 @@ const AppLayout = () => {
             {/* <Nav.Link href="/kafka">채팅</Nav.Link> */}
             <Nav.Link onClick={isLoggedIn ? kafkaChatPage : error}>
               채팅
-            </Nav.Link>
+            </Nav.Link> 
             <Nav.Link href="/tmappath">길찾기</Nav.Link>
             <Nav.Link href="/places">장소 api</Nav.Link>
             <Nav.Link href="/path">테스트</Nav.Link>

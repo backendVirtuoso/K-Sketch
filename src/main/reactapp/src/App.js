@@ -9,7 +9,7 @@ import Weather from "./pages/weather/Weather";
 import Wayto from "./pages/wayto/Wayto";
 import Like from "./pages/like/Like";
 import Room from "./pages/chat/Room";
-import RoomDetail from "./pages/chat/RoomDetail";
+import RoomDetail from "./pages/chat/RoomDetail"; 
 import TmapPath from "./pages/tmap/TmapPath";
 import ConfirmModalComponent from "./pages/ConfirmModalComponent";
 import QuickMenuComponent from "./pages/QuickMenuComponent";
