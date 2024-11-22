@@ -348,21 +348,21 @@ const TmapPath = () => {
       };
 
       try {
-        const poiResponse = await fetch(
-            `https://apis.openapi.sk.com/tmap/pois?${new URLSearchParams({
-              version: 1,
-              format: 'json',
-              searchKeyword: keyword,
-              resCoordType: 'WGS84GEO',
-              reqCoordType: 'WGS84GEO',
-              count: 1
-            })}`,
-            { headers }
+        const response = await fetch(
+          `https://apis.openapi.sk.com/tmap/pois?${new URLSearchParams({
+            version: 1,
+            format: 'json',
+            searchKeyword: keyword,
+            resCoordType: 'WGS84GEO',
+            reqCoordType: 'WGS84GEO',
+            count: 1
+          })}`,
+          { headers }
         );
-        const poiData = await poiResponse.json();
-
-        if (poiData.searchPoiInfo?.pois?.poi?.length > 0) {
-          const poi = poiData.searchPoiInfo.pois.poi[0];
+        const data = await response.json();
+        
+        if (data.searchPoiInfo?.pois?.poi?.length > 0) {
+          const poi = data.searchPoiInfo.pois.poi[0];
           return {
             lat: parseFloat(poi.noorLat),
             lon: parseFloat(poi.noorLon),
@@ -372,7 +372,7 @@ const TmapPath = () => {
         }
         return null;
       } catch (error) {
-        console.error('POI 검색 중 오류:', error);
+        console.error('POI 검색 오류:', error);
         return null;
       }
     };
@@ -380,7 +380,7 @@ const TmapPath = () => {
     const addPlaceMarker = async () => {
       let locationData;
 
-      // mapx, mapy가 있는 경우 직접 사용
+      // 좌표가 있는 경우 (mapx, mapy)
       if (place.mapx && place.mapy) {
         locationData = {
           lat: parseFloat(place.mapy),
@@ -389,12 +389,12 @@ const TmapPath = () => {
           address: place.addr1
         };
       } else {
-        // 위치 정보가 없는 경우 POI 검색
+        // 좌표가 없는 경우 POI 검색 수행
         locationData = await searchPOI(place.title);
       }
 
       if (locationData) {
-        // 기존 via 마커 추가 로직과 유사하게 처리
+        // 경유지 마커 생성
         const marker = new window.Tmapv2.Marker({
           position: new window.Tmapv2.LatLng(locationData.lat, locationData.lon),
           icon: 'https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_p.png',
@@ -402,6 +402,7 @@ const TmapPath = () => {
           map: map
         });
 
+        // 경유지 목록에 추가
         setViaPoints(prev => [...prev, locationData]);
         setCurrentMarkers(prev => [...prev, { type: 'via', marker }]);
 
@@ -412,6 +413,22 @@ const TmapPath = () => {
     };
 
     addPlaceMarker();
+  };
+
+  const handleRemovePlace = (place) => {
+    // viaPoints에서 제거
+    setViaPoints(prev => prev.filter(p => p.name !== place.title));
+
+    // 해당 장소의 마커 찾아서 제거
+    const markerToRemove = currentMarkers.find(m => 
+      m.type === 'via' && m.marker.getPosition().lat() === parseFloat(place.mapy) && 
+      m.marker.getPosition().lng() === parseFloat(place.mapx)
+    );
+
+    if (markerToRemove) {
+      markerToRemove.marker.setMap(null);
+      setCurrentMarkers(prev => prev.filter(m => m !== markerToRemove));
+    }
   };
 
   return (
@@ -433,6 +450,7 @@ const TmapPath = () => {
       routeResult={routeResult}
       transitDetails={transitDetails}
       handleAddPlace={handleAddPlace}
+      handleRemovePlace={handleRemovePlace}
     />
   );
 };
