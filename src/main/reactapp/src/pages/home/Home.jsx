@@ -9,7 +9,7 @@ import Footer from "../../component/Footer";
 
 const Home = () => {
   return (
-    <div>
+    <div className="main-page">
       <div>
         <Banner />
       </div>
@@ -22,10 +22,15 @@ const Home = () => {
       <div>
         <GotoLink />
       </div>
-      <MenuList />
-      <Footer />
-    </div>
-  )
-}
 
-export default Home
+      <div style={{ position: "relative", minHeight: "100vh" }}>
+        <div style={{ paadingBottom: "100px" }}>
+          <MenuList />
+          <Footer />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Home;

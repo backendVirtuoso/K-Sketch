@@ -1,0 +1,55 @@
+#QuickMenu {
+    position: fixed;
+    right: 5px; /* 오른쪽 하단에 위치 */
+    top: 30%;
+    z-index: 1000000;
+    background: none;
+    border: 0;
+    .recent {
+        position: absolute;
+        bottom: 0;
+        left: -80px; /* 버튼을 왼쪽으로 띄움 */
+        cursor: pointer;
+
+        .recent-btn {
+            border: 3px solid #ADD8E6;
+            height: 80px;
+            width: 80px;
+            background: url(../../../public/images/quickMenu/chatimg.png) no-repeat center center;
+            background-color: #fff;
+            color: #ADD8E6;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: #87CEFA;
+            }
+        }
+    }
+
+    /* 채팅방 박스 (기본적으로 숨김) */
+    .recent-box {
+        position: absolute;
+        top: -30px;
+        left: -505px; /* 버튼 왼쪽에 위치하도록 */
+        width: 450px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: none; /* 기본적으로 숨김 */
+        z-index: 10;
+        border: 2px solid #87cefa;
+        border-radius: 8px;
+        
+    }
+
+    /* show-chat 클래스를 적용하면 display: block */
+    .recent-box.show-chat {
+        display: block;
+    }
+}

@@ -25,8 +25,14 @@ const UserRegistForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("Submitted User Data:", user);
+        const token = localStorage.getItem("jwtToken");
+
         axios
-            .post("http://localhost:8080/api/join", user)
+          .post("http://localhost:8080/api/join", user, {
+            headers: {
+              Authorization: `Bearer ${token}`, // JWT 토큰을 Authorization 헤더에 추가
+            },
+          })
             .then((response) => {
                 console.log("서버통신 성공", response.data);
                 alert("회원가입완료");
