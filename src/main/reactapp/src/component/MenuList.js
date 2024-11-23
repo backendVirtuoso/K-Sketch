@@ -1,17 +1,28 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
-import { Carousel } from "react-bootstrap";
+import { Button, Carousel, Col, Form, Row, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import logo from "../logo.png";
+import logo from "../logo3.png";
 import Categories from "./Categories";
 import Detail from "./Detail";
+import CardDetail from "./CardDetail";
 
 const Container = styled.div`
   font-family: Arial, sans-serif;
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+
+  h3 {
+    @media (max-width: 768px) {
+      font-size: 15px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 15px;
+  }
 `;
 
 const Error = styled.p`
@@ -67,15 +78,58 @@ const CustomCarousel = styled(Carousel)`
 
   .carousel-control-prev-icon,
   .carousel-control-next-icon {
-    background-color: rgba(
-      0,
-      0,
-      0,
-      0.5
-    ); /* 화살표 아이콘 배경을 검은색으로 설정 */
+    background-color: rgba(0, 0, 0, 0.5); /* 화살표 아이콘 배경을 검은색으로 설정 */
     border-radius: 50%; /* 원형으로 변경 */
     width: 30px;
     height: 30px;
+  }
+`;
+
+const FilterSelect = styled.select`
+  margin: 20px 0;
+  padding: 10px;
+  width: 100%;
+  max-width: 300px;
+  font-size: 1em;
+`;
+
+const StyledFormGroup = styled(Form.Group)`
+  max-width: 1200px;
+  margin: auto;
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap; /* 줄 바꿈 허용 */
+    gap: 1rem; /* 아이템 간격 */
+    align-items: center;
+  }
+
+  .filter-select {
+    flex: 0 0 200px; /* 기본 너비를 200px로 제한 */
+    max-width: 200px; /* 최대 너비 설정 */
+    min-width: 150px; /* 최소 너비 설정 */
+  }
+
+  .filter-input {
+    flex: 2; /* 검색 입력란이 더 넓게 표시 */
+    min-width: 200px; /* 최소 너비 */
+  }
+
+  .filter-button {
+    flex: 0 0 auto; /* 크기 고정 */
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  }
+
+  @media (max-width: 576px) {
+    .filter-select,
+    .filter-input,
+    .filter-button {
+      flex: 100%; /* 작은 화면에서는 전체 너비 사용 */
+    }
+
+    .filter-button {
+      width: 100%; /* 버튼을 전체 가로로 설정 */
+    }
   }
 `;
 
@@ -83,38 +137,72 @@ const MenuList = () => {
   const [datas, setDatas] = useState([]);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [modal, setModal] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showCardDetail, setShowCardDetail] = useState(false);
+  const dataCache = useMemo(() => new Map(), []);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [filteredDatas, setFilteredDatas] = useState([]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(
-        "http://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey=yrgC%2B43SMF1XX%2Bb2wdT%2FLStUfM%2BUtudnH1zLiN40e0zQPaLsA7YUt6A1pdgBhSOE0YFbj0Q92OgugmuP9Yjcxg%3D%3D&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json"
+        `http://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
       );
       setCategories(response.data.response.body.items.item);
     } catch (err) {
       setError("데이터를 불러오는 중 오류가 발생했습니다.");
       console.error(err);
     }
+  }, []);
+
+  const fetchFilteredData = useCallback(
+    async (categoryCode) => {
+      // categoryCode가 null이면 전체 데이터 가져오기
+      const url = categoryCode
+        ? `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&areaCode=${categoryCode}&_type=json`
+        : `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`;
+
+      try {
+        setLoading(true);
+        const response = await axios.get(url);
+        const items = response.data.response.body.items.item;
+        setDatas(items);
+        dataCache.set(categoryCode || "all", items); // 전체 데이터는 "all" 키로 캐시
+      } catch (err) {
+        setError("데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [dataCache]
+  );
+
+  const handleCategoryChange = (event) => {
+    const selectedCode = event.target.value;
+    setSelectedCategory(selectedCode);
+    fetchFilteredData(selectedCode);
   };
 
-  const fetchFilteredData = async (categoryCode) => {
-    try {
-      const response = await axios.get(
-        `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=yrgC%2B43SMF1XX%2Bb2wdT%2FLStUfM%2BUtudnH1zLiN40e0zQPaLsA7YUt6A1pdgBhSOE0YFbj0Q92OgugmuP9Yjcxg%3D%3D&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&areaCode=${categoryCode}&_type=json`
-      );
-      setDatas(response.data.response.body.items.item);
-    } catch (err) {
-      setError("필터링된 데이터를 불러오는 중 오류가 발생했습니다.");
-      console.error(err);
-    }
+  const handleSearchChange = (event) => {
+    setSearchKeyword(event.target.value);
   };
 
-  const handleCategoryClick = (category) => {
+  const handleSearchSubmit = () => {
+    const keyword = searchKeyword.toLowerCase();
+    const filtered = datas.filter(
+      (data) => data.title.toLowerCase().includes(keyword) || (data.addr1 && data.addr1.toLowerCase().includes(keyword))
+    );
+    setFilteredDatas(filtered);
+  };
+
+  /* const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     fetchFilteredData(category.code);
-  };
+  }; */
 
   const handleItemClick = (data) => {
     setSelectedData(data);
@@ -128,43 +216,83 @@ const MenuList = () => {
 
   useEffect(() => {
     fetchCategories();
-    fetchFilteredData(selectedCategory);
-  }, []);
+    fetchFilteredData(null);
+  }, [fetchCategories, fetchFilteredData]);
 
   // 3개씩 슬라이드에 표시하기 위해 데이터 분할
   const groupedData = [];
-  for (let i = 0; i < datas.length; i += 3) {
-    groupedData.push(datas.slice(i, i + 3));
+  for (let i = 0; i < datas.length; i += 9) {
+    groupedData.push(datas.slice(i, i + 9));
   }
 
   return (
     <Container>
+      {showCardDetail ? <CardDetail data={selectedData} logo={logo} /> : null}
       <h3 style={{ textAlign: "center" }}>
         <strong style={{ color: "skyblue" }}>'국내천국'</strong>MENU
       </h3>
-      <Categories categories={categories} onClick={handleCategoryClick} />
-      {error && <Error>{error}</Error>}
+      {/* <Categories selectedCategory={selectedCategory} categories={categories} onClick={handleCategoryClick} />
+      {error && <Error>{error}</Error>} */}
+
+      <StyledFormGroup controlId='filterSearch' className='mb-4'>
+        <div className='filter-row'>
+          {/* 지역 선택 드롭다운 */}
+          <Form.Select className='filter-select' onChange={handleCategoryChange} aria-label='지역 선택'>
+            <option value=''>전체 지역</option>
+            {categories.map((category) => (
+              <option key={category.code} value={category.code}>
+                {category.name}
+              </option>
+            ))}
+          </Form.Select>
+
+          {/* 검색 입력란 */}
+          <Form.Control
+            type='text'
+            placeholder='검색어를 입력하세요'
+            value={searchKeyword}
+            onChange={handleSearchChange}
+            className='filter-input'
+          />
+
+          {/* 검색 버튼 */}
+          <Button onClick={handleSearchSubmit} variant='primary' className='filter-button'>
+            검색
+          </Button>
+        </div>
+      </StyledFormGroup>
+
+      {loading && <Spinner animation='border' className='d-block mx-auto my-3' />}
+
+      {!loading && filteredDatas.length === 0 && <Error>검색 결과가 없습니다.</Error>}
 
       <CustomCarousel indicators={false}>
         {groupedData.map((group, index) => (
           <Carousel.Item key={index}>
-            <div className="d-flex justify-content-center">
-              {group.map((data, idx) => (
-                <ListItem
-                  key={idx}
-                  onClick={() => handleItemClick(data)}
-                  bgImage={data.firstimage}
-                  style={{ width: "300px", margin: "0 8px" }}
-                >
-                  <div className="title">{data.title}</div>
-                </ListItem>
+            <div className='container'>
+              {Array.from({ length: 3 }).map((_, rowIndex) => (
+                <Row key={rowIndex} className='mb-3'>
+                  {group.slice(rowIndex * 3, rowIndex * 3 + 3).map((data, colIndex) => (
+                    <Col key={colIndex} xs={4} className='d-flex justify-content-center'>
+                      <ListItem
+                        bgImage={data.firstimage || logo}
+                        onClick={() => handleItemClick(data)} // 클릭 시 데이터 선택 및 모달 열기
+                        style={{ width: "100%", height: "150px" }}
+                      >
+                        <div className='title'>{data.title}</div>
+                      </ListItem>
+                    </Col>
+                  ))}
+                </Row>
               ))}
             </div>
           </Carousel.Item>
         ))}
       </CustomCarousel>
 
-      {modal ? <Detail data={selectedData} onClose={closeModal} /> : null}
+      {modal ? (
+        <Detail setModal={setModal} setShowCardDetail={setShowCardDetail} data={selectedData} onClose={closeModal} />
+      ) : null}
     </Container>
   );
 };

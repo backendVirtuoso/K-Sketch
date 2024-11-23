@@ -9,11 +9,11 @@ import Footer from "../../component/Footer";
 
 const Home = () => {
   return (
-    <div>
+    <div className='main-page'>
       <div>
         <Banner />
       </div>
-      <div className="home-searchform">
+      <div className='home-searchform'>
         <SearchForm />
       </div>
       <div>
@@ -22,10 +22,16 @@ const Home = () => {
       <div>
         <GotoLink />
       </div>
-      <MenuList />
-      <Footer />
-    </div>
-  )
-}
 
-export default Home
+      <div className='menu-list'>
+        <MenuList />
+      </div>
+
+      <div className='footer mt-3'>
+        <Footer />
+      </div>
+    </div>
+  );
+};
+
+export default Home;

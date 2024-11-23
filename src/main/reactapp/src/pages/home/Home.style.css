@@ -1,3 +1,10 @@
+.main-page {
+  position: relative;
+}
+
+.menu-list {
+  height: 1200px;
+}
 .home-searchform {
   display: flex;
   justify-content: center;
@@ -5,6 +12,12 @@
   position: absolute;
   top: 280px;
   left: 40%;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
 }
 
 @media (max-width: 768px) {

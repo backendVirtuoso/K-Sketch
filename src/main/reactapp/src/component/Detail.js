@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import logo from "../logo3.png";
+import { Button } from "react-bootstrap";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -39,28 +41,31 @@ const CloseButton = styled.button`
   }
 `;
 
-const Detail = ({ data, onClose }) => {
-  const registerButton = () => { };
+const Detail = ({ data, onClose, setModal, setShowCardDetail }) => {
+  const registerButton = () => {
+    setShowCardDetail(true);
+    setModal(false);
+  };
 
   if (!data) return null;
 
   return (
-    <ModalBackground onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <CloseButton onClick={onClose}>×</CloseButton>
-        <h2>{data.title}</h2>
-        {data.firstimage && (
-          <img
-            src={data.firstimage}
-            alt={data.title}
-            style={{ maxWidth: "100%", height: "500px", width: "100%" }}
-          />
-        )}
-        <p>{data.addr1}</p>
-        <p>{data.addr2}</p>
-        <button onClick={registerButton}>등록</button>
-      </ModalContent>
-    </ModalBackground>
+    <>
+      <ModalBackground onClick={onClose}>
+        <ModalContent onClick={(e) => e.stopPropagation()}>
+          <CloseButton onClick={onClose}>×</CloseButton>
+          <h2>{data.title}</h2>
+          {data.firstimage ? (
+            <img src={data.firstimage} alt={data.title} style={{ maxWidth: "100%", height: "500px", width: "100%" }} />
+          ) : (
+            <img src={logo} alt='로고' style={{ maxWidth: "100%", height: "500px", width: "100%" }} />
+          )}
+          <p>{data.addr1}</p>
+          <p>{data.addr2}</p>
+          <Button onClick={registerButton}>등록</Button>
+        </ModalContent>
+      </ModalBackground>
+    </>
   );
 };
 
