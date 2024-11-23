@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import './scss/roomDetail.scss'
 import { useParams } from 'react-router-dom';
 
 const RoomDetail = () => {
@@ -14,8 +15,11 @@ const RoomDetail = () => {
 
   const findRoom = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token'); // JWT 토큰 가져오기
-      const response = await axios.get(`http://localhost:8080/api/kafkachat/room/${roomId}`);
+      const response = await axios.get(`http://localhost:8080/api/kafkachat/room/${roomId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` // JWT 토큰 포함
+        }
+      });
       setRoom(response.data);
     } catch (error) {
       console.error("Error finding room:", error);
@@ -26,11 +30,7 @@ const RoomDetail = () => {
   }, [roomId]);
 
   const connect = useCallback(() => {
-    const sock = new SockJS("http://localhost:8080/ws", null, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}` // JWT 토큰 포함
-      }
-    });
+    const sock = new SockJS("http://localhost:8080/ws", null);
     ws.current = Stomp.over(sock);
 
     ws.current.connect({}, () => {
