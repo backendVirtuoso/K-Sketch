@@ -10,4 +10,27 @@
     <select id="findByUsername" parameterType="String" resultType="memberDTO">
         select * from user where loginId = #{username}
     </select>
+
+    <select id="checkDuplicateId" parameterType="String" resultType="MemberDTO">
+        select * from user where loginId = #{loginId}
+    </select>
+
+    <select id="checkDuplicateEmail" parameterType="String" resultType="MemberDTO">
+        select * from user where email = #{email}
+    </select>
+
+    <select id="findIdByNameAndEmail" parameterType="map" resultType="MemberDTO">
+        select loginId, createAt from user where name = #{name} and email = #{email}
+    </select>
+
+    <select id="findPwByIdAndEmail" parameterType="map" resultType="MemberDTO">
+        select loginId from user where loginId = #{loginId} and email = #{email}
+    </select>
+
+    <update id="updatePassword" parameterType="MemberDTO">
+        update user
+        set password = #{password}
+        where loginId = #{loginId}
+    </update>
+
 </mapper>

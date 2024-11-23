@@ -63,6 +63,7 @@ const ApiPlaces = () => {
     const offset = currentPage * itemsPerPage;
     const currentItems = places.slice(offset, offset + itemsPerPage);
 
+/*
     // 데이터 저장 시도
     const savePlaceToDB = async () => {
         try {
@@ -86,6 +87,7 @@ const ApiPlaces = () => {
             console.error('Error saving place:', error);
         }
     };
+*/
 
     return (
         <main className="flex-shrink-0">
@@ -100,6 +102,8 @@ const ApiPlaces = () => {
                             <option value="stay">숙소</option>
                             <option value="common">공통 정보</option>
                             <option value="search">검색</option>
+                            <option value="areaCode">지역코드</option>
+                            <option value="areaList">지역리스트</option>
                         </select>
                     </div>
 
@@ -170,7 +174,7 @@ const ApiPlaces = () => {
                                     </div>
                                     {/* 데이터 저장 버튼 */}
                                     <div className="modal-footer">
-                                        <button type="button" className="btn btn-primary" onClick={savePlaceToDB}>저장</button>
+                                        <button type="button" className="btn btn-primary" onClick={() => window.open(`https://map.naver.com/p/search/${encodeURIComponent(selectedPlace.addr1)}`, "_blank")}>위치</button>
                                     </div>
                                 </div>
                             </div>
