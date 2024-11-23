@@ -1,0 +1,107 @@
+.Rcontainer {
+    background-color: #f0f8ff; /* 연한 하늘색 배경 */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    max-height: 400px; /* 최대 높이 설정 */
+    overflow-y: auto;  /* 내용이 넘치면 스크롤 가능 */
+    -webkit-overflow-scrolling: touch; /* 모바일에서 스크롤 부드럽게 */
+
+    &:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* 호버 시 그림자 효과 */
+    }
+}
+
+h3 {
+    color: #4682b4; /* 다소 진한 하늘색 */
+    font-family: 'Arial', sans-serif;
+    font-size: 28px;
+    margin-bottom: 20px;
+    font-weight: 600; /* 글자 두께를 약간 두껍게 */
+    text-align: center;
+}
+
+.input-group {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between; /* 입력창과 버튼을 가로로 배치 */
+    align-items: center;
+
+    .input-group-text {
+        background-color: #e6f7ff; /* 아주 연한 하늘색 */
+        color: #4682b4;
+        border: 1px solid #add8e6; /* 하늘색 테두리 */
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        padding: 8px 15px; /* 크기를 줄임 */
+    }
+
+    .form-control {
+        border: 1px solid #add8e6; /* 하늘색 테두리 */
+        background-color: #f8faff; /* 연한 하늘색 배경 */
+        color: #4682b4;
+        font-size: 14px;
+        padding: 8px 12px; /* 크기를 줄임 */
+        border-radius: 5px;
+        width: 70%; /* 입력창이 버튼보다 더 길지 않게 조정 */
+        
+        &:focus {
+            border-color: #87cefa; /* 하늘색 포커스 테두리 */
+            box-shadow: 0 0 5px #87cefa;
+            outline: none;
+        }
+    }
+
+    .input-group-append {
+        .btn {
+            background-color: #87cefa; /* 하늘색 버튼 */
+            border: 1px solid #4682b4;
+            color: white;
+            font-weight: bold;
+            padding: 8px 20px; /* 버튼 크기를 줄임 */
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: auto;
+            height: auto;
+
+            &:hover {
+                background-color: #4682b4; /* 버튼 hover 시 진한 하늘색 */
+                border-color: #1e90ff;
+                transform: scale(1.05); /* 호버 시 버튼 크기 증가 */
+            }
+        }
+    }
+}
+
+.list-group {
+    padding: 0;
+    margin: 0;
+
+    .list-group-item {
+        background-color: #fff;
+        color: #4682b4;
+        border: 1px solid #add8e6; /* 하늘색 테두리 */
+        padding: 12px 15px;  /* 상하 padding을 줄여서 높이를 줄임 */
+        font-size: 14px;  /* 글자 크기도 조금 줄여서 간결하게 */
+        font-weight: bold;
+        margin-bottom: 8px;  /* 항목 간의 간격도 약간 줄임 */
+        border-radius: 8px;
+        transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s ease;
+        
+        &:hover {
+            background-color: #e6f7ff; /* 리스트 항목 hover 시 연한 하늘색 */
+            transform: translateY(-4px);
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        &.active {
+            background-color: #b0e0e6; /* 선택된 항목에 하이라이트 */
+            color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    }
+}
