@@ -160,7 +160,13 @@ const MenuList = () => {
 
   const fetchFilteredData = useCallback(
     async (categoryCode) => {
-      // categoryCode가 null이면 전체 데이터 가져오기
+      const cachedData = dataCache.get(categoryCode || "all");
+      if (cachedData) {
+        setDatas(cachedData);
+        return;
+      }
+
+      // API 호출
       const url = categoryCode
         ? `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&areaCode=${categoryCode}&_type=json`
         : `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`;
@@ -170,7 +176,7 @@ const MenuList = () => {
         const response = await axios.get(url);
         const items = response.data.response.body.items.item;
         setDatas(items);
-        dataCache.set(categoryCode || "all", items); // 전체 데이터는 "all" 키로 캐시
+        dataCache.set(categoryCode || "all", items);
       } catch (err) {
         setError("데이터를 불러오는 중 오류가 발생했습니다.");
         console.error(err);
@@ -185,24 +191,36 @@ const MenuList = () => {
     const selectedCode = event.target.value;
     setSelectedCategory(selectedCode);
     fetchFilteredData(selectedCode);
+
+    // 검색 키워드 초기화
+    setSearchKeyword("");
+
+    // 기존 검색 결과 초기화
+    setFilteredDatas([]);
   };
 
   const handleSearchChange = (event) => {
     setSearchKeyword(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
-    const keyword = searchKeyword.toLowerCase();
-    const filtered = datas.filter(
-      (data) => data.title.toLowerCase().includes(keyword) || (data.addr1 && data.addr1.toLowerCase().includes(keyword))
-    );
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault(); // 폼 제출 막기
+
+    const keyword = searchKeyword.trim().toLowerCase();
+    console.log("검색어:", keyword);
+
+    if (!keyword) {
+      setFilteredDatas(datas); // 검색어가 없을 경우 전체 데이터 설정
+      return;
+    }
+
+    const filtered = datas.filter((data) => {
+      const title = data.title?.toLowerCase() || ""; // title이 null일 경우 빈 문자열
+      return title.includes(keyword);
+    });
+
     setFilteredDatas(filtered);
   };
-
-  /* const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
-    fetchFilteredData(category.code);
-  }; */
 
   const handleItemClick = (data) => {
     setSelectedData(data);
@@ -220,9 +238,11 @@ const MenuList = () => {
   }, [fetchCategories, fetchFilteredData]);
 
   // 3개씩 슬라이드에 표시하기 위해 데이터 분할
+  const dataToDisplay = filteredDatas.length > 0 ? filteredDatas : datas;
+
   const groupedData = [];
-  for (let i = 0; i < datas.length; i += 9) {
-    groupedData.push(datas.slice(i, i + 9));
+  for (let i = 0; i < dataToDisplay.length; i += 9) {
+    groupedData.push(dataToDisplay.slice(i, i + 9));
   }
 
   return (
@@ -266,7 +286,7 @@ const MenuList = () => {
 
       {!loading && filteredDatas.length === 0 && <Error>검색 결과가 없습니다.</Error>}
 
-      <CustomCarousel indicators={false}>
+      <CustomCarousel indicators={false} interval={null}>
         {groupedData.map((group, index) => (
           <Carousel.Item key={index}>
             <div className='container'>
@@ -276,7 +296,7 @@ const MenuList = () => {
                     <Col key={colIndex} xs={4} className='d-flex justify-content-center'>
                       <ListItem
                         bgImage={data.firstimage || logo}
-                        onClick={() => handleItemClick(data)} // 클릭 시 데이터 선택 및 모달 열기
+                        onClick={() => handleItemClick(data)}
                         style={{ width: "100%", height: "150px" }}
                       >
                         <div className='title'>{data.title}</div>
