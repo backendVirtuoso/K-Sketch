@@ -1,0 +1,55 @@
+.image-exist{
+    width: 100% ;
+   height: 200px;
+}
+
+.card-text-holder{
+    height: 210px;
+    position:relative;
+}
+
+.card-holder{
+    margin-bottom:20px;
+}
+
+.map-button{
+    width: 90%;
+    padding: 10px;
+    text-align: center;
+    background-color: #4E82B4;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+    text-decoration: none;
+    position:absolute;
+    bottom:15px;
+}
+
+.image-placeholder{
+    width: 100%;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0; 
+    color: #888;
+    font-size: 16px;
+}
+
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #4E82B4;
+    --bs-btn-border-color: #4E82B4;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #4E82B4;
+    --bs-btn-hover-border-color: #4E82B4;
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #4E82B4;
+    --bs-btn-active-border-color: #4E82B4;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #4E82B4;
+    --bs-btn-disabled-border-color: #4E82B4;
+}
