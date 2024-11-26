@@ -17,7 +17,7 @@ const SearchForm = () => {
       <Form className="d-flex" onSubmit={searchByKeyword}>
         <Form.Control
           type="search"
-          placeholder="Search"
+          placeholder="검색"
           className="me-2 searchform-layout searchform-searchform"
           aria-label="Search"
           value={keyword}
@@ -28,7 +28,7 @@ const SearchForm = () => {
           className="searchform-layout"
           type="submit"
         >
-          Search
+        검색
         </Button>
       </Form>
     </div>

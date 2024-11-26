@@ -24,7 +24,7 @@ import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
 
 import ApiPlaces from "./pages/place/ApiPlaces"; 
-import Path from "./pages/tmap/Path";
+// import Path from "./pages/tmap/TmapPath";
 import MyPage from "./pages/mypage/MyPage"; 
  
   

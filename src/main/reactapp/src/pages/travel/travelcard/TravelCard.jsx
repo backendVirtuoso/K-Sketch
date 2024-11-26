@@ -4,7 +4,7 @@ import Card from 'react-bootstrap/Card';
 import './TravelCard.style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
-
+import logoimage2 from "../../../logoimage.png"
 
 const TravelCard = ({togotravel}) => {
   console.log("travel",togotravel);
@@ -30,7 +30,7 @@ const TravelCard = ({togotravel}) => {
           className="image-placeholder" 
         
         >
-          준비중입니다
+          <div > <img src={logoimage2} width="200px"/></div>
         </div>
       )}
       <Card.Body className="card-text-holder">
