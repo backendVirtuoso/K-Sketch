@@ -87,7 +87,7 @@ const AppLayout = () => {
             <Nav.Link onClick={isLoggedIn ? kafkaChatPage : error}>
               채팅
             </Nav.Link>
-            <Nav.Link href="/tmappath">길찾기</Nav.Link>
+            <Nav.Link href="/schedule">일정생성</Nav.Link>
             <Nav.Link href="/places">장소 api</Nav.Link>
             <Nav.Link href="#action2 action">Menu</Nav.Link>
             <Nav.Link href="#action2 action">Menu</Nav.Link>
