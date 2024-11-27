@@ -136,8 +136,10 @@ const StyledFormGroup = styled(Form.Group)`
 const MenuList = () => {
   const [datas, setDatas] = useState([]);
   const [error, setError] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [localcategories, setLocalCategories] = useState([]);
+  const [localSelectedCategory, setLocalSelectedCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [modal, setModal] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -145,13 +147,27 @@ const MenuList = () => {
   const dataCache = useMemo(() => new Map(), []);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [filteredDatas, setFilteredDatas] = useState([]);
+  const [isSearchPerformed, setIsSearchPerformed] = useState(false);
 
-  const fetchCategories = useCallback(async () => {
+  const fetchLocalCategories = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
       );
+      setLocalCategories(response.data.response.body.items.item);
+    } catch (err) {
+      setError("데이터를 불러오는 중 오류가 발생했습니다.");
+      console.error(err);
+    }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://apis.data.go.kr/B551011/KorService1/categoryCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
+      );
       setCategories(response.data.response.body.items.item);
+      console.log(response.data.response.body.items.item);
     } catch (err) {
       setError("데이터를 불러오는 중 오류가 발생했습니다.");
       console.error(err);
@@ -159,24 +175,27 @@ const MenuList = () => {
   }, []);
 
   const fetchFilteredData = useCallback(
-    async (categoryCode) => {
-      const cachedData = dataCache.get(categoryCode || "all");
+    async (areaCode = null, categoryCode = null) => {
+      const cacheKey = `${areaCode || "all"}-${categoryCode || "all"}`;
+      const cachedData = dataCache.get(cacheKey);
       if (cachedData) {
         setDatas(cachedData);
         return;
       }
 
-      // API 호출
-      const url = categoryCode
-        ? `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&areaCode=${categoryCode}&_type=json`
-        : `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`;
+      // 지역 및 카테고리 조건을 URL에 반영
+      const url = `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${
+        process.env.REACT_APP_API_KEY
+      }&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json${areaCode ? `&areaCode=${areaCode}` : ""}${
+        categoryCode ? `&cat1=${categoryCode}` : ""
+      }`;
 
       try {
         setLoading(true);
         const response = await axios.get(url);
-        const items = response.data.response.body.items.item;
+        const items = response.data.response.body.items?.item || [];
         setDatas(items);
-        dataCache.set(categoryCode || "all", items);
+        dataCache.set(cacheKey, items);
       } catch (err) {
         setError("데이터를 불러오는 중 오류가 발생했습니다.");
         console.error(err);
@@ -187,10 +206,25 @@ const MenuList = () => {
     [dataCache]
   );
 
+  const handleLocalCategoryChange = (event) => {
+    const selectedCode = event.target.value;
+    setLocalSelectedCategory(selectedCode);
+
+    fetchFilteredData(selectedCode, selectedCategory);
+
+    // 검색 키워드 초기화
+    setSearchKeyword("");
+
+    // 기존 검색 결과 초기화
+    setFilteredDatas([]);
+  };
+
   const handleCategoryChange = (event) => {
     const selectedCode = event.target.value;
     setSelectedCategory(selectedCode);
-    fetchFilteredData(selectedCode);
+
+    // 카테고리 필터 변경 시 기존 지역 필터도 포함
+    fetchFilteredData(localSelectedCategory, selectedCode);
 
     // 검색 키워드 초기화
     setSearchKeyword("");
@@ -204,10 +238,10 @@ const MenuList = () => {
   };
 
   const handleSearchSubmit = (e) => {
-    if (e) e.preventDefault(); // 폼 제출 막기
+    if (e) e.preventDefault(); // 폼 제출 기본 동작 방지
 
+    setIsSearchPerformed(true); // 검색 수행 상태를 true로 변경
     const keyword = searchKeyword.trim().toLowerCase();
-    console.log("검색어:", keyword);
 
     if (!keyword) {
       setFilteredDatas(datas); // 검색어가 없을 경우 전체 데이터 설정
@@ -233,9 +267,10 @@ const MenuList = () => {
   };
 
   useEffect(() => {
+    fetchLocalCategories();
     fetchCategories();
     fetchFilteredData(null);
-  }, [fetchCategories, fetchFilteredData]);
+  }, [fetchLocalCategories, fetchFilteredData, fetchCategories]);
 
   // 3개씩 슬라이드에 표시하기 위해 데이터 분할
   const dataToDisplay = filteredDatas.length > 0 ? filteredDatas : datas;
@@ -257,8 +292,17 @@ const MenuList = () => {
       <StyledFormGroup controlId='filterSearch' className='mb-4'>
         <div className='filter-row'>
           {/* 지역 선택 드롭다운 */}
-          <Form.Select className='filter-select' onChange={handleCategoryChange} aria-label='지역 선택'>
+          <Form.Select className='filter-select' onChange={handleLocalCategoryChange} aria-label='지역 선택'>
             <option value=''>전체 지역</option>
+            {localcategories.map((category) => (
+              <option key={category.code} value={category.code}>
+                {category.name}
+              </option>
+            ))}
+          </Form.Select>
+
+          <Form.Select className='filter-select' onChange={handleCategoryChange} aria-label='카테고리'>
+            <option value=''>카테고리</option>
             {categories.map((category) => (
               <option key={category.code} value={category.code}>
                 {category.name}
@@ -282,9 +326,15 @@ const MenuList = () => {
         </div>
       </StyledFormGroup>
 
-      {loading && <Spinner animation='border' className='d-block mx-auto my-3' />}
+      {/* {loading && <Spinner animation='border' className='d-block mx-auto my-3' />} */}
 
-      {!loading && filteredDatas.length === 0 && <Error>검색 결과가 없습니다.</Error>}
+      {loading ? (
+        <Spinner animation='border' className='d-block mx-auto my-3' />
+      ) : error ? (
+        <Error>{error}</Error>
+      ) : isSearchPerformed && filteredDatas.length === 0 ? (
+        <Error>검색 결과가 없습니다.</Error>
+      ) : null}
 
       <CustomCarousel indicators={false} interval={null}>
         {groupedData.map((group, index) => (
