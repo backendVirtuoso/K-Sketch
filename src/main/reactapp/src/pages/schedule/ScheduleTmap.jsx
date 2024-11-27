@@ -44,7 +44,7 @@ const ScheduleTmap = () => {
     }
 
     const headers = {
-      appKey: '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+      appKey: process.env.REACT_APP_TMAP_KEY
     };
 
     try {
@@ -166,7 +166,7 @@ const ScheduleTmap = () => {
   const findWalkingPath = async (start, end) => {
     const headers = {
       'Content-Type': 'application/json',
-      'appKey': '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+      'appKey': process.env.REACT_APP_TMAP_KEY
     };
 
     try {
@@ -207,7 +207,7 @@ const ScheduleTmap = () => {
 
     const headers = {
       'Content-Type': 'application/json',
-      'appKey': '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+      'appKey': process.env.REACT_APP_TMAP_KEY
     };
 
     try {
@@ -450,7 +450,7 @@ const ScheduleTmap = () => {
     // POI 검색으로 위경도 조회
     const searchPOI = async (keyword) => {
       const headers = {
-        appKey: '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+        appKey: process.env.REACT_APP_TMAP_KEY
       };
 
       try {
@@ -548,7 +548,7 @@ const ScheduleTmap = () => {
 
     const headers = {
       'Content-Type': 'application/json',
-      'appKey': '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+      'appKey': process.env.REACT_APP_TMAP_KEY
     };
 
     try {
@@ -608,7 +608,7 @@ const ScheduleTmap = () => {
 
     const headers = {
       'Content-Type': 'application/json',
-      'appKey': '9qADilut4013qYvrfS0KO8JdHxQWM3kW5NlS6hY5'
+      'appKey': process.env.REACT_APP_TMAP_KEY
     };
 
     try {
