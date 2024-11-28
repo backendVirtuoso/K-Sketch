@@ -26,4 +26,7 @@ public interface MemberMapper {
 
     // 비밀번호 재설정
     int updatePassword(MemberDTO memberDTO);
+
+    // 사용자 정보 수정
+    int updateUserInfo(MemberDTO memberDTO);
 }

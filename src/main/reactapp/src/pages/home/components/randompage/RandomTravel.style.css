@@ -151,7 +151,9 @@ text-align:center;
     .btn-detail {
         width: 150px;
         margin-bottom:10px; 
+
         margin-top:10px; 
+
         font-size: 15px;
     }
 
@@ -172,7 +174,11 @@ text-align:center;
           .title-randompage{
             font-size:18px;
             margin-bottom:18px;
-            /* margin-top:10px; */
+
+            margin-top:10px;
+
+          
+
             color:#4E82B4;
             font-weight: 600;
             }
@@ -181,6 +187,7 @@ text-align:center;
                 font-size:10px;
                 margin-bottom:30px;
             }
+
   /* Image placeholder when no image is available */
   .random-img.no-image {
     width: 80%; /* Take full width of its container */
@@ -210,4 +217,5 @@ text-align:center;
 
 }
             
+
 }
