@@ -1,5 +1,8 @@
 import React, {useState, useCallback, useEffect} from 'react';
 import axios from "axios";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import ko from 'date-fns/locale/ko';
 
 const usePlaces = (apiType = 'search', keyword, contentTypeId) => {
     const [places, setPlaces] = useState([]);
@@ -69,7 +72,7 @@ const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => {
     );
 };
 
-const PlaceSelector = ({ onAddPlace, selectedPlaces, setSelectedPlaces }) => {
+const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces, setSelectedPlaces }) => {
     const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("부산");
     const [keyword, setKeyword] = useState("부산");
@@ -77,24 +80,18 @@ const PlaceSelector = ({ onAddPlace, selectedPlaces, setSelectedPlaces }) => {
     const { places, error, isLoading } = usePlaces(apiType, keyword, contentTypeId);
 
     const handleAddPlace = useCallback((place) => {
-        if (!selectedPlaces.includes(place)) {
-            setSelectedPlaces(prevSelectedPlaces => [...prevSelectedPlaces, place]);
+        if (!selectedPlaces.some(p => p.title === place.title)) {
             onAddPlace(place);
         }
     }, [selectedPlaces, onAddPlace]);
 
-    const handleRemovePlace = useCallback((placeToRemove) => {
-        setSelectedPlaces(selectedPlaces.filter(place => place !== placeToRemove));
-    }, [selectedPlaces]);
+    const handleRemovePlace = useCallback((place) => {
+        onRemovePlace(place);
+    }, [onRemovePlace]);
 
     const handleSearch = () => {
         setKeyword(inputKeyword);
     };
-
-    const handleApiTypeChange = useCallback((e) => {
-        setApiType(e.target.value);
-        setKeyword(inputKeyword);
-    }, [inputKeyword]);
 
     const handleContentTypeChange = useCallback((e) => {
         setContentTypeId(e.target.value);
@@ -121,16 +118,7 @@ const PlaceSelector = ({ onAddPlace, selectedPlaces, setSelectedPlaces }) => {
                     </button>
                 </div>
 
-                <div className="mb-4">
-                    <select value={apiType} onChange={handleApiTypeChange} className="form-select">
-                        <option value="festival">축제</option>
-                        <option value="stay">숙소</option>
-                        <option value="common">공통 정보</option>
-                        <option value="search">검색</option>
-                    </select>
-                </div>
-
-                <div className="mb-4">
+                <div className="mb-3">
                     <select value={contentTypeId} onChange={handleContentTypeChange} className="form-select">
                         <option value="">관광 타입 선택</option>
                         <option value="12">관광지</option>
@@ -152,7 +140,7 @@ const PlaceSelector = ({ onAddPlace, selectedPlaces, setSelectedPlaces }) => {
                         place={place}
                         onAddClick={handleAddPlace}
                         onRemoveClick={handleRemovePlace}
-                        isSelected={selectedPlaces.includes(place)}
+                        isSelected={selectedPlaces.some(p => p.title === place.title)}
                     />
                 ))}
             </div>
@@ -160,83 +148,342 @@ const PlaceSelector = ({ onAddPlace, selectedPlaces, setSelectedPlaces }) => {
     );
 };
 
-const SelectedPlacesPanel = ({ selectedPlaces, onRemovePlace }) => {
+const DateSelector = () => {
+    const [dateRange, setDateRange] = useState([null, null]);
+    const [startDate, endDate] = dateRange;
+    const [showTimeSelector, setShowTimeSelector] = useState(false);
+    const [selectedDates, setSelectedDates] = useState([]);
+
+    const handleDateChange = (update) => {
+        const [start, end] = update;
+        if (start && end) {
+            const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            if (diffDays > 10) {
+                alert('최대 10일까지만 선택 가능합니다.');
+                return;
+            }
+        }
+        setDateRange(update);
+    };
+
+    const handleConfirmDates = () => {
+        if (startDate && endDate) {
+            const dates = [];
+            let currentDate = new Date(startDate);
+
+            while (currentDate <= endDate) {
+                dates.push({
+                    date: new Date(currentDate),
+                    startTime: "10:00",
+                    endTime: "22:00"
+                });
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            setSelectedDates(dates);
+            setShowTimeSelector(true);
+        }
+    };
+
+    const calculateTotalHours = (startTime, endTime) => {
+        const [startHour] = startTime.split(':').map(Number);
+        const [endHour] = endTime.split(':').map(Number);
+
+        let hours = endHour - startHour;
+        if (hours < 0) {
+            hours += 24;
+        }
+        return hours;
+    };
+
+    const handleTimeChange = (index, type, value) => {
+        const updatedDates = [...selectedDates];
+        updatedDates[index] = {
+            ...updatedDates[index],
+            [type]: value
+        };
+
+        // 시작 시간이 종료 시간보다 늦은 경우 종료 시간을 자동으로 조정
+        if (type === 'startTime') {
+            const startHour = parseInt(value.split(':')[0]);
+            const endHour = parseInt(updatedDates[index].endTime.split(':')[0]);
+
+            if (startHour >= endHour) {
+                updatedDates[index].endTime = `${(startHour + 1).toString().padStart(2, '0')}:00`;
+            }
+        }
+        // 종료 시간이 시작 시간보다 이른 경우 시작 시간을 자동으로 조정
+        else if (type === 'endTime') {
+            const startHour = parseInt(updatedDates[index].startTime.split(':')[0]);
+            const endHour = parseInt(value.split(':')[0]);
+
+            if (endHour <= startHour) {
+                updatedDates[index].startTime = `${(endHour - 1).toString().padStart(2, '0')}:00`;
+            }
+        }
+
+        setSelectedDates(updatedDates);
+    };
+
     return (
-        <div
-            style={{
-                width: '430px',
-                maxHeight: '100%',
-                backgroundColor: 'white',
-                borderRight: '1px solid #dee2e6',
-                padding: '10px',
-                overflowY: 'auto',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                zIndex: 1000,
-                scrollbarWidth: 'none'
-            }}
-        >
-            <div className="p-3 border-bottom">
-                <h6 className="m-0">선택한 장소 목록</h6>
-            </div>
-            <div className="overflow-auto h-100 p-3" style={{ scrollbarWidth: 'none' }}>
-                {selectedPlaces.map((place, index) => (
-                    <div key={index} className="d-flex align-items-center gap-3">
-                        <img
-                            src={place.firstimage}
-                            alt={place.title}
-                            className="rounded"
-                            style={{width: '50px', height: '50px', objectFit: 'cover'}}
-                        />
-                        <div className="flex-grow-1">
-                            <div className="fw-bold">{place.title}</div>
-                            <small className="text-muted">{place.addr1 || '주소 정보가 없습니다'}</small>
+        <div className="h-100 overflow-hidden">
+            {!showTimeSelector ? (
+                <div className="p-4">
+                    <h5 className="mb-3">언제가세요?</h5>
+                    <p className="text-primary small mb-4">
+                        <i className="bi bi-info-circle me-2"></i>
+                        현재 10일까지 선택 가능
+                    </p>
+
+                    <div className="react-datepicker__tab-loop">
+                        <div className="react-datepicker__tab-loop__start" tabIndex="0"></div>
+                        <div className="react-datepicker-popper" data-placement="bottom">
+                            <DatePicker
+                                selected={startDate}
+                                onChange={handleDateChange}
+                                startDate={startDate}
+                                endDate={endDate}
+                                selectsRange
+                                inline
+                                monthsShown={1}
+                                locale={ko}
+                                dateFormat="yyyy년 MM월 dd일"
+                                minDate={new Date()}
+                                className="form-control"
+                                calendarClassName="border-0"
+                                wrapperClassName="w-100"
+                            />
                         </div>
+                    </div>
+
+                    {startDate && endDate && (
+                        <div className="mt-4">
+                            <div className="d-flex justify-content-between mb-3">
+                                <div>
+                                    <small className="text-muted d-block">가는날</small>
+                                    <span className="text-primary fw-bold">
+                                        {startDate.toLocaleDateString('ko-KR', {
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            weekday: 'short'
+                                        })}
+                                    </span>
+                                </div>
+                                <div>
+                                    <small className="text-muted d-block">오는날</small>
+                                    <span className="text-primary fw-bold">
+                                        {endDate.toLocaleDateString('ko-KR', {
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            weekday: 'short'
+                                        })}
+                                    </span>
+                                </div>
+                                <div className="text-primary fw-bold">
+                                    {Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24))}박
+                                    {Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24) + 1)}일
+                                </div>
+                            </div>
+                            <button
+                                className="btn btn-primary w-100"
+                                onClick={handleConfirmDates}
+                            >
+                                시간 설정하기
+                            </button>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="p-4">
+                    <h5 className="mb-4">여행 시간 설정</h5>
+                    <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+                        {selectedDates.map((dateInfo, index) => (
+                            <div key={index} className="mb-4 pb-3 border-bottom">
+                                <div className="d-flex justify-content-between align-items-center mb-3">
+                                    <div className="fw-bold">
+                                        {dateInfo.date.toLocaleDateString('ko-KR', {
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            weekday: 'short'
+                                        })}
+                                    </div>
+                                    <div className="text-muted small">
+                                        총 {calculateTotalHours(dateInfo.startTime, dateInfo.endTime)}시간
+                                    </div>
+                                </div>
+                                <div className="row g-3">
+                                    <div className="col-6">
+                                        <label className="form-label small text-muted">시작 시간</label>
+                                        <select
+                                            className="form-select"
+                                            value={dateInfo.startTime}
+                                            onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
+                                        >
+                                            {Array.from({length: 24}, (_, i) => {
+                                                const timeValue = `${String(i).padStart(2, '0')}:00`;
+                                                const endHour = parseInt(dateInfo.endTime);
+                                                // 종료 시간보다 같거나 큰 시간은 제외
+                                                if (i >= endHour) return null;
+                                                return (
+                                                    <option key={i} value={timeValue}>
+                                                        {timeValue}
+                                                    </option>
+                                                );
+                                            }).filter(Boolean)}
+                                        </select>
+                                    </div>
+                                    <div className="col-6">
+                                        <label className="form-label small text-muted">종료 시간</label>
+                                        <select
+                                            className="form-select"
+                                            value={dateInfo.endTime}
+                                            onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
+                                        >
+                                            {Array.from({length: 24}, (_, i) => {
+                                                const timeValue = `${String(i).padStart(2, '0')}:00`;
+                                                const startHour = parseInt(dateInfo.startTime);
+                                                // 시작 시간보다 같거나 작은 시간은 제외
+                                                if (i <= startHour) return null;
+                                                return (
+                                                    <option key={i} value={timeValue}>
+                                                        {timeValue}
+                                                    </option>
+                                                );
+                                            }).filter(Boolean)}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mt-3">
                         <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => onRemovePlace(place)}
+                            className="btn btn-outline-primary me-2"
+                            onClick={() => setShowTimeSelector(false)}
                         >
-                            <i className="bi bi-trash"></i>
+                            이전으로
+                        </button>
+                        <button className="btn btn-primary">
+                            시간 설정 완료
                         </button>
                     </div>
-                ))}
-            </div>
+                </div>
+            )}
         </div>
     );
 };
 
-const TmapPathUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pathType, setPathType, handleSearch, searchRoute, results, handleSelectLocation, startPoint, endPoint, viaPoints, routeResult, transitDetails, }) => {
+const TmapPathUI = ({
+                        mapRef,
+                        keyword,
+                        setKeyword,
+                        searchType,
+                        setSearchType,
+                        pathType,
+                        setPathType,
+                        handleSearch,
+                        searchRoute,
+                        results,
+                        handleSelectLocation,
+                        startPoint,
+                        endPoint,
+                        viaPoints,
+                        routeResult,
+                        transitDetails,
+                        handleAddPlace: parentHandleAddPlace,
+                        handleRemovePlace: parentHandleRemovePlace
+                    }) => {
     const [currentStep, setCurrentStep] = useState('path');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
 
     const handleAddPlace = (place) => {
-        setSelectedPlaces([...selectedPlaces, place]);
+        if (!selectedPlaces.some(p => p.title === place.title)) {
+            setSelectedPlaces(prev => [...prev, place]);
+            parentHandleAddPlace(place);
+        }
     };
 
     const handleRemovePlace = (placeToRemove) => {
-        setSelectedPlaces(selectedPlaces.filter(place => place !== placeToRemove));
+        setSelectedPlaces(prev => prev.filter(place => place.title !== placeToRemove.title));
+        parentHandleRemovePlace(placeToRemove);
+    };
+
+    const placeSelectorProps = {
+        onAddPlace: handleAddPlace,
+        onRemovePlace: handleRemovePlace,
+        selectedPlaces,
+        setSelectedPlaces
     };
 
     return (
-        <div style={{ display: 'flex', width: '100vw', height: '90vh' }}>
+        <div style={{ display: 'flex', width: '100vw', height: '88vh' }}>
             <div className="flex-column p-3" style={{ width: '100px' }}>
-                <button
-                    onClick={() => setCurrentStep('path')}
-                    className={`btn btn-link ${currentStep === 'path' ? 'text-primary fw-bold' : ''}`}
-                >
-                    STEP 1: 길찾기
-                </button>
-                <button
-                    onClick={() => setCurrentStep('place')}
-                    className={`btn btn-link ${currentStep === 'place' ? 'text-primary fw-bold' : ''}`}
-                >
-                    STEP 2: 장소 선택
-                </button>
+                <div className="d-flex flex-column gap-2">
+                    <button
+                        onClick={() => setCurrentStep('path')}
+                        className={`btn border-0 p-3 rounded-3 ${
+                            currentStep === 'path'
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
+                        }`}
+                        style={{
+                            transition: 'all 0.3s ease',
+                            opacity: currentStep === 'path' ? 1 : 0.5,
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}
+                    >
+                        <div className="small text-center" style={{ fontSize: '12px' }}>STEP 0<br/>길찾기 경로</div>
+                    </button>
+
+                    <button
+                        onClick={() => setCurrentStep('date')}
+                        className={`btn border-0 p-3 rounded-3 ${
+                            currentStep === 'date'
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
+                        }`}
+                        style={{
+                            transition: 'all 0.3s ease',
+                            opacity: currentStep === 'date' ? 1 : 0.5,
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}
+                    >
+                        <div className="small text-center" style={{ fontSize: '12px' }}>STEP 1<br/>날짜 선택</div>
+                    </button>
+
+                    <button
+                        onClick={() => setCurrentStep('place')}
+                        className={`btn border-0 p-3 rounded-3 ${
+                            currentStep === 'place'
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
+                        }`}
+                        style={{
+                            transition: 'all 0.3s ease',
+                            opacity: currentStep === 'place' ? 1 : 0.5,
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}
+                    >
+                        <div className="small text-center" style={{ fontSize: '12px' }}>STEP 2<br/>장소 선택</div>
+                    </button>
+                </div>
             </div>
 
-            <div className="d-flex flex-grow-1">
+            <div className="d-flex flex-grow-1" style={{ position: 'relative' }}>
                 <div
                     style={{
-                        width: '430px',
+                        width: '400px',
                         maxHeight: '100%',
                         backgroundColor: 'white',
                         borderRight: '1px solid #dee2e6',
@@ -244,6 +491,7 @@ const TmapPathUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
                         overflowY: 'auto',
                         boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
                         zIndex: 1000,
+                        flexShrink: 0,
                     }}
                 >
                     {currentStep === 'path' ? (
@@ -344,7 +592,7 @@ const TmapPathUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
                             )}
 
                             {transitDetails && pathType === 'transit' && (
-                                <div className="border-top p-3" style={{maxHeight: '40vh', overflowY: 'auto'}}>
+                                <div className="border-top p-3" style={{maxHeight: '60vh', overflowY: 'auto'}}>
                                     <h6 className="mb-2">경로 상세 정보</h6>
                                     <div>
                                         {transitDetails.map((detail, index) => (
@@ -376,31 +624,76 @@ const TmapPathUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
                                 </div>
                             )}
                         </>
+                    ) : currentStep === 'date' ? (
+                        <DateSelector />
                     ) : (
-                        <PlaceSelector
-                            onAddPlace={handleAddPlace}
-                            selectedPlaces={selectedPlaces}
-                            setSelectedPlaces={setSelectedPlaces}
-                        />
+                        <PlaceSelector {...placeSelectorProps} />
                     )}
                 </div>
 
+                {/* 선택된 장소 패널 */}
                 {selectedPlaces.length > 0 && (
-                    <SelectedPlacesPanel
-                        selectedPlaces={selectedPlaces}
-                        onRemovePlace={handleRemovePlace}
-                    />
+                    <div style={{
+                        position: 'absolute',
+                        left: '400px',
+                        top: 0,
+                        bottom: 0,
+                        width: '400px',
+                        backgroundColor: 'white',
+                        borderRight: '1px solid #dee2e6',
+                        padding: '10px',
+                        overflowY: 'auto',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                        zIndex: 1000,
+                    }} >
+                        <div className="p-3 border-bottom">
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                <h6 className="m-0">선택한 장소 목록</h6>
+                                <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() => {
+                                        setSelectedPlaces([]);
+                                        selectedPlaces.forEach(place => parentHandleRemovePlace(place));
+                                    }}
+                                >
+                                    전체 초기화
+                                </button>
+                            </div>
+                        </div>
+                        <div className="overflow-auto h-100 p-3" style={{ scrollbarWidth: 'none' }}>
+                            {selectedPlaces.map((place, index) => (
+                                <div key={index} className="d-flex align-items-center gap-3" style={{ marginBottom: '10px' }}>
+                                    <img
+                                        src={place.firstimage}
+                                        alt={place.title}
+                                        className="rounded"
+                                        style={{width: '50px', height: '50px', objectFit: 'cover'}}
+                                    />
+                                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                                        <div className="fw-bold text-truncate">{place.title}</div>
+                                        <small className="text-muted text-truncate d-block">{place.addr1 || '주소 정보가 없습니다'}</small>
+                                    </div>
+                                    <button
+                                        className="btn btn-sm btn-outline-danger flex-shrink-0"
+                                        onClick={() => {
+                                            handleRemovePlace(place);
+                                            parentHandleRemovePlace(place);
+                                        }}
+                                    >
+                                        <i className="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
 
-                <div
-                    id="map_div"
-                    ref={mapRef}
-                    style={{
-                        flexGrow: 1,
-                        height: '100%',
-                        position: 'relative',
-                    }}
-                />
+                {/* 지도 영역 */}
+                <div id="map_div" ref={mapRef} style={{
+                    flexGrow: 1,
+                    height: '100%',
+                    position: 'relative',
+                }}/>
             </div>
         </div>
     );
