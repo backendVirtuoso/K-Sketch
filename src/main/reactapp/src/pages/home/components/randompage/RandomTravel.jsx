@@ -57,6 +57,8 @@ const RandomTravel = () => {
   // Randomly select a travel item
   const randomItem = datas.length > 0 ? datas[Math.floor(Math.random() * datas.length)] : null;
 
+  const mapLink = `https://map.naver.com/p/search/${encodeURIComponent(randomItem?.addr1)}`;
+
   return (
    
      
@@ -89,7 +91,7 @@ const RandomTravel = () => {
                 <div classNmae="discrip-randompage">{randomItem.addr1}</div>
                 <div classNmae="discrip-randompage">{randomItem.addr2}</div>
                 <div className="dutton-random-travel">
-                <Button onClick={goMore} className="btn-detail" variant="primary">
+                <Button  className="btn-detail" variant="primary"  onClick={() => window.open(mapLink, "_blank")}>
                   자세히보기 &gt;
                 </Button>
                 </div>
