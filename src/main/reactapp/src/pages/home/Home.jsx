@@ -9,8 +9,10 @@ import Footer from "../../component/Footer";
 
 const Home = () => {
   return (
+    <div>
+      
     <div className="main-page">
-      <div>
+    <div>
         <Banner />
       </div>
       <div className="home-searchform">
@@ -29,6 +31,7 @@ const Home = () => {
           <Footer />
         </div>
       </div>
+    </div>
     </div>
   );
 };

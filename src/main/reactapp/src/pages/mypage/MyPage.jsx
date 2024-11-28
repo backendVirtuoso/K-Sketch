@@ -1,112 +1,89 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./MyPage.style.css"; // CSS는 외부 파일로 관리합니다.
+import React, { useState } from 'react';
+import { Col, Container, Row, Button, Image, Form, Modal } from "react-bootstrap";
+import "./MyPage.style.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAngleRight } from '@fortawesome/free-solid-svg-icons'
+import BookMark from './bookmark/BookMark';
 
-const Mypage = () => {
-  const [userInfo, setUserInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [travelData, setTravelData] = useState([]); // 여행 데이터 상태 추가
+const MyPage = () => {
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const [showModal, setShowModal] = useState(false);
 
-    if (token) {
-      axios
-        .get("http://localhost:8080/api/userinfo", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          setUserInfo(response.data);
-          setTravelData(response.data.travels || []); // travels 키에 여행 데이터가 있다고 가정
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error("사용자 정보 요청 실패:", err);
-          setError("사용자 정보를 불러오는 데 실패했습니다.");
-          setLoading(false);
-        });
-    } else {
-      setError("로그인이 필요합니다.");
-      setLoading(false);
-    }
-  }, []);
-
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
- 
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    alert("로그아웃 되었습니다.");
-    window.location.href = "/login";
-  };
-
+  const handleOpenModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
   return (
-    <div className="mypage-container">
-      <h2>마이페이지</h2>
-      {userInfo ? (
-        <div>
-          <p>
-            <strong>Login ID:</strong> {userInfo.loginId}
-          </p>
-          <p>
-            <strong>이름:</strong> {userInfo.name}
-          </p>
-          <div className="timeline-container">
-            <div className="timeline">
-              {travelData.length > 0 ? (
-                travelData.map((travel, index) => (
-                  <div
-                    key={index}
-                    className="timeline-item"
-                    style={{ left: `${index * 20}%` }} // 아이템 위치 조정
-                  >
-                    {travel.location}
-                  </div>
-                ))
-              ) : (
-                <p>여행 데이터가 없습니다.</p>
-              )}
-              {/* 마리오 */}
-              <div
-                className="mario-container"
-                style={{
-                  left: `${Math.min(travelData.length, 4) * 20}%`, // 마리오 위치 동적 계산
-                }}
-              >
-                <img
-                  src="https://w7.pngwing.com/pngs/860/771/png-transparent-luigi-super-mario-bros-pixel-art-luigi-angle-text-super-mario-bros-thumbnail.png"
-                  alt="마리오"
-                  className="mario"
+    <div>
+      <Container>
+        <Row>
+          {/* 카테고리 버튼 */}
+          <Col lg={3} md={6} xs={12}>
+            <div className="mypage-1st-col">
+              {/* 프로필 이미지 */}
+              <div className="profile-section text-center">
+                <Image
+                  src="https://png.pngtree.com/png-vector/20220220/ourmid/pngtree-pixel-art-character-little-boy-with-backpack-from-the-side-view-png-image_4408615.png" // Mario 이미지 URL 대체
+                  roundedCircle
+                  className="profile-img"
+                  alt="프로필 이미지"
                 />
-                {/* 말풍선 */}
-                <div className="speech-bubble">
-                  <p>
-                    {travelData.length > 0
-                      ? `여행 ${travelData.length}개 완료!`
-                      : "여행을 시작하세요!"}
-                  </p>
-                </div>
+                <h5 className="mt-3">이름</h5>
+                <p className="countdown">D - 1</p>
+                <p className="mypage-p">김○○님의 n번째 </p>
+                <p className="mypage-p">여행 하루 전입니다!</p>
+              </div>
+              <div className="button-section text-center mt-4 buttonflex">
+                <Button variant="outline-primary" className="mb-2 mypage-button-1" onClick={handleOpenModal} block>
+                  개인정보 수정
+                </Button>
+                <Button variant="outline-secondary"className="mypage-button-1" block>
+                  나의 이전 여행
+                </Button>
               </div>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div>사용자 정보가 없습니다.</div>
-      )}
-      <button className="btn btn-link" onClick={handleLogout}>
-        로그아웃
-      </button>
+          </Col>
+
+          {/* 여행 카드 리스트 */}
+          <Col lg={9} xs={12}>
+            <div className="travel-list-section">
+              {/* 여행 카드 리스트 내용 */}
+             <div className="mypage-font-style"><FontAwesomeIcon icon={faAngleRight} /> 마이페이지</div>
+<BookMark/>
+             
+            </div>
+          </Col>
+        </Row>
+      </Container>
+
+
+      {/* 모달 */}
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>개인정보 수정</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>이름:</Form.Label>
+              <Form.Control type="text" placeholder="이름 입력" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>아이디:</Form.Label>
+              <Form.Control type="text" placeholder="아이디 입력" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>비밀번호 변경:</Form.Label>
+              <Form.Control type="password" placeholder="새 비밀번호 입력" />
+            </Form.Group>
+            <div className="text-end">
+              <Button variant="primary" onClick={handleCloseModal}>
+                확인
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
 
-export default Mypage;
+export default MyPage;

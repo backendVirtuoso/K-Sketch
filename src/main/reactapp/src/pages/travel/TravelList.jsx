@@ -96,13 +96,14 @@ const TravelList = () => {
 
           {/* 여행 카드 리스트 */}
           <Col lg={9} xs={12}>
-            <Row>
-              {paginatedData.map((totravel) => (
-                <Col lg={4} md={6} xs={12} key={totravel.id}>
-                  <TravelCard togotravel={totravel} />
-                </Col>
-              ))}
-            </Row>
+  <Row className="justify-content-center"> {/* Row에 수평 가운데 정렬 */}
+    {paginatedData.map((totravel) => (
+      <Col lg={4} md={6} xs={12} key={totravel.id} className="d-flex justify-content-center"> {/* 개별 카드에 가운데 정렬 */}
+        <TravelCard togotravel={totravel} />
+      </Col>
+    ))}
+  </Row>
+  <div className="page-center">
             {/* 페이지네이션 */}
             <ReactPaginate
               nextLabel="Next >"
@@ -124,6 +125,7 @@ const TravelList = () => {
               activeClassName="active"
               forcePage={currentPage - 1} // 현재 페이지
             />
+            </div>
           </Col>
         </Row>
       </Container>

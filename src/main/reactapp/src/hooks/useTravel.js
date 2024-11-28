@@ -9,5 +9,6 @@ export const useTravel = () => {
     return useQuery({
         queryKey: ["travel-data"],
         queryFn: fetchTravelData,
+        select: (result) => result.data?.response?.body?.items?.item,
     });
 };
