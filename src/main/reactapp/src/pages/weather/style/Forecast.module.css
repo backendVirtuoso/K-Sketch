@@ -1,0 +1,42 @@
+.title {
+    font-size: var(--title-3);
+    margin-left: 12px;
+    margin-bottom: 16px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.item:not(:last-child) {
+    margin-bottom: 16px;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.temp {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.max {
+    font-size: var(--title-3);
+}
+
+.min {
+    font-size: var(--label);
+    color: var(--on-surface-variant-2);
+}
+
+.label {
+    font-size: var(--label);
+    color: var(--on-surface-variant-2);
+    font-weight: var(--weight-semiBold);
+}

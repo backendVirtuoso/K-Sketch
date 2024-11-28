@@ -1,0 +1,164 @@
+.section {
+    margin-block: 20px;
+}
+
+.title {
+    font-size: var(--title-3);
+    margin-bottom: 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.highlight-card {
+    position: relative;
+    background-color: var(--black-opacity-10);
+}
+
+.highlight-card:nth-child(-n + 2) {
+    grid-column: span 2;
+    height: 200px;
+}
+
+.highlight-card:nth-child(n + 3) {
+    height: 150px;
+}
+
+.heading {
+    color: var(--on-surface-variant-2);
+    margin-bottom: 20px;
+    font-weight: var(--weight-semiBold);
+    font-size: var(--title-3);
+}
+
+.wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.list {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    row-gap: 8px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 50%;
+}
+
+.highlight-card .title {
+    font-size: var(--title-2);
+    margin-bottom: 0;
+}
+
+.label {
+    font-size: var(--label);
+    color: var(--on-surface-variant-2);
+    margin-bottom: 4px;
+}
+
+.highlight-card.one .item {
+    width: 25%;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.highlight-card.two .item {
+    justify-content: flex-start;
+    gap: 8px 24px;
+}
+
+.icon {
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+}
+
+.badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 2px 12px;
+    border-radius: var(--radius-pill);
+    font-weight: var(--weight-semiBold);
+    cursor: help;
+    color: var(--on-bg-aqi);
+    font-size: var(--title-4);
+}
+
+.badge.aqi-1 {
+    background-color: var(--bg-aqi-1);
+}
+
+.badge.aqi-2 {
+    background-color: var(--bg-aqi-2);
+}
+
+.badge.aqi-3 {
+    background-color: var(--bg-aqi-3);
+}
+
+.badge.aqi-4 {
+    background-color: var(--bg-aqi-4);
+}
+
+.badge.aqi-5 {
+    background-color: var(--bg-aqi-5);
+}
+
+@media screen and (max-width: 1400px) {
+    .grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .icon {
+        font-size: 36px;
+    }
+
+    .highlight-card:nth-child(-n + 2) {
+        height: 160px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .section {
+        margin-block: 0px 16px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .highlight-card {
+        grid-column: span 1 !important;
+        height: auto !important;
+    }
+
+    .highlight-card.one .wrapper {
+        gap: 8px;
+    }
+
+    .highlight-card.one .item {
+        width: 50%;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+
+    .highlight-card.one .label {
+        --label: 0.75rem;
+        margin-bottom: 0;
+    }
+}
