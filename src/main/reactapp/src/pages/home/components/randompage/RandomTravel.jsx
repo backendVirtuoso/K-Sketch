@@ -4,6 +4,8 @@ import styled from "styled-components";
 import './RandomTravel.style.css';
 import { Col, Row, Button } from "react-bootstrap";
 import logoimage from "../../../../logoimage.png"
+import Loading from "../../../../common/Loading";
+
 const Container = styled.div`
   font-family: Arial, sans-serif;
   padding: 20px;
@@ -57,6 +59,8 @@ const RandomTravel = () => {
   // Randomly select a travel item
   const randomItem = datas.length > 0 ? datas[Math.floor(Math.random() * datas.length)] : null;
 
+  const mapLink = `https://map.naver.com/p/search/${encodeURIComponent(randomItem?.addr1)}`;
+
   return (
    
      
@@ -78,7 +82,9 @@ const RandomTravel = () => {
     ) : (
       // 이미지가 없을 경우
       <div className="random-img no-image">
+
         <div> <img src={logoimage} /></div>
+
       </div>
     )}
   </div>
@@ -89,7 +95,7 @@ const RandomTravel = () => {
                 <div classNmae="discrip-randompage">{randomItem.addr1}</div>
                 <div classNmae="discrip-randompage">{randomItem.addr2}</div>
                 <div className="dutton-random-travel">
-                <Button onClick={goMore} className="btn-detail" variant="primary">
+                <Button  className="btn-detail" variant="primary"  onClick={() => window.open(mapLink, "_blank")}>
                   자세히보기 &gt;
                 </Button>
                 </div>
@@ -97,7 +103,7 @@ const RandomTravel = () => {
             </div>
           </div>
         ) : (
-          <p>로딩 중...</p>
+          <p><Loading />.</p>
         )}
       </div>
       </div>

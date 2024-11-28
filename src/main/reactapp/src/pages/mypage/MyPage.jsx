@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Col, Container, Row, Button, Image, Form, Modal } from "react-bootstrap";
 import "./MyPage.style.css";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleRight } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import BookMark from './bookmark/BookMark';
+import Loading from '../../common/Loading';
 
 const MyPage = () => {
+  const [isLoading, setIsLoading] = useState(true); 
 
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false); 
+    }, 2000); 
+  }, []);
+
   return (
     <div>
       <Container>
@@ -42,18 +52,24 @@ const MyPage = () => {
             </div>
           </Col>
 
-          {/* 여행 카드 리스트 */}
+     
           <Col lg={9} xs={12}>
             <div className="travel-list-section">
-              {/* 여행 카드 리스트 내용 */}
-             <div className="mypage-font-style"><FontAwesomeIcon icon={faAngleRight} /> 마이페이지</div>
-<BookMark/>
              
+              <div className="mypage-font-style">
+                <FontAwesomeIcon icon={faAngleRight} /> 마이페이지
+              </div>
+              
+             
+              {isLoading ? (
+                <div className="loading-text"><Loading/></div> 
+              ) : (
+                <BookMark /> // 데이터가 로딩되면 실제 내용 표시
+              )}
             </div>
           </Col>
         </Row>
       </Container>
-
 
       {/* 모달 */}
       <Modal show={showModal} onHide={handleCloseModal} centered>
