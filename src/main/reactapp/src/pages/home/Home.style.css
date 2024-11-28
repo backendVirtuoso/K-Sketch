@@ -3,15 +3,28 @@
   justify-content: center;
   align-content: center;
   position: absolute;
-  top: 280px;
-  left: 40%;
+  top: 280px; 
+  left: 33%; 
 }
-
+.mainpage{
+  display:flex;
+  justify-content:center;
+}
 @media (max-width: 768px) {
-
-  /* 모바일 해상도 기준 */
   .home-searchform {
-    display: none;
-    /* 모바일에서 숨기기 */
+    top: 200px; /* Adjust top position for mobile */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Proper centering on mobile */
+  }
+
+  .main-page {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  /* Optional: Adjust the padding or margin for the footer or other sections */
+  .home-searchform {
+    width: 80%; /* You can adjust width to make it fit better on smaller screens */
   }
 }

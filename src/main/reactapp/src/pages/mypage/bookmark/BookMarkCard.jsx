@@ -1,28 +1,26 @@
 import React, { useState } from 'react'
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import './TravelCard.style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import logoimage2 from "../../../logoimage.png"
-
-const TravelCard = ({togotravel}) => {
-  console.log("travel",togotravel);
-  const [imageError, setImageError] = useState(false);
+import Card from 'react-bootstrap/Card';
+const BookMarkCard = ({example}) => {
+    console.log(example)
+    const [imageError, setImageError] = useState(false);
   
   const handleImageError = () => {
     setImageError(true); // 이미지 로딩 실패 시 상태 업데이트
   };
 
-  const mapLink = `https://map.naver.com/p/search/${encodeURIComponent(togotravel.addr1)}`;
+  const mapLink = `https://map.naver.com/p/search/${encodeURIComponent(example.addr1)}`;
   return (
     <div>
+        <div>
         <Card style={{ width: '18rem' }} className="card-holder">
       {!imageError ? (
         <Card.Img 
           variant="top" 
           className="image-exist"
-          src={togotravel.firstimage} 
+          src={example.firstimage} 
           onError={handleImageError} 
         />
       ) : (
@@ -34,10 +32,10 @@ const TravelCard = ({togotravel}) => {
         </div>
       )}
       <Card.Body className="card-text-holder">
-        <Card.Title>{togotravel.title}</Card.Title>
+        <Card.Title>{example.title}</Card.Title>
         <Card.Text>
-          <div>{togotravel.addr1}</div>
-          <div>{togotravel.zipcode}</div>
+          <div>{example.addr1}</div>
+          <div>{example.zipcode}</div>
         </Card.Text>
        
         <div 
@@ -49,7 +47,8 @@ const TravelCard = ({togotravel}) => {
       </Card.Body>
     </Card>
     </div>
+    </div>
   )
 }
 
-export default TravelCard
+export default BookMarkCard

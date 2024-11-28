@@ -12,7 +12,7 @@ import { confirmModal } from "../reducer/confirmModal";
 
 import axios from "axios";
 import Footer from "./Footer";
-import logo from "../로고 메이커 프로젝트.mp4";
+import logo from "../logomakerproject.mp4";
 
 const AppLayout = () => {
   const navigate = useNavigate();
@@ -70,9 +70,9 @@ const AppLayout = () => {
 
   return (
     <Navbar expand="lg" className="bg-body-tertiary navbar-fixed">
-      <Container fluid>
+      <Container fluid  style={{ backgroundColor: "white" }}>
         <Navbar.Brand href="/" onClick={gotohome} className="header">
-          {" "}
+       
           <video src={logo} autoPlay loop muted className="video" />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
@@ -84,20 +84,19 @@ const AppLayout = () => {
           >
             {/* <div className="navlink"> */}
             {/* <Nav.Link href="/kafka">채팅</Nav.Link> */}
-            <Nav.Link onClick={isLoggedIn ? kafkaChatPage : error}>
+            <Nav.Link onClick={isLoggedIn ? kafkaChatPage : error} className="path">
               채팅
             </Nav.Link> 
-            <Nav.Link href="/tmappath">길찾기</Nav.Link>
-            <Nav.Link href="/places">장소 api</Nav.Link>
-            <Nav.Link href="/mypage">마이페이지</Nav.Link>
-            <Nav.Link href="#action2 action">Menu</Nav.Link>
-            <Nav.Link href="#action2 action">Menu</Nav.Link>
-
+            <Nav.Link href="/tmappath" className="path">길찾기</Nav.Link>
+            <Nav.Link href="/places" className="path">장소 api</Nav.Link>
+            <Nav.Link href="/mypage" className="path">마이페이지</Nav.Link>
+            <Nav.Link href="#action2 action" className="path">Menu</Nav.Link>
+            <Nav.Link href="#action2 action" className="path">Menu</Nav.Link>
             <div
-              className="fauser"
+              className="fauser path"
               onClick={isLoggedIn ? handleLogout : handleLogin}
             >
-              <FontAwesomeIcon icon={faUser} />
+            <FontAwesomeIcon icon={faUser} />
               {isLoggedIn ? "로그아웃" : "로그인"}
             </div>
             {/* </div> */}
