@@ -8,12 +8,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import confirmModal from './reducer/confirmModal.js';
+import { RecoilRoot } from "recoil";
 
 // QueryClient 생성
 const queryClient = new QueryClient();
 
 let store = configureStore({
-  reducer:{
+  reducer: {
     confirmModal,
   }
 })
@@ -23,7 +24,9 @@ root.render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <RecoilRoot>
+          <App />
+        </RecoilRoot>
       </BrowserRouter>
     </QueryClientProvider>
   </Provider>

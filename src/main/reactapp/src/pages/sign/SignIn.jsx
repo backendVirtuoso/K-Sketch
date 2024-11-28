@@ -13,8 +13,8 @@ export default function SignIn() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-     //  컨펌모달 매서드
-     const confirmModalMethod = (msg, msg2) => {
+    //  컨펌모달 매서드
+    const confirmModalMethod = (msg, msg2) => {
         const obj = {
             isConfirmModal: true,
             isMsg: msg,
@@ -82,22 +82,22 @@ export default function SignIn() {
                                     <ul>
                                         <li>
                                             <input type="text"
-                                                id='userId'
-                                                name='userId'
-                                                placeholder='아이디'
-                                                value={id}
-                                                onChange={(e) => setId(e.target.value)}
-                                                required />
+                                                   id='userId'
+                                                   name='userId'
+                                                   placeholder='아이디'
+                                                   value={id}
+                                                   onChange={(e) => setId(e.target.value)}
+                                                   required />
                                         </li>
                                         <li>
                                             <input type="password"
-                                                id='userPw'
-                                                name='userPw'
-                                                placeholder='비밀번호'
-                                                value={pwd}
-                                                maxLength={16}
-                                                onChange={(e) => setPwd(e.target.value)}
-                                                required />
+                                                   id='userPw'
+                                                   name='userPw'
+                                                   placeholder='비밀번호'
+                                                   value={pwd}
+                                                   maxLength={16}
+                                                   onChange={(e) => setPwd(e.target.value)}
+                                                   required />
                                         </li>
                                     </ul>
                                     <p className='id-save'>

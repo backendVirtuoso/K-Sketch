@@ -63,32 +63,6 @@ const ApiPlaces = () => {
     const offset = currentPage * itemsPerPage;
     const currentItems = places.slice(offset, offset + itemsPerPage);
 
-/*
-    // 데이터 저장 시도
-    const savePlaceToDB = async () => {
-        try {
-            const response = await axios.post('http://localhost:8080/api/savePlace', {
-                title: selectedPlace.title,
-                addr1: selectedPlace.addr1,
-                tel: selectedPlace.tel,
-                mapx: selectedPlace.mapx,
-                mapy: selectedPlace.mapy,
-                firstimage: selectedPlace.firstimage,
-                overview: selectedPlace.overview,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
-
-            console.log('Place saved:', response.data);
-            closePopup(); // 저장 후 모달 닫기
-        } catch (error) {
-            console.error('Error saving place:', error);
-        }
-    };
-*/
-
     return (
         <main className="flex-shrink-0">
             <section className="py-5">

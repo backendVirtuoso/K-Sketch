@@ -16,13 +16,13 @@ import Wayto from "./pages/wayto/Wayto";
 import Like from "./pages/like/Like";
 import Room from "./pages/chat/Room";
 import RoomDetail from "./pages/chat/RoomDetail";
-import TmapPath from "./pages/tmap/TmapPath";
+import ScheduleTmap from "./pages/schedule/ScheduleTmap";
 import ConfirmModalComponent from "./pages/ConfirmModalComponent";
 import QuickMenuComponent from "./pages/QuickMenuComponent";
 import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
 import ApiPlaces from "./pages/place/ApiPlaces"; 
-import MyPage from "./pages/mypage/MyPage"; 
+import MyPage from "./pages/mypage/MyPage";
 
 const App = () => {
   const selector = useSelector((state) => state);
@@ -51,7 +51,7 @@ const App = () => {
           path="/api/kafkachat/room/enter/:roomId"
           element={<RoomDetail />}
         />
-        <Route path="/tmappath" element={<TmapPath />} />
+        <Route path="/schedule" element={<ScheduleTmap />} />
         <Route path="travelwith">
           <Route index element={<TravelList />} />
           <Route path=":id" element={<TravelDetail />} />
