@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchData } from "../utils/api";
+import { fetchData } from "../utils/Api";
 import { fetchSearchData2 } from "../utils/SearchApi";
 
 // Search keyword를 기준으로 데이터 요청

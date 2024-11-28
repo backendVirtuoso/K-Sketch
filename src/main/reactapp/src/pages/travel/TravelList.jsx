@@ -6,6 +6,7 @@ import TravelCard from "./travelcard/TravelCard";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import "./TravelList.style.css"; 
+import Loading from "../../common/Loading";
 
 const TravelList = () => {
   const [query] = useSearchParams();
@@ -60,7 +61,7 @@ const TravelList = () => {
   };
 
   if (isLoading) {
-    return <div className="bigContainer">로딩중</div>;
+    return <div className="bigContainer"><Loading /></div>;
   }
 
   if (isError) {

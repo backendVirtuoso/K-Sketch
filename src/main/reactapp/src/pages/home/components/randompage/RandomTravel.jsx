@@ -4,6 +4,8 @@ import styled from "styled-components";
 import './RandomTravel.style.css';
 import { Col, Row, Button } from "react-bootstrap";
 import logoimage from "../../../../logoimage.png"
+import Loading from "../../../../common/Loading";
+
 const Container = styled.div`
   font-family: Arial, sans-serif;
   padding: 20px;
@@ -80,7 +82,9 @@ const RandomTravel = () => {
     ) : (
       // 이미지가 없을 경우
       <div className="random-img no-image">
+
         <div> <img src={logoimage} /></div>
+
       </div>
     )}
   </div>
@@ -99,7 +103,7 @@ const RandomTravel = () => {
             </div>
           </div>
         ) : (
-          <p>로딩 중...</p>
+          <p><Loading />.</p>
         )}
       </div>
       </div>

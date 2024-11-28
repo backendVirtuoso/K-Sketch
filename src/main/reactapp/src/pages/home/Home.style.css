@@ -10,6 +10,24 @@
   display:flex;
   justify-content:center;
 }
+
+/* top버튼 추가 */
+.scroll-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4E82B4;
+  color: white;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.scroll-to-top:hover {
+  transform: scale(1.1);
+}
 @media (max-width: 768px) {
   .home-searchform {
     top: 200px; /* Adjust top position for mobile */
@@ -27,4 +45,10 @@
   .home-searchform {
     width: 80%; /* You can adjust width to make it fit better on smaller screens */
   }
+
+  .scroll-to-top {
+    bottom: 15px;
+    right: 15px;
+  }
 }
+
