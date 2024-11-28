@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Button, Col, Container, Row } from 'react-bootstrap';
-import { useSearch } from '../../hooks/useSearch';
-import { useSearchParams } from 'react-router-dom';
-import TravelCard from './travelcard/TravelCard';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { Alert, Button, Col, Container, Row } from "react-bootstrap";
+import { useSearch } from "../../hooks/useSearch";
+import { useSearchParams } from "react-router-dom";
+import TravelCard from "./travelcard/TravelCard";
+import axios from "axios";
+import ReactPaginate from "react-paginate";
+import "./TravelList.style.css"; 
 
 const TravelList = () => {
   const [query] = useSearchParams();
   const keyword = query.get("q");
 
   const { data, isLoading, isError, error } = useSearch({ keyword });
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]); 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
+  const itemsPerPage = 9; // 한 페이지에 표시할 여행 데이터 수
 
   // 카테고리 데이터를 불러오는 함수
   const fetchCategories = async () => {
@@ -47,6 +51,12 @@ const TravelList = () => {
   const handleCategoryClick = (categoryCode) => {
     setSelectedCategory(categoryCode);
     fetchFilteredData(categoryCode);
+    setCurrentPage(1); // 페이지 초기화
+  };
+
+  // 페이지네이션 처리
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected + 1);
   };
 
   if (isLoading) {
@@ -60,6 +70,11 @@ const TravelList = () => {
   // 데이터가 배열인지 확인하고, 없으면 빈 배열로 처리
   const travelData = Array.isArray(data) ? data : [];
   const displayData = selectedCategory ? filteredData : travelData; // 카테고리 선택 시 필터링된 데이터 사용
+
+  // 페이지네이션에 따른 데이터 나누기
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = displayData.slice(startIndex, endIndex); // 현재 페이지에 맞는 데이터만 가져오기
 
   return (
     <div>
@@ -81,13 +96,36 @@ const TravelList = () => {
 
           {/* 여행 카드 리스트 */}
           <Col lg={9} xs={12}>
-            <Row>
-              {displayData.map((totravel) => (
-                <Col lg={4} md={6} xs={12} key={totravel.id}>
-                  <TravelCard togotravel={totravel} />
-                </Col>
-              ))}
-            </Row>
+  <Row className="justify-content-center"> {/* Row에 수평 가운데 정렬 */}
+    {paginatedData.map((totravel) => (
+      <Col lg={4} md={6} xs={12} key={totravel.id} className="d-flex justify-content-center"> {/* 개별 카드에 가운데 정렬 */}
+        <TravelCard togotravel={totravel} />
+      </Col>
+    ))}
+  </Row>
+  <div className="page-center">
+            {/* 페이지네이션 */}
+            <ReactPaginate
+              nextLabel="Next >"
+              onPageChange={handlePageClick}
+              pageRangeDisplayed={3}
+              marginPagesDisplayed={2}
+              pageCount={Math.ceil(displayData.length / itemsPerPage)} // 전체 페이지 수
+              previousLabel="< Previous"
+              pageClassName="page-item"
+              pageLinkClassName="page-link"
+              previousClassName="page-item"
+              previousLinkClassName="page-link"
+              nextClassName="page-item"
+              nextLinkClassName="page-link"
+              breakLabel="..."
+              breakClassName="page-item"
+              breakLinkClassName="page-link"
+              containerClassName="pagination"
+              activeClassName="active"
+              forcePage={currentPage - 1} // 현재 페이지
+            />
+            </div>
           </Col>
         </Row>
       </Container>

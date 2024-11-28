@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import './RandomTravel.style.css';
 import { Col, Row, Button } from "react-bootstrap";
-
+import logoimage from "../../../../logoimage.png"
 const Container = styled.div`
   font-family: Arial, sans-serif;
   padding: 20px;
@@ -58,34 +58,49 @@ const RandomTravel = () => {
   const randomItem = datas.length > 0 ? datas[Math.floor(Math.random() * datas.length)] : null;
 
   return (
-    <div>
-      <div className="random-title"><span className="random-title-a">'국내천국'</span><span className="random-title-b">표 쉬운 여행길잡이</span></div>
-      <Container className="randomtravel">
-
-        {error && <Error>{error}</Error>}
+   
+     
+      <div>
+      <div className="random-title"><span className="random-title-a">'k-sketch'</span><span className="random-title-b">표 쉬운 여행길잡이</span></div>
+      <div className="randomtravel">  
+      {error && <Error>{error}</Error>}
         {randomItem ? (
-          <Row className="random-recipe-container-wrapper">
-            <Col lg="6" className="my-random-img">
-              <div className={`random-recipe-img ${isActive ? "fade-in" : "fade-out"}`}>
-                <img src={randomItem.firstimage} alt={randomItem.title} className="random-img" />
-              </div>
-            </Col>
-            <Col lg="6" className="my-random-dis2">
+          <div className="random-recipe-container-wrapper">
+<div className="my-random-img">
+  <div className={`random-recipe-img ${isActive ? "fade-in" : "fade-out"}`}>
+    {/* 이미지가 있을 경우 */}
+    {randomItem.firstimage ? (
+      <img 
+        src={randomItem.firstimage} 
+        alt={randomItem.title} 
+        className="random-img"
+      />
+    ) : (
+      // 이미지가 없을 경우
+      <div className="random-img no-image">
+        <div> <img src={logoimage} /></div>
+      </div>
+    )}
+  </div>
+</div>
+            <div  className="my-random-dis2">
               <div className={`random-recipe-content ${isActive ? "fade-in" : "fade-out"}`}>
-                <h3>{randomItem.title}</h3>
-                <p>{randomItem.addr1}</p>
-                <p>{randomItem.addr2}</p>
+                <div className="title-randompage">{randomItem.title}</div>
+                <div classNmae="discrip-randompage">{randomItem.addr1}</div>
+                <div classNmae="discrip-randompage">{randomItem.addr2}</div>
+                <div className="dutton-random-travel">
                 <Button onClick={goMore} className="btn-detail" variant="primary">
                   자세히보기 &gt;
                 </Button>
+                </div>
               </div>
-            </Col>
-          </Row>
+            </div>
+          </div>
         ) : (
           <p>로딩 중...</p>
         )}
-      </Container>
-    </div>
+      </div>
+      </div>
   );
 };
 

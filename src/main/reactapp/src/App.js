@@ -19,10 +19,10 @@ import RoomDetail from "./pages/chat/RoomDetail";
 import ScheduleTmap from "./pages/schedule/ScheduleTmap";
 import ConfirmModalComponent from "./pages/ConfirmModalComponent";
 import QuickMenuComponent from "./pages/QuickMenuComponent";
-
 import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
-import ApiPlaces from "./pages/place/ApiPlaces";
+import ApiPlaces from "./pages/place/ApiPlaces"; 
+import MyPage from "./pages/mypage/MyPage"; 
 
 const App = () => {
   const selector = useSelector((state) => state);
@@ -46,6 +46,7 @@ const App = () => {
         <Route path="like" element={<Like />} />
         <Route path="/places" element={<ApiPlaces />} />
         <Route path="/kafka" element={<Room />} />
+        <Route path="/mypage" element={<MyPage />} />
         <Route
           path="/api/kafkachat/room/enter/:roomId"
           element={<RoomDetail />}
