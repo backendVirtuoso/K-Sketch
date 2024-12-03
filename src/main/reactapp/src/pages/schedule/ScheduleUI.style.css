@@ -79,10 +79,93 @@
     width: 400px;
     background-color: white;
     border-right: 1px solid #dee2e6;
-    padding: 10px;
-    overflow-y: auto;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     z-index: 1000;
+}
+
+/* 패널 헤더 영역 */
+.selected-places-panel .p-3.border-bottom {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* 패널 헤더 내 제목과 시간 정보 */
+.selected-places-panel h6 {
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+}
+
+.selected-places-panel small.text-muted {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    display: inline-block;
+}
+
+/* 시간 정보를 감싸는 컨테이너 추가 */
+.time-info-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 선택된 장소 목록 컨테이너 */
+.selected-places-panel .overflow-auto {
+    padding: 1rem;
+    height: calc(100% - 80px); /* 헤더 높이를 고려한 조정 */
+}
+
+/* 선택된 장소 아이템 스타일 */
+.selected-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.selected-item:last-child {
+    margin-bottom: 0;
+}
+
+.selected-item .d-flex {
+    gap: 0.75rem;
+}
+
+/* 장소 이미지 */
+.selected-item-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* 장소 정보 텍스트 */
+.selected-item-content {
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.selected-item-content .fw-bold {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.selected-item-content small {
+    font-size: 0.8rem;
+}
+
+/* 시간 조절 버튼 */
+.duration-button {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* 삭제 버튼 */
+.selected-item .btn-outline-danger {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
 }
 
 /* 장소 목록의 각 아이템 스타일 */
@@ -91,6 +174,7 @@
     align-items: center;
     padding: 0.5rem;
     border-bottom: 1px solid #dee2e6;
+    gap: 0.5rem;
 }
 
 .place-list-item:hover {
@@ -107,7 +191,16 @@
 .place-info {
     flex-grow: 1;
     min-width: 0;
-    margin-left: 1rem;
+    margin-right: 0.5rem;
+}
+
+.place-info .fw-bold,
+.place-info small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
 }
 
 /* 실제 지도가 표시되는 컨테이너 */
@@ -212,23 +305,6 @@
     display: none;
 }
 
-/* 선택된 장소 아이템 스타일 */
-.selected-item {
-    margin-bottom: 10px;
-}
-
-.selected-item-image {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 4px;
-}
-
-.selected-item-content {
-    min-width: 0;
-    flex-grow: 1;
-}
-
 /* 경로 정보 알림 및 목록 */
 .route-info-alert {
     margin-top: 0.5rem;
@@ -244,6 +320,7 @@
 
 /* 시간 설정 관련 컨트롤 */
 .duration-controls {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -302,4 +379,94 @@
 .time-input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
+}
+
+/* 툴팁 스타일 개선 */
+[title] {
+    position: relative;
+    cursor: default;
+}
+
+/* 선택된 장소 아이템 내용 영역 */
+.selected-item-content {
+    flex-grow: 1;
+    min-width: 0;
+    margin-right: 0.5rem;
+    max-width: calc(100% - 150px);
+}
+
+/* 선택된 장소 아이템 레이아웃 */
+.selected-item .d-flex {
+    width: 100%;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* 장소 리스트의 텍스트 스타일링 (툴팁 제외) */
+.place-info .fw-bold,
+.place-info small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+}
+
+/* 선택된 장소 아이템 내용 영역 (툴팁 포함) */
+.selected-item-content {
+    flex-grow: 1;
+    min-width: 0;
+    margin-right: 0.5rem;
+    max-width: calc(100% - 150px);
+}
+
+/* 선택된 장소의 텍스트 스타일링 (툴팁 포함) */
+.selected-item-content .fw-bold,
+.selected-item-content small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: default;
+}
+
+/* DatePicker 컨테이너 스타일링 */
+.react-datepicker {
+    font-family: inherit;
+    max-height: calc(100vh - 300px); /* 적절한 최대 높이 설정 */
+    overflow-y: auto;
+}
+
+/* DatePicker 스크롤바 스타일링 */
+.react-datepicker::-webkit-scrollbar {
+    width: 6px;
+}
+
+.react-datepicker::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.react-datepicker::-webkit-scrollbar-thumb {
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.react-datepicker::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* DatePicker 헤더 고정 */
+.react-datepicker__header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+    border-bottom: 1px solid #aeaeae;
+}
+
+/* DatePicker 월 컨테이너 */
+.react-datepicker__month-container {
+    float: none;
+    width: 100%;
 }

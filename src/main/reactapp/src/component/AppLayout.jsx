@@ -9,9 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { confirmModal } from "../reducer/confirmModal";
-
 import axios from "axios";
-import Footer from "./Footer";
 import logo from "../logomakerproject.mp4";
 
 const AppLayout = () => {
@@ -86,8 +84,8 @@ const AppLayout = () => {
             {/* <Nav.Link href="/kafka">채팅</Nav.Link> */}
             <Nav.Link onClick={isLoggedIn ? kafkaChatPage : error} className="path">
               채팅
-            </Nav.Link> 
-            <Nav.Link href="/tmappath" className="path">길찾기</Nav.Link>
+            </Nav.Link>
+            <Nav.Link href="/schedule" className="path">일정생성</Nav.Link>
             <Nav.Link href="/places" className="path">장소 api</Nav.Link>
             <Nav.Link href="/mypage" className="path">마이페이지</Nav.Link>
             <Nav.Link href="#action2 action" className="path">Menu</Nav.Link>

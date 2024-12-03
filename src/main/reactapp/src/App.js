@@ -22,7 +22,7 @@ import QuickMenuComponent from "./pages/QuickMenuComponent";
 import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
 import ApiPlaces from "./pages/place/ApiPlaces"; 
-import MyPage from "./pages/mypage/MyPage"; 
+import MyPage from "./pages/mypage/MyPage";
 
 const App = () => {
   const selector = useSelector((state) => state);
