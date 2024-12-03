@@ -33,4 +33,17 @@
         where loginId = #{loginId}
     </update>
 
+    <update id="updateUserInfo" parameterType="memberDTO">
+        update user
+        set
+        name = #{name},
+        email = #{email},
+        phoneNumber = #{phoneNumber},
+        gender = #{gender},
+        birth = #{birth},
+        password = #{password}
+        where loginId = #{loginId}
+    </update>
+
+
 </mapper>

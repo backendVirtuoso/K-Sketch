@@ -59,7 +59,19 @@ export default function SignIn() {
         navigate("/signup");
     };
 
-    const kakaohandler = () => { };
+    const onNaverLogin = () => {
+
+        window.location.href = "http://localhost:8080/oauth2/authorization/naver"
+    }
+
+    const onGoogleLogin =() =>{
+        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    }
+
+    const onKakoLogin =() =>{
+        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
+    }
+
 
     return (
         <div id='signIn'>
@@ -109,8 +121,9 @@ export default function SignIn() {
                                         <button type='submit'>로그인</button>
                                     </div>
                                     <div className="log-in2">
-                                        <a href="!#"><img src="./images/sign/signin/ico_login_naver.webp" alt="" />네이버 로그인</a>
-                                        <a href="!#"><img src="./images/sign/signin/ico_login_kakao.webp" alt="" />카카오 로그인</a>
+                                        <button onClick={onNaverLogin}></button>
+                                        <button onClick={onKakoLogin}></button>
+                                        <button onClick={onGoogleLogin}></button> 
                                     </div>
                                     <div className="search-box">
                                         <Link to="/userIdSearch">아이디 찾기</Link>

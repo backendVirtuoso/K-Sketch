@@ -15,4 +15,8 @@ public interface MemberService {
     MemberDTO findPwByIdAndEmail(String loginId, String email);
     // 비밀번호 재설정
     boolean updatePassword(MemberDTO memberDTO);
+    // 유저 정보 확인
+    MemberDTO findByUsername(String username); // 사용자 정보 조회
+    // 사용자 정보 수정
+    boolean updateUserInfo(MemberDTO memberDTO);
 }

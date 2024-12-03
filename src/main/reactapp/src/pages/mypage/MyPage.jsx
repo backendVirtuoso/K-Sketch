@@ -5,25 +5,70 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import BookMark from './bookmark/BookMark';
 import Loading from '../../common/Loading';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { confirmModal } from "../../reducer/confirmModal";
 
 const MyPage = () => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [travelData, setTravelData] = useState([]); // 여행 데이터 상태 추가
   const [isLoading, setIsLoading] = useState(true); 
-
   const [showModal, setShowModal] = useState(false);
-
+  const [error, setError] = useState(null);
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+    //  컨펌모달 매서드
+    const confirmModalMethod = (msg, msg2) => {
+      const obj = {
+        isConfirmModal: true,
+        isMsg: msg,
+        isMsg2: msg2,
+      };
+      dispatch(confirmModal(obj));
+    };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false); 
-    }, 2000); 
-  }, []);
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+    
+      setTimeout(() => {
+        setIsLoading(false); // 2초 후 로딩 상태 종료
+      }, 2000);
+    
+      if (!token) {
+        confirmModalMethod("로그인이 필요한 서비스입니다.");
+        navigate('/login');
+      }
+      axios
+        .get("http://localhost:8080/api/userinfo", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+          setUserInfo(response.data);
+          setTravelData(response.data.travels || []);
+        })
+        .catch((err) => {
+          console.error("사용자 정보 요청 실패:", err);
+          setError("사용자 정보를 불러오는 데 실패했습니다.");
+        });
+    }, [navigate]);
+
+    const handleUserInfoChange = (e) => {
+      e.preventDefault();
+      navigate('/userInfoModify');
+    };
+    
 
   return (
     <div>
       <Container>
+      {userInfo ?(
         <Row>
           {/* 카테고리 버튼 */}
           <Col lg={3} md={6} xs={12}>
@@ -36,13 +81,13 @@ const MyPage = () => {
                   className="profile-img"
                   alt="프로필 이미지"
                 />
-                <h5 className="mt-3">이름</h5>
+                <h5 className="mt-3">{userInfo.name}</h5>
                 <p className="countdown">D - 1</p>
-                <p className="mypage-p">김○○님의 n번째 </p>
+                <p className="mypage-p"><strong>{userInfo.name}</strong>의 n번째 </p>
                 <p className="mypage-p">여행 하루 전입니다!</p>
               </div>
               <div className="button-section text-center mt-4 buttonflex">
-                <Button variant="outline-primary" className="mb-2 mypage-button-1" onClick={handleOpenModal} block>
+                <Button variant="outline-primary" className="mb-2 mypage-button-1" onClick={handleUserInfoChange} block>
                   개인정보 수정
                 </Button>
                 <Button variant="outline-secondary"className="mypage-button-1" block>
@@ -59,8 +104,6 @@ const MyPage = () => {
               <div className="mypage-font-style">
                 <FontAwesomeIcon icon={faAngleRight} /> 마이페이지
               </div>
-              
-             
               {isLoading ? (
                 <div className="loading-text"><Loading/></div> 
               ) : (
@@ -69,9 +112,12 @@ const MyPage = () => {
             </div>
           </Col>
         </Row>
+       ) : (
+        <div>사용자 정보가 없습니다.</div>
+      )}
       </Container>
 
-      {/* 모달 */}
+      {/* 모달
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>개인정보 수정</Modal.Title>
@@ -97,7 +143,7 @@ const MyPage = () => {
             </div>
           </Form>
         </Modal.Body>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };

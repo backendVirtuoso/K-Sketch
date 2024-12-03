@@ -134,7 +134,7 @@
                                 width: 100%;
                                 display: flex;
                                 justify-content: center;
-                                
+                                margin-bottom: 15px;
                                 button {
                                     cursor: pointer;
                                     border-radius: 25px;
@@ -159,43 +159,27 @@
                             .log-in2 {
                                 display: flex;
                                 margin-top: 4px;
-                                
-                                a {
-                                    font-size: 14px;
-                                    line-height: 1.2;
-                                    font-weight: 400;
-                                    letter-spacing: -.025em;
-                                    
-                                    &:nth-child(1) {
-                                        align-items: center;
-                                        display: flex;
-                                        justify-content: center;
-                                        width: 198px;
-                                        height: 50px;
-                                        border-radius: 5px;
-                                        background-color: #03c75a; /* 그린색 버튼 */
-                                        color: #fff;
-                                        
-                                        img {
-                                            width: 30px;
-                                            height: 30px;
-                                        }
-                                    }
-                                    
-                                    &:nth-child(2) {
-                                        margin-left: 4px;
-                                        align-items: center;
-                                        display: flex;
-                                        justify-content: center;
-                                        width: 198px;
-                                        height: 50px;
-                                        border-radius: 5px;
-                                        background-color: #fee500; /* 노란색 버튼 */
-                                        color: #191919;
-                                    }
-                                    
-                                    text-decoration: none; /* <a> 태그 밑줄 제거 */
+                                width: 100%;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center;
+                                button{
+                                    display: block;
+                                    height: 45px;
+                                    width: 50%;
+                                    border: 0;
+                                    margin: 2px 0;
+                                    background-repeat: no-repeat;
                                 }
+                                button:nth-child(1){
+                                    background-image: url(../../../../public/images/sign/signin/btnG_official.png);
+                                }           
+                                button:nth-child(2){
+                                    background-image: url(../../../../public/images/sign/signin/kakao_login_large_narrow.png);
+                                }           
+                                button:nth-child(3){
+                                    background-image: url(../../../../public/images/sign/signin/web_light_sq_SI@3x.png);
+                                }           
                             }
 
                             .search-box {
