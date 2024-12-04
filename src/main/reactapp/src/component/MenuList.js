@@ -210,6 +210,7 @@ const MenuList = () => {
     const selectedCode = event.target.value;
     setLocalSelectedCategory(selectedCode);
 
+    setIsSearchPerformed(false);
     fetchFilteredData(selectedCode, selectedCategory);
 
     // 검색 키워드 초기화
@@ -224,6 +225,7 @@ const MenuList = () => {
     setSelectedCategory(selectedCode);
 
     // 카테고리 필터 변경 시 기존 지역 필터도 포함
+    setIsSearchPerformed(false);
     fetchFilteredData(localSelectedCategory, selectedCode);
 
     // 검색 키워드 초기화
@@ -332,7 +334,7 @@ const MenuList = () => {
         <Spinner animation='border' className='d-block mx-auto my-3' />
       ) : error ? (
         <Error>{error}</Error>
-      ) : isSearchPerformed && filteredDatas.length === 0 ? (
+      ) : isSearchPerformed && filteredDatas.length === 0 ? ( // 검색 수행 상태일 때만 메시지 표시
         <Error>검색 결과가 없습니다.</Error>
       ) : null}
 
