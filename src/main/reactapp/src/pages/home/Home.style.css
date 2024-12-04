@@ -5,6 +5,7 @@
 .menu-list {
   height: 1200px;
 }
+
 .home-searchform {
   display: flex;
   justify-content: center;
@@ -13,7 +14,8 @@
   top: 280px; 
   left: 33%; 
 }
-.mainpage{
+
+.mainpage {
   display:flex;
   justify-content:center;
 }

@@ -22,7 +22,7 @@ import ConfirmModalComponent from "./pages/ConfirmModalComponent";
 import QuickMenuComponent from "./pages/QuickMenuComponent";
 import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
-import ApiPlaces from "./pages/place/ApiPlaces"; 
+import ApiPlaces from "./pages/place/ApiPlaces";
 import MyPage from "./pages/mypage/MyPage";
 import UserInfoModify from "./pages/mypage/UserInfoModify";
 

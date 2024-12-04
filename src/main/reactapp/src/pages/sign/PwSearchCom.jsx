@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { confirmModal } from '../../reducer/confirmModal';
 import axios from 'axios';
 
-export default function PwSearchCom () {
+export default function PwSearchCom() {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -14,13 +14,13 @@ export default function PwSearchCom () {
         loginId: '',
         idGuideText: '',
         email: '',
-        emailGuideText:'',
+        emailGuideText: '',
         isEmailAuthenNumberCheck: false,
     });
 
 
     // 컨펌모달
-    const confirmModalMethod=(msg)=>{
+    const confirmModalMethod = (msg) => {
         const obj = {
             isConfirmModal: true,
             isMsg: msg
@@ -54,7 +54,7 @@ export default function PwSearchCom () {
         })
     }
 
-        // 이메일 입력상자 = 정규표현식
+    // 이메일 입력상자 = 정규표현식
     // 제한조건
     // 제한조건1 : 특수문자 사용불가
     // 제한조건2 : 한글사용불가
@@ -81,16 +81,14 @@ export default function PwSearchCom () {
         })
     }
 
-
-
     // 폼 데이터 보내기
-    const onIdEmailSearch=(e)=>{
+    const onIdEmailSearch = (e) => {
         e.preventDefault();
 
-        if( state.loginId===''){
+        if (state.loginId === '') {
             confirmModalMethod('가입하신 아이디를 입력해 주세요.');
         }
-        else if( state.email==='' ){
+        else if (state.email === '') {
             confirmModalMethod('가입하신 이메일 주소를 입력해 주세요.');
         }
         else {
@@ -98,12 +96,12 @@ export default function PwSearchCom () {
                 loginId: state.loginId,
                 email: state.email,
             };
-    
+
             axios.post('http://localhost:8080/api/search-pw-email', userData)
                 .then((response) => {
                     if (response.status === 200) {
                         console.log(response.data);  // response.data는 MemberDTO 객체 또는 null
-    
+
                         if (response.data) {
                             console.log(response.data);
                             navigate('/pwSearchResult', {
@@ -124,7 +122,6 @@ export default function PwSearchCom () {
         }
     }
 
-
     return (
         <div id='search'>
             <div className="container">
@@ -132,14 +129,14 @@ export default function PwSearchCom () {
                     <div className="header_box">
                         <h2>비밀번호 찾기</h2>
                     </div>
-                </div>                    
+                </div>
                 <div className="content">
                     <form autoComplete='off' onSubmit={onIdEmailSearch}>
                         <ul className="form_box">
                             <li>
                                 <div className="col-gap">
                                     <label htmlFor="userId">아이디</label>
-                                    <input 
+                                    <input
                                         type="text" name='userId' id='userId' placeholder='아이디를 입력해주세요'
                                         value={state.loginId}
                                         onChange={onChangeId}
@@ -149,7 +146,7 @@ export default function PwSearchCom () {
                             <li>
                                 <div className="col-gap">
                                     <label htmlFor="userHp">가입 시 입력한 이메일 주소</label>
-                                    <input 
+                                    <input
                                         type="text" name='userEmail' id='userEmail' placeholder='가입 시 입력한 이메일 주소를 입력해주세요'
                                         value={state.email}
                                         onChange={onChangeEmail}

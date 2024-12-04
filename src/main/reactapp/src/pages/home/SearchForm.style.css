@@ -20,11 +20,13 @@
   --bs-btn-disabled-border-color: #4E82B4;
   --bs-gradient: none;
 }
+
 @media (max-width: 768px) {
   .searchform-searchform {
     width: 150px;
     height: 30px;
   }
+
   .searchform-layout {
     height: 30px;
     display: flex;

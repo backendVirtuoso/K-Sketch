@@ -16,7 +16,7 @@ const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
                     />
                 ) : (
                     <div className="no-image-placeholder">
-                        <small className="text-muted m-0">이미지가<br/>없습니다</small>
+                        <small className="text-muted m-0">이미지가<br />없습니다</small>
                     </div>
                 )}
                 <div className="place-info">
@@ -94,11 +94,10 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
                         <button
                             key={type.id}
                             onClick={() => setContentTypeId(type.id)}
-                            className={`btn btn-sm content-type-button ${
-                                contentTypeId === type.id
+                            className={`btn btn-sm content-type-button ${contentTypeId === type.id
                                     ? 'btn-primary'
                                     : 'btn-outline-primary'
-                            }`}
+                                }`}
                         >
                             {type.text}
                         </button>
@@ -336,7 +335,7 @@ const DateSelector = ({ onDateSelect }) => {
                                             value={dateInfo.startTime}
                                             onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
                                         >
-                                            {Array.from({length: 24}, (_, i) => {
+                                            {Array.from({ length: 24 }, (_, i) => {
                                                 const timeValue = `${String(i).padStart(2, '0')}:00`;
                                                 return (
                                                     <option key={i} value={timeValue}>
@@ -358,7 +357,7 @@ const DateSelector = ({ onDateSelect }) => {
                                             value={dateInfo.endTime}
                                             onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
                                         >
-                                            {Array.from({length: 24}, (_, i) => {
+                                            {Array.from({ length: 24 }, (_, i) => {
                                                 const timeValue = `${String(i).padStart(2, '0')}:00`;
                                                 return (
                                                     <option key={i} value={timeValue}>
@@ -373,7 +372,7 @@ const DateSelector = ({ onDateSelect }) => {
                         ))}
                     </div>
                     <div className="mt-3 d-flex justify-content-between">
-                        <button 
+                        <button
                             className="btn btn-primary"
                             onClick={() => {
                                 onDateSelect([startDate, endDate], selectedDates, true); // 완료 상태를 전달
@@ -458,14 +457,13 @@ const STEP_BUTTONS = [
 const StepButton = ({ id, step, text, currentStep, onClick }) => (
     <button
         onClick={() => onClick(id)}
-        className={`sidebar-button btn border-0 p-3 rounded-3 ${
-            currentStep === id
+        className={`sidebar-button btn border-0 p-3 rounded-3 ${currentStep === id
                 ? 'text-primary fw-bold bg-primary bg-opacity-10'
                 : 'text-secondary bg-light'
-        }`}
+            }`}
     >
         <div className="sidebar-button-text">
-            STEP {step}<br/>{text}
+            STEP {step}<br />{text}
         </div>
     </button>
 );

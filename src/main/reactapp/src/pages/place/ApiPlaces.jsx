@@ -112,7 +112,7 @@ const ApiPlaces = () => {
                             <div key={index} className="col-md-4 mb-4">
                                 <div className="card place-item" onClick={() => handlePlaceClick(item)}>
                                     {item.firstimage ? (
-                                        <img src={item.firstimage} alt={item.title} className="card-img-top place-image" style={{  width:'416px',height: '200px', objectFit: 'cover' }} />
+                                        <img src={item.firstimage} alt={item.title} className="card-img-top place-image" style={{ width: '416px', height: '200px', objectFit: 'cover' }} />
                                     ) : (
                                         <div className="d-flex justify-content-center align-items-center" style={{ height: '200px', backgroundColor: '#f8f9fa' }}>
                                             <p className="text-muted">이미지가 없습니다.</p>

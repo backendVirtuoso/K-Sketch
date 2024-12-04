@@ -196,6 +196,7 @@ const MenuList = () => {
         const items = response.data.response.body.items?.item || [];
         setDatas(items);
         dataCache.set(cacheKey, items);
+      } catch (err) {
         setError("데이터를 불러오는 중 오류가 발생했습니다.");
         console.error(err);
       } finally {

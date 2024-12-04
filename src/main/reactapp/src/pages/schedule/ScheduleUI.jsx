@@ -5,23 +5,23 @@ import { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButto
 
 // 메인 UI 컴포넌트
 const ScheduleUI = ({
-            mapRef, 
-            keyword, 
-            setKeyword, 
-            searchType, 
-            setSearchType, 
-            pathType, 
-            setPathType, 
-            handleSearch, 
-            searchRoute, 
-            results, 
-            handleSelectLocation, 
-            startPoint, endPoint, viaPoints,
-            routeResult, 
-            transitDetails, 
-            routeDetails, 
-            handleAddPlace: parentHandleAddPlace, 
-            handleRemovePlace: parentHandleRemovePlace
+    mapRef,
+    keyword,
+    setKeyword,
+    searchType,
+    setSearchType,
+    pathType,
+    setPathType,
+    handleSearch,
+    searchRoute,
+    results,
+    handleSelectLocation,
+    startPoint, endPoint, viaPoints,
+    routeResult,
+    transitDetails,
+    routeDetails,
+    handleAddPlace: parentHandleAddPlace,
+    handleRemovePlace: parentHandleRemovePlace
 }) => {
     const [currentStep, setCurrentStep] = useState('date');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
@@ -74,7 +74,7 @@ const ScheduleUI = ({
     // 일자별 총 가용 시간 계산 (분 단위)
     const calculateTotalAvailableTime = () => {
         if (!selectedTimes || selectedTimes.length === 0) return 0;
-        
+
         return selectedTimes.reduce((total, dateInfo) => {
             const startHour = parseInt(dateInfo.startTime.split(':')[0]);
             const endHour = parseInt(dateInfo.endTime.split(':')[0]);
@@ -106,7 +106,7 @@ const ScheduleUI = ({
 
     const renderDateInfo = () => {
         if (!selectedDateRange) return null;
-        
+
         return (
             <div className="selected-date-info mb-3">
                 <small className="text-muted d-block">여행 일정</small>
@@ -116,7 +116,7 @@ const ScheduleUI = ({
                         month: '2-digit',
                         day: '2-digit',
                         weekday: 'short'
-                    })} 
+                    })}
                     {" - "}
                     {selectedDateRange[1].toLocaleDateString('ko-KR', {
                         year: 'numeric',
@@ -236,7 +236,7 @@ const ScheduleUI = ({
                                             key={index}
                                             className="list-group-item list-group-item-action py-2"
                                             onClick={() => handleSelectLocation(result)}
-                                            style={{borderRadius: '5px', marginBottom: '5px'}}
+                                            style={{ borderRadius: '5px', marginBottom: '5px' }}
                                         >
                                             <div className="fw-bold">{result.name}</div>
                                             {result.type === 'poi' && (
@@ -345,7 +345,7 @@ const ScheduleUI = ({
                             )}
                         </>
                     ) : currentStep === 'date' ? (
-                        <DateSelector 
+                        <DateSelector
                             onDateSelect={(dateRange, times, isComplete) => {
                                 setSelectedDateRange(dateRange);
                                 setSelectedTimes(times);

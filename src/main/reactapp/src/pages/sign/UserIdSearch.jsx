@@ -3,11 +3,10 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import './scss/usersearch.scss';
 
-export default function UserIdSearch(){
+export default function UserIdSearch() {
+    const navigate = useNavigate();
 
-    const navigate=useNavigate();
-
-    const onClickIdSearch=(e)=>{
+    const onClickIdSearch = (e) => {
         e.preventDefault();
         navigate('/IdSearchEmailAuthentication');
     }
@@ -16,11 +15,11 @@ export default function UserIdSearch(){
         <div id='userSearch'>
             <div className="container">
                 <div className="title">
-                        <h3>아이디 찾기</h3>
-                        <div className="location">
-                            <span><a href="!#">HOME</a><img src="./images/sign/signup/bg_arrow_01.webp" alt="" /></span>
-                            <strong>아이디 찾기</strong>
-                        </div>
+                    <h3>아이디 찾기</h3>
+                    <div className="location">
+                        <span><a href="!#">HOME</a><img src="./images/sign/signup/bg_arrow_01.webp" alt="" /></span>
+                        <strong>아이디 찾기</strong>
+                    </div>
                 </div>
                 <div className="content">
                     <div className="tab-box">

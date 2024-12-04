@@ -102,7 +102,7 @@ export default function SignUp() {
         let idDuplicationCheck = false;
         const regexp1 = /^(.){4,12}$/g; // 4자 이상 12자 이하 영문 숫자
         const regexp2 = /\s/g; // 공백 체크
-    
+
         // 유효성 검사: 아이디 길이와 규칙 체크
         console.log("아이디 값 확인: ", value);  // 로그인 아이디 확인
         if (value === null || value === '') {
@@ -115,7 +115,7 @@ export default function SignUp() {
             });
             return;  // 빈 값이면 더 이상 진행하지 않음
         }
-    
+
         if (value.length < 4 || value.length > 12 || regexp1.test(value) === false || regexp2.test(value) === true) {
             idGuideText = '4자 이상 12자 이하의 영문과 숫자(공백 제외)만 입력해 주세요.';
             idDuplicationCheck = false;
@@ -130,33 +130,33 @@ export default function SignUp() {
             axios.post('http://localhost:8080/api/check-duplicate-id', {
                 loginId: state.loginId // 서버로 아이디 전달
             })
-            .then((response) => {
-                console.log("서버 응답: ", response.data);  // 서버 응답 확인
-                if (response.status === 200) {
-                    if (response.data === 0) {
-                        // 사용 가능한 아이디
-                        idGuideText = '사용 할 수 있는 아이디 입니다.';
-                        idDuplicationCheck = true;
-                    } else if (response.data === 1) {
-                        // 이미 사용중인 아이디
-                        idGuideText = '이미 사용중인 아이디 입니다.';
-                        idDuplicationCheck = false;
+                .then((response) => {
+                    console.log("서버 응답: ", response.data);  // 서버 응답 확인
+                    if (response.status === 200) {
+                        if (response.data === 0) {
+                            // 사용 가능한 아이디
+                            idGuideText = '사용 할 수 있는 아이디 입니다.';
+                            idDuplicationCheck = true;
+                        } else if (response.data === 1) {
+                            // 이미 사용중인 아이디
+                            idGuideText = '이미 사용중인 아이디 입니다.';
+                            idDuplicationCheck = false;
+                        }
+                        confirmModalMethod(idGuideText);  // 아이디 중복 여부 메시지 모달로 출력
+                        setState({
+                            ...state,
+                            idDuplicationCheck: idDuplicationCheck
+                        });
                     }
-                    confirmModalMethod(idGuideText);  // 아이디 중복 여부 메시지 모달로 출력
-                    setState({
-                        ...state,
-                        idDuplicationCheck: idDuplicationCheck
-                    });
-                }
-            })
-            .catch((err) => {
-                console.log("아이디 중복 확인 오류: ", err);
-                idGuideText = '아이디 중복 확인 중 오류가 발생했습니다.';
-                confirmModalMethod(idGuideText);  // 오류 발생 시 메시지 출력
-            });
+                })
+                .catch((err) => {
+                    console.log("아이디 중복 확인 오류: ", err);
+                    idGuideText = '아이디 중복 확인 중 오류가 발생했습니다.';
+                    confirmModalMethod(idGuideText);  // 오류 발생 시 메시지 출력
+                });
         }
     };
-    
+
     // 비밀번호 입력상자 = 정규표현식
     // 제한조건
     // 제한조건1 : 영문(소문자), 숫자, 특수문자 중 최소 2가지 이상 8-16자
@@ -301,28 +301,28 @@ export default function SignUp() {
             axios.post('http://localhost:8080/api/check-duplicate-email', {
                 email: state.email
             })
-            .then((response) => {
-                console.log("서버 응답: ", response.data); 
-                if (response.status === 200) {
-                    if (response.data === 0) {
-                        emailGuideText = '사용 할 수 있는 이메일 입니다.';
-                        emailDuplicationCheck = true;
-                    } else if (response.data === 1) {
-                        emailGuideText = '이미 사용중인 이메일 입니다.';
-                        emailDuplicationCheck = false;
+                .then((response) => {
+                    console.log("서버 응답: ", response.data);
+                    if (response.status === 200) {
+                        if (response.data === 0) {
+                            emailGuideText = '사용 할 수 있는 이메일 입니다.';
+                            emailDuplicationCheck = true;
+                        } else if (response.data === 1) {
+                            emailGuideText = '이미 사용중인 이메일 입니다.';
+                            emailDuplicationCheck = false;
+                        }
+                        confirmModalMethod(emailGuideText);
+                        setState({
+                            ...state,
+                            emailDuplicationCheck: emailDuplicationCheck
+                        });
                     }
+                })
+                .catch((err) => {
+                    console.log("이메일 중복 확인 오류: ", err);
+                    emailGuideText = '이메일 중복 확인 중 오류가 발생했습니다.';
                     confirmModalMethod(emailGuideText);
-                    setState({
-                        ...state,
-                        emailDuplicationCheck: emailDuplicationCheck
-                    });
-                }
-            })
-            .catch((err) => {
-                console.log("이메일 중복 확인 오류: ", err);
-                emailGuideText = '이메일 중복 확인 중 오류가 발생했습니다.';
-                confirmModalMethod(emailGuideText); 
-            });
+                });
         }
     }
 
@@ -552,7 +552,7 @@ export default function SignUp() {
         }
         else if (state.emailDuplicationCheck === false) {
             confirmModalMethod('이메일 중복 검사를 해주세요');
-        } 
+        }
         else if (state.name === '') {
             confirmModalMethod('이름을 입력해 주세요.');
         }
@@ -638,12 +638,12 @@ export default function SignUp() {
                                         className='input_obj'
                                     />
                                     <div className="duplicationButton_box">
-                                            <button
-                                                disabled={!state.isDuplicationIdBtn}
-                                                className={`duplication_btn${state.isDuplicationIdBtn ? '' : ' off'}`}
-                                                onClick={onClickDuplicateId} 
-                                            >중복확인</button>
-                                        </div>
+                                        <button
+                                            disabled={!state.isDuplicationIdBtn}
+                                            className={`duplication_btn${state.isDuplicationIdBtn ? '' : ' off'}`}
+                                            onClick={onClickDuplicateId}
+                                        >중복확인</button>
+                                    </div>
                                 </div>
                                 <div className="hide_text_box">
                                     <p className={`hide_text ${state.idGuideText !== '' ? ' on' : ''}`}>{state.idGuideText}</p>
@@ -699,10 +699,10 @@ export default function SignUp() {
                                         className='input_obj'
                                     />
                                     <div className="duplicationButton_box">
-                                            <button 
-                                                className={`duplication_btn${state.isDuplicationEmailBtn ? '' : ' off'}`}
-                                                onClick={onClickDuplicateEmail} 
-                                            >중복확인</button>
+                                        <button
+                                            className={`duplication_btn${state.isDuplicationEmailBtn ? '' : ' off'}`}
+                                            onClick={onClickDuplicateEmail}
+                                        >중복확인</button>
                                     </div>
                                 </div>
                                 <div className="hide_text_box">

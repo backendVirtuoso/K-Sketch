@@ -26,7 +26,7 @@ export default function UserInfoModify() {
         originalPw: '',
 
         email: '',
-        originalEmail:'',
+        originalEmail: '',
         emailGuideText: null,
         isDuplicationEmailBtn: false,
         emailDuplicationCheck: false,
@@ -52,46 +52,48 @@ export default function UserInfoModify() {
         gender: '',
         genderGuideText: ''
     });
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     useEffect(() => {
         const token = localStorage.getItem("token");
-    
+
         if (token) {
             axios
-            .get("http://localhost:8080/api/userinfo", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
-            .then((response) => {
-              const data = response.data;
-              const birthDate = data.birth || '';
-              const [birthYear, birthMonth, birthDay] = birthDate.split('-');
-              setState((prevState) => ({
-                ...prevState,
-                loginId: data.loginId || '',
-                name: data.name || '',
-                email: data.email || '',
-                gender: data.gender || '',
-                hp:data.phoneNumber || '',
-                birthYear: birthYear || '',
-                birthMonth: birthMonth || '',
-                birthDate: birthDay || '',
-                originalPw:data.password,
-                originalEmail:data.email
+                .get("http://localhost:8080/api/userinfo", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    const data = response.data;
+                    const birthDate = data.birth || '';
+                    const [birthYear, birthMonth, birthDay] = birthDate.split('-');
+                    setState((prevState) => ({
+                        ...prevState,
+                        loginId: data.loginId || '',
+                        name: data.name || '',
+                        email: data.email || '',
+                        gender: data.gender || '',
+                        hp: data.phoneNumber || '',
+                        birthYear: birthYear || '',
+                        birthMonth: birthMonth || '',
+                        birthDate: birthDay || '',
+                        originalPw: data.password,
+                        originalEmail: data.email
 
-              }));
-            })
-            .catch((err) => {
-              console.error("사용자 정보 요청 실패:", err);
-              setLoading(false);
-            });
+                    }));
+                })
+                .catch((err) => {
+                    console.error("사용자 정보 요청 실패:", err);
+                    setLoading(false);
+                });
         } else {
-          setError("로그인이 필요합니다.");
-          setLoading(false);
+            setError("로그인이 필요합니다.");
+            setLoading(false);
         }
-      }, []);
+    }, []);
 
     //  컨펌모달 매서드
     const confirmModalMethod = (msg, msg2) => {
@@ -134,8 +136,6 @@ export default function UserInfoModify() {
             isDuplicationIdBtn: isDuplicationIdBtn
         })
     }
-
-    
 
     // 비밀번호 입력상자 = 정규표현식
     // 제한조건
@@ -254,12 +254,12 @@ export default function UserInfoModify() {
 
     const onClickDuplicateEmail = (e) => {
         e.preventDefault();
-    
+
         const value = state.email;
         let emailGuideText = '';
         let emailDuplicationCheck = false;
         const regexp = /^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ`~!#$%^&*\-_=+{}|'?]+((\.)?[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?]+)*@[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?.]+((\.)?[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?.]+)*\.[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?]+$/g;
-    
+
         // 1. 이메일 변경 여부 확인
         if (value === state.originalEmail) {
             // 기존 이메일과 동일한 경우 중복 확인 필요 없음
@@ -272,7 +272,7 @@ export default function UserInfoModify() {
             });
             return; // 더 이상 처리하지 않고 종료
         }
-    
+
         // 2. 이메일 입력 및 형식 유효성 검사
         if (value === '') {
             emailGuideText = '이메일을 입력해 주세요.';
@@ -320,7 +320,7 @@ export default function UserInfoModify() {
                 });
         }
     };
-    
+
     // 입력상자 = 이름
     const onChangeName = (e) => {
         let nameGuideText = '';
@@ -530,19 +530,19 @@ export default function UserInfoModify() {
 
     const onsubmitForm = (e) => {
         e.preventDefault();
-        
+
         // 비밀번호와 이메일 변경 여부 확인
         const isPwSame = state.pw === state.originalPw;
         const isEmailSame = state.email === state.originalEmail;
-    
+
         // 비밀번호와 이메일 확인 상태 업데이트
         const pwCheck = isPwSame ? true : state.pw === state.pwCheck;
         const emailDuplicationCheck = isEmailSame || state.emailDuplicationCheck;
-    
+
         // 유효성 검사
         if (state.loginId === '') {
             confirmModalMethod('아이디를 입력해 주세요.');
-        } 
+        }
         else if (!pwCheck) {
             confirmModalMethod('비밀번호를 다시 확인해 주세요.');
         }
@@ -562,7 +562,7 @@ export default function UserInfoModify() {
             confirmModalMethod('생일을 입력해 주세요.');
         } else {
             const regExp = /^(\d{3})(\d{3,4})(\d{4})$/g;
-    
+
             // 서버로 보낼 데이터 객체 생성
             const userData = {
                 name: state.name,
@@ -573,7 +573,7 @@ export default function UserInfoModify() {
                 email: state.email,
                 gender: state.gender,
             };
-    
+
             // 서버에 요청
             axios
                 .post('http://localhost:8080/api/userinfo-Modify', userData)
@@ -593,7 +593,6 @@ export default function UserInfoModify() {
                 });
         }
     };
-    
 
     return (
         <div id='signUp'>
@@ -676,11 +675,11 @@ export default function UserInfoModify() {
                                         className='input_obj'
                                     />
                                     <div className="duplicationButton_box">
-                                            <button 
-                                                className={`duplication_btn${state.isDuplicationEmailBtn ? '' : ' off'}`}
-                                                onClick={onClickDuplicateEmail} 
-                                            >중복확인</button>
-                                        </div>
+                                        <button
+                                            className={`duplication_btn${state.isDuplicationEmailBtn ? '' : ' off'}`}
+                                            onClick={onClickDuplicateEmail}
+                                        >중복확인</button>
+                                    </div>
                                 </div>
                                 <div className="hide_text_box">
                                     <p className={`hide_text ${state.emailGuideText !== '' ? ' on' : ''}`}>{state.emailGuideText}</p>
@@ -805,7 +804,6 @@ export default function UserInfoModify() {
                     </form>
                 </div>
             </div>
-
         </div>
     );
 };

@@ -13,15 +13,15 @@ const Room = () => {
   const [error, setError] = useState(''); // 에러 상태 추가
   const dispatch = useDispatch();
 
- //  컨펌모달 매서드
- const confirmModalMethod = (msg, msg2) => {
-  const obj = {
+  //  컨펌모달 매서드
+  const confirmModalMethod = (msg, msg2) => {
+    const obj = {
       isConfirmModal: true,
       isMsg: msg,
       isMsg2: msg2
+    }
+    dispatch(confirmModal(obj));
   }
-  dispatch(confirmModal(obj));
-}
 
   // 컴포넌트가 마운트될 때 방 목록을 가져옵니다.
   useEffect(() => {
@@ -55,11 +55,13 @@ const Room = () => {
         confirmModalMethod("로그인이 필요한 서비스입니다");
         return;
       }
+
       const params = new URLSearchParams();
       params.append("name", roomName); // 새 방 이름 추가
       const response = await axios.post('http://localhost:8080/api/kafkachat/room', params, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       confirmModalMethod(`${response.data.name} 방 개설에 성공하였습니다.`);
       setRoomName(''); // 방 이름 초기화
       findAllRoom(); // 방 목록 다시 가져오기
@@ -95,8 +97,8 @@ const Room = () => {
   return (
     <div className="container my-5">
       <h3 className="text-center mb-4">
-        {selectedRoom ? 
-          "채팅방: " + chatrooms.find(room => room.roomId === selectedRoom)?.name : 
+        {selectedRoom ?
+          "채팅방: " + chatrooms.find(room => room.roomId === selectedRoom)?.name :
           "채팅방 리스트"
         }
       </h3>
