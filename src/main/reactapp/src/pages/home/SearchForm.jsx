@@ -28,7 +28,7 @@ const SearchForm = () => {
           className="searchform-layout"
           type="submit"
         >
-        검색
+          검색
         </Button>
       </Form>
     </div>

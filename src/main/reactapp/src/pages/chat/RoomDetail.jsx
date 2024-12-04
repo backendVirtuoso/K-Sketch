@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
-import './scss/roomDetail.scss';
+import './scss/roomDetail.scss'
+import { useParams } from 'react-router-dom';
 
 const RoomDetail = ({ roomId, onClose, messages, onSendMessage }) => {
   const [room, setRoom] = useState({});
@@ -15,9 +16,10 @@ const RoomDetail = ({ roomId, onClose, messages, onSendMessage }) => {
 
   const findRoom = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:8080/api/kafkachat/room/${roomId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` // JWT 토큰 포함
+        }
       });
       setRoom(response.data);
     } catch (error) {

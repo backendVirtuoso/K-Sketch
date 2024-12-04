@@ -2,21 +2,24 @@
   background-color: #a9c9d275; /* 하늘색 배경 */
   height: 900px; /* 컬럼의 높이를 100%로 설정하여 전체 영역에 배경색이 적용되도록 합니다. */
 }
-.profile-img{
-  width:180px;
-  margin-top:70px;
-}
-.buttonflex{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+
+.profile-img {
+  width: 180px;
+  margin-top: 70px;
 }
 
-.mypage-font-style{
-  font-size:20px;
-  margin-top:10px;
-  color:#4E82B4;
+.buttonflex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+.mypage-font-style {
+  font-size: 20px;
+  margin-top: 10px;
+  color: #4E82B4;
+}
+
 .btn-outline-primary {
   --bs-btn-color: #4E82B4;
   --bs-btn-border-color: #4E82B4;
@@ -33,23 +36,25 @@
   --bs-btn-disabled-border-color: #4E82B4;
   --bs-gradient: none;
 }
-@media(max-width:768px){
+
+@media(max-width:768px) {
   .mypage-1st-col {
     background-color: #a9c9d275; /* 하늘색 배경 */
     height: 300px; /* 컬럼의 높이를 100%로 설정하여 전체 영역에 배경색이 적용되도록 합니다. */
   }
-  .profile-img{
-    width:150px;
-    margin-top:30px;
-    height:150px;
-    
-  }
-  .mypage-p{
-    display:none;
+
+  .profile-img {
+    width: 150px;
+    margin-top: 30px;
+    height: 150px;
+
   }
 
-  .mypage-button-1{
-    display:none;
+  .mypage-p {
+    display: none;
   }
 
+  .mypage-button-1 {
+    display: none;
+  }
 }

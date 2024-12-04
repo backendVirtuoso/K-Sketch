@@ -1,8 +1,10 @@
 package com.trip.app.config;
 
+import com.trip.app.jwt.CustomSuccessHandler;
 import com.trip.app.jwt.JwtFilter;
 import com.trip.app.jwt.JwtUtil;
 import com.trip.app.jwt.LoginFilter;
+import com.trip.app.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +13,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,7 +25,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -31,10 +32,14 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomSuccessHandler customSuccessHandler;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil, CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.customSuccessHandler = customSuccessHandler;
     }
 
     @Bean
@@ -50,10 +55,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 클라이언트 주소
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
+        configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 허용
+        configuration.setAllowedHeaders(Arrays.asList("*")); // 모든 헤더 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -62,43 +67,63 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(withDefaults -> {});
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.formLogin(AbstractHttpConfigurer::disable);
-        http.httpBasic(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests((auth) -> auth
-                // 특정 요청 패턴에 대해 인증 요구
-                .requestMatchers("/api/kafkachat/room").permitAll() // 방 목록은 인증 없이 조회 가능
-                .requestMatchers("/api/kafkachat/rooms").permitAll() // 방 정보도 인증 없이 가능
-                .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated() // 방 생성 및 입장은 인증 필요
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").authenticated()
-                .requestMatchers("/", "/ws/**", "/api/join").permitAll()
-                .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email","/api/search-pw-email","/api/pw-change").permitAll()
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource())); // CORS 설정 추가
+        http.csrf(csrf -> csrf.disable()); // CSRF 비활성화
+        http.formLogin(formLogin -> formLogin.disable()); // Form 로그인 비활성화
+        http.httpBasic(httpBasic -> httpBasic.disable()); // HTTP Basic 비활성화
+
+        // OAuth2 설정
+        http.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                        .userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler)
         );
 
+        // 요청 권한 설정
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/main/**").permitAll()
+                .requestMatchers("/api/kafkachat/room").permitAll()
+                .requestMatchers("/api/kafkachat/rooms").permitAll()
+                .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated()
+                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").authenticated()
+                .requestMatchers("/", "/ws/**", "/api/join").permitAll()
+                .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email", "/api/search-pw-email", "/api/pw-change", "/api/userinfo-Modify","/api/userinfo").permitAll()
+        );
+
+        // 권한 부족 시 처리 (AccessDeniedHandler 설정)
+        http.exceptionHandling(exception -> exception
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"Forbidden: Access denied\"}");
+                })
+        );
+
+        // JWT 필터 추가
         LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
         loginFilter.setFilterProcessesUrl("/api/login");
 
         http.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 세션 정책 설정
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.logout((log) -> log
+
+        // 로그아웃 설정
+        http.logout(log -> log
                 .logoutUrl("/api/logout")
-                .logoutSuccessHandler(((request, response, authentication) -> {
-                    // 로그아웃 성공시 처리
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    // 로그아웃 성공 시 처리
                     System.out.println("로그아웃 처리가 완료됨");
                     response.setStatus(HttpServletResponse.SC_OK);
-                }))
-                .addLogoutHandler(new LogoutHandler() {
-                    @Override
-                    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                        // 추가적인 로그아웃 처리 여기서 (Ex -> 토큰 무효 화, 토큰 블랙리스트 등등)
-                    }
-                }));
+                })
+                .addLogoutHandler((request, response, authentication) -> {
+                    // SecurityContext 초기화
+                    SecurityContextHolder.clearContext();
+                })
+        );
 
         return http.build();
     }
-
-
 }

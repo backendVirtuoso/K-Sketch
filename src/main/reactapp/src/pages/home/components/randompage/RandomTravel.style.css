@@ -9,7 +9,6 @@
     font-family: 'NoonnuBasicGothicRegular';
     color: #87CEEB;
     font-size: 30px;
-
 }
 
 .random-title-b {
@@ -22,200 +21,178 @@
     display: flex;
     justify-content: center;
     margin-top: 10px;
-
 }
 
-.random-img{
+.random-img {
     width: 500px;
     height: 350px;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
-   
 }
 
-.title-randompage{
-font-size:25px;
-margin-bottom:20px;
-color:#4E82B4;
-font-weight: 700;
+.title-randompage {
+    font-size: 25px;
+    margin-bottom: 20px;
+    color: #4E82B4;
+    font-weight: 700;
 }
 
-.discrip-randompage{
-    font-size:23px;
-    margin-bottom:35px;
+.discrip-randompage {
+    font-size: 23px;
+    margin-bottom: 35px;
 }
+
 .my-random-dis2 {
     width: 350px;
     /* 오른쪽 위와 아래에만 border-radius 적용 */
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
-  
+
     /* border 스타일 추가 (밑에 그림자처럼 보이도록) */
     border-left: 1px solid #ddd; /* 왼쪽 border */
-    border-top: 1px solid #ddd;  /* 상단 border */
+    border-top: 1px solid #ddd; /* 상단 border */
     border-right: 1px solid #ccc; /* 오른쪽 border */
     border-bottom: 1px solid #ccc; /* 밑에 그림자 같은 border */
-    position:relative;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-  }
-.random-recipe-content{
-display:flex;
-flex-direction:column;
-text-align:center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.random-recipe-content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
 .random-img.no-image {
     background-color: #f0f0f0; /* 배경색을 추가하여 시각적으로 구분 */
-    color: #888;  /* 텍스트 색상 */
+    color: #888; /* 텍스트 색상 */
     font-size: 16px; /* 텍스트 크기 */
-    
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-  .randomtravel{
-    display:flex;
-    justify-content:center;
-  }
+.randomtravel {
+    display: flex;
+    justify-content: center;
+}
 
-  .random-recipe-container-wrapper{
-    display:flex;
-    margin-bottom:15px;
-  }
+.random-recipe-container-wrapper {
+    display: flex;
+    margin-bottom: 15px;
+}
 
-  .btn-detail{
-    width:180px;
-    background-color:#4E82B4;
-    
+.btn-detail {
+    width: 180px;
+    background-color: #4E82B4;
+
     /* text-decoration: underline ;
     font-size:15px;
     font-weight:500px; */
-  }
+}
 
-  .dutton-random-travel{
-    position:absolute;
-    right:50px;
-    bottom:50px;
-  }
-  @media (max-width: 768px) {
+.dutton-random-travel {
+    position: absolute;
+    right: 50px;
+    bottom: 50px;
+}
 
-   
+@media (max-width: 768px) {
     .random-title {
         flex-direction: column;
         margin-top: 10px;
         text-align: center;
     }
 
- 
-    .random-title-a, .random-title-b {
-        font-size: 20px; 
+    .random-title-a,
+    .random-title-b {
+        font-size: 20px;
     }
 
-    
     .random-img {
-        width: 80%; 
-        height: auto; 
+        width: 80%;
+        height: auto;
         border-bottom-left-radius: 0px;
         border-top-left-radius: 20px;
         border-top-right-radius: 20px;
-          display: block; 
-    margin-left: auto; 
-    margin-right: auto;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    
     .my-random-dis2 {
-        width: 80%; 
-        
-       
+        width: 80%;
         border-top-right-radius: 0px;
         border-bottom-left-radius: 20px;
         border-bottom-right-radius: 20px;
-        
         border-left: 1px solid #ddd;
         border-top: 1px solid #ddd;
         border-right: 1px solid #ccc;
         border-bottom: 1px solid #ccc;
     }
 
-    
     .random-recipe-container-wrapper {
-        flex-direction: column; 
-        align-items: center; 
+        flex-direction: column;
+        align-items: center;
         margin-bottom: 15px;
     }
 
-    
     .btn-detail {
         width: 150px;
-        margin-bottom:10px; 
-
-        margin-top:10px; 
-
+        margin-bottom: 10px;
+        margin-top: 10px;
         font-size: 15px;
     }
 
-    
     .dutton-random-travel {
         position: relative;
-        right: 0; 
+        right: 0;
         bottom: 0;
     }
 
-  
-   
-        
-        .randomtravel{
-            display:flex;
-            justify-content:center;
-          }
-          .title-randompage{
-            font-size:18px;
-            margin-bottom:18px;
+    .randomtravel {
+        display: flex;
+        justify-content: center;
+    }
 
-            margin-top:10px;
+    .title-randompage {
+        font-size: 18px;
+        margin-bottom: 18px;
+        margin-top: 10px;
+        color: #4E82B4;
+        font-weight: 600;
+    }
 
-          
+    .discrip-randompage {
+        font-size: 10px;
+        margin-bottom: 30px;
+    }
 
-            color:#4E82B4;
-            font-weight: 600;
-            }
-            
-            .discrip-randompage{
-                font-size:10px;
-                margin-bottom:30px;
-            }
-
-  /* Image placeholder when no image is available */
-  .random-img.no-image {
-    width: 80%; /* Take full width of its container */
-    height: 200px; /* Keep same height as the image */
-    background-color: #f1f1f1; /* Light gray background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-bottom-left-radius: 0px;
+    /* Image placeholder when no image is available */
+    .random-img.no-image {
+        width: 80%; /* Take full width of its container */
+        height: 200px; /* Keep same height as the image */
+        background-color: #f1f1f1; /* Light gray background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-bottom-left-radius: 0px;
         border-top-left-radius: 20px;
         border-top-right-radius: 20px;
-    
-}
+    }
 
-/* Image placeholder (icon/logo) */
+    /* Image placeholder (icon/logo) */
+    .random-img.no-image img {
+        width: 60%; /* Adjust size of the logo */
+        height: auto; /* Maintain aspect ratio */
+        position: relative;
+        left: 65px;
+    }
 
-.random-img.no-image img {
-    width: 60%; /* Adjust size of the logo */
-    height: auto; /* Maintain aspect ratio */
-    position:relative;
-    left:65px;
-
-}
-.noimagediv{
-    display:flex;
-    justify-content:center;
-
-}
-            
-
+    .noimagediv {
+        display: flex;
+        justify-content: center;
+    }
 }

@@ -5,14 +5,14 @@ import { monthNames, weekDayNames } from "../../util";
 
 export default function Forecast({ forecastData }) {
     const dailyForecast = [];
-    const { city: { timezone }} = forecastData;
+    const { city: { timezone } } = forecastData;
 
     const now = new Date();
     const today = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split("T")[0];
 
     forecastData.list.forEach((forecast) => {
         const { dt } = forecast;
-        
+
         const newDate = new Date((dt + timezone) * 1000);
         const date = newDate.toISOString().split("T")[0];
 

@@ -3,7 +3,7 @@ import styles from './style/HourlyForecast.module.css'
 import Card from './Card';
 import { getHours } from '../../util';
 
-export default function HourlyForecast({forecastData}) {
+export default function HourlyForecast({ forecastData }) {
     const filteredData = forecastData.list.filter((_, index) => index < 8);
     const directionImg = 'assets/images/direction.png';
 
@@ -40,7 +40,7 @@ export default function HourlyForecast({forecastData}) {
                 </ul>
                 <ul className={styles.list}>
                     {filteredData.map((forecast) => {
-                        const { 
+                        const {
                             dt,
                             weather,
                             wind: { deg, speed },
