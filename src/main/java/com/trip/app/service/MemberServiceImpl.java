@@ -49,6 +49,11 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     }
 
     @Override
+    public MemberDTO findByUsername(String username) {
+        return memberMapper.findByUsername(username);
+    }
+
+    @Override
     public int checkDuplicateId(String loginId) {
         // 아이디 중복 여부 체크
         MemberDTO memberDTO = memberMapper.checkDuplicateId(loginId);
@@ -87,5 +92,25 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
             return false;  // 예외 발생 시 false 반환
         }
     }
+    @Override
+    public boolean updateUserInfo(MemberDTO memberDTO) {
+        try {
+            // 비밀번호가 비어 있지 않다면 암호화
+            if (memberDTO.getPassword() != null && !memberDTO.getPassword().isEmpty()) {
+                String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
+                memberDTO.setPassword(encodedPassword);
+            } else {
+                // 비밀번호가 비어 있다면 기존 비밀번호 유지
+                MemberDTO existingMember = memberMapper.findByUsername(memberDTO.getLoginId());
+                memberDTO.setPassword(existingMember.getPassword());
+            }
 
+            // 사용자 정보 업데이트
+            int result = memberMapper.updateUserInfo(memberDTO);
+            return result > 0;  // 업데이트 성공 시 true, 실패 시 false
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;  // 예외 발생 시 false
+        }
+    }
 }

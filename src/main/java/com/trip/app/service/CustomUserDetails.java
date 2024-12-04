@@ -19,19 +19,22 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority((memberDTO.getRole()))); // 권한설정 수정
+        if (memberDTO.getRole() != null && !memberDTO.getRole().isEmpty()) {
+            authorities.add(new SimpleGrantedAuthority(memberDTO.getRole())); // 권한 설정
+        }
         return authorities;
     }
 
     @Override
-    public String getPassword(){
+    public String getPassword() {
         return memberDTO.getPassword();
     }
 
     @Override
-    public String getUsername(){
+    public String getUsername() {
         return memberDTO.getLoginId();
     }
+
     @Override
     public boolean isAccountNonExpired() { return true; }
 

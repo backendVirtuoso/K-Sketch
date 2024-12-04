@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trip.app.mapper.AdminMapper">
+
+    <!-- 배너 추가 -->
+    <insert id="insertBanner">
+        INSERT INTO banners (image, image_name)
+        VALUES (#{image}, #{imageName})
+    </insert>
+
+    <!-- 배너 조회 -->
+    <select id="getBannerById" resultType="com.trip.app.model.BannerDTO">
+        SELECT * FROM banners WHERE id = #{id}
+    </select>
+
+    <!-- 모든 배너 조회 -->
+    <select id="getAllBanners" resultType="com.trip.app.model.BannerDTO">
+        SELECT * FROM banners
+    </select>
+
+</mapper>

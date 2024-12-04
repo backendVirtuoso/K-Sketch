@@ -16,12 +16,14 @@ const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
                     />
                 ) : (
                     <div className="no-image-placeholder">
-                        <small className="text-muted m-0">이미지가<br/>없습니다</small>
+                        <small className="text-muted m-0">이미지가<br />없습니다</small>
                     </div>
                 )}
                 <div className="place-info">
-                    <div className="fw-bold">{place.title}</div>
-                    <small className="text-muted">{place.addr1}</small>
+                    <div className="fw-bold text-truncate" title={place.title}>{place.title}</div>
+                    <small className="text-muted text-truncate d-block" title={place.addr1}>
+                        {place.addr1}
+                    </small>
                 </div>
             </div>
         </div>
@@ -92,11 +94,10 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
                         <button
                             key={type.id}
                             onClick={() => setContentTypeId(type.id)}
-                            className={`btn btn-sm content-type-button ${
-                                contentTypeId === type.id
+                            className={`btn btn-sm content-type-button ${contentTypeId === type.id
                                     ? 'btn-primary'
                                     : 'btn-outline-primary'
-                            }`}
+                                }`}
                         >
                             {type.text}
                         </button>
@@ -120,7 +121,7 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
 };
 
 // 날짜 선택 컴포넌트
-const DateSelector = () => {
+const DateSelector = ({ onDateSelect }) => {
     const [dateRange, setDateRange] = useState([null, null]);
     const [startDate, endDate] = dateRange;
     const [showTimeSelector, setShowTimeSelector] = useState(false);
@@ -153,6 +154,7 @@ const DateSelector = () => {
             }
             setSelectedDates(dates);
             setShowTimeSelector(true);
+            onDateSelect([startDate, endDate], dates);
         }
     };
 
@@ -333,7 +335,7 @@ const DateSelector = () => {
                                             value={dateInfo.startTime}
                                             onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
                                         >
-                                            {Array.from({length: 24}, (_, i) => {
+                                            {Array.from({ length: 24 }, (_, i) => {
                                                 const timeValue = `${String(i).padStart(2, '0')}:00`;
                                                 return (
                                                     <option key={i} value={timeValue}>
@@ -355,7 +357,7 @@ const DateSelector = () => {
                                             value={dateInfo.endTime}
                                             onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
                                         >
-                                            {Array.from({length: 24}, (_, i) => {
+                                            {Array.from({ length: 24 }, (_, i) => {
                                                 const timeValue = `${String(i).padStart(2, '0')}:00`;
                                                 return (
                                                     <option key={i} value={timeValue}>
@@ -370,7 +372,14 @@ const DateSelector = () => {
                         ))}
                     </div>
                     <div className="mt-3 d-flex justify-content-between">
-                        <button className="btn btn-primary">시간 설정 완료</button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => {
+                                onDateSelect([startDate, endDate], selectedDates, true); // 완료 상태를 전달
+                            }}
+                        >
+                            시간 설정 완료
+                        </button>
                     </div>
                 </div>
             )}
@@ -448,14 +457,13 @@ const STEP_BUTTONS = [
 const StepButton = ({ id, step, text, currentStep, onClick }) => (
     <button
         onClick={() => onClick(id)}
-        className={`sidebar-button btn border-0 p-3 rounded-3 ${
-            currentStep === id
+        className={`sidebar-button btn border-0 p-3 rounded-3 ${currentStep === id
                 ? 'text-primary fw-bold bg-primary bg-opacity-10'
                 : 'text-secondary bg-light'
-        }`}
+            }`}
     >
         <div className="sidebar-button-text">
-            STEP {step}<br/>{text}
+            STEP {step}<br />{text}
         </div>
     </button>
 );
@@ -482,8 +490,10 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                     className="selected-item-image"
                 />
                 <div className="selected-item-content">
-                    <div className="fw-bold text-truncate">{place.title}</div>
-                    <small className="text-muted text-truncate d-block">
+                    <div className="fw-bold text-truncate" title={place.title}>
+                        {place.title}
+                    </div>
+                    <small className="text-muted text-truncate d-block" title={place.addr1 || '주소 정보가 없습니다'}>
                         {place.addr1 || '주소 정보가 없습니다'}
                     </small>
                 </div>

@@ -43,6 +43,7 @@ export default function SignIn() {
                     // 토큰과 유저 아이디 저장
                     localStorage.setItem("token", response.data.token);
                     localStorage.setItem("username", response.data.username); // 유저 ID 저장
+                    localStorage.setItem("userRole", response.data.userRole);
 
                     // 리디렉션 처리
                     window.location.replace("/");
@@ -59,7 +60,18 @@ export default function SignIn() {
         navigate("/signup");
     };
 
-    const kakaohandler = () => { };
+    const onNaverLogin = () => {
+
+        window.location.href = "http://localhost:8080/oauth2/authorization/naver"
+    }
+
+    const onGoogleLogin = () => {
+        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    }
+
+    const onKakoLogin = () => {
+        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
+    }
 
     return (
         <div id='signIn'>
@@ -82,22 +94,22 @@ export default function SignIn() {
                                     <ul>
                                         <li>
                                             <input type="text"
-                                                   id='userId'
-                                                   name='userId'
-                                                   placeholder='아이디'
-                                                   value={id}
-                                                   onChange={(e) => setId(e.target.value)}
-                                                   required />
+                                                id='userId'
+                                                name='userId'
+                                                placeholder='아이디'
+                                                value={id}
+                                                onChange={(e) => setId(e.target.value)}
+                                                required />
                                         </li>
                                         <li>
                                             <input type="password"
-                                                   id='userPw'
-                                                   name='userPw'
-                                                   placeholder='비밀번호'
-                                                   value={pwd}
-                                                   maxLength={16}
-                                                   onChange={(e) => setPwd(e.target.value)}
-                                                   required />
+                                                id='userPw'
+                                                name='userPw'
+                                                placeholder='비밀번호'
+                                                value={pwd}
+                                                maxLength={16}
+                                                onChange={(e) => setPwd(e.target.value)}
+                                                required />
                                         </li>
                                     </ul>
                                     <p className='id-save'>
@@ -109,8 +121,9 @@ export default function SignIn() {
                                         <button type='submit'>로그인</button>
                                     </div>
                                     <div className="log-in2">
-                                        <a href="!#"><img src="./images/sign/signin/ico_login_naver.webp" alt="" />네이버 로그인</a>
-                                        <a href="!#"><img src="./images/sign/signin/ico_login_kakao.webp" alt="" />카카오 로그인</a>
+                                        <button onClick={onNaverLogin}></button>
+                                        <button onClick={onKakoLogin}></button>
+                                        <button onClick={onGoogleLogin}></button>
                                     </div>
                                     <div className="search-box">
                                         <Link to="/userIdSearch">아이디 찾기</Link>

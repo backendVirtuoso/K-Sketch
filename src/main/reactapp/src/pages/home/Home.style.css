@@ -1,3 +1,11 @@
+.main-page {
+  position: relative;
+}
+
+.menu-list {
+  height: 1200px;
+}
+
 .home-searchform {
   display: flex;
   justify-content: center;
@@ -6,7 +14,8 @@
   top: 280px; 
   left: 33%; 
 }
-.mainpage{
+
+.mainpage {
   display:flex;
   justify-content:center;
 }
@@ -28,6 +37,7 @@
 .scroll-to-top:hover {
   transform: scale(1.1);
 }
+
 @media (max-width: 768px) {
   .home-searchform {
     top: 200px; /* Adjust top position for mobile */

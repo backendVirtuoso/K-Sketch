@@ -1,5 +1,6 @@
 package com.trip.app.model;
 
+
 import lombok.Data;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -16,4 +17,8 @@ public class MemberDTO {
     private String role;
     private Timestamp createAt;
 
+    // 기본 생성자에서 role 초기값 설정
+    public MemberDTO() {
+        this.role = "ROLE_USER";
+    }
 }

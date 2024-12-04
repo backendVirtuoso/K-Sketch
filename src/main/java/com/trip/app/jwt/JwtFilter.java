@@ -24,42 +24,54 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // request 에서 Authorization 헤더를 찾음
+        // Authorization 헤더에서 토큰을 추출
         String authorization = request.getHeader("Authorization");
 
-        // Authorization 헤더 검증
-        if(authorization == null || !authorization.startsWith("Bearer")){
-            System.out.println("token null");
+        if (authorization == null || !authorization.startsWith("Bearer")) {
             filterChain.doFilter(request, response);
-
             return;
         }
 
         String token = authorization.split(" ")[1];
 
-        if(jwtUtil.isExpired(token)){
-            System.out.println("token expired");
+        if (jwtUtil.isExpired(token)) {
+            System.out.println("Token expired");
             filterChain.doFilter(request, response);
-
             return;
         }
 
+        // 토큰에서 사용자 정보와 역할 추출
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 
+        // MemberDTO 설정
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setLoginId(username);
-        memberDTO.setPassword("temppassword"); // 비밀번호는 토큰에 저장되지않는데 디비에서 조회하게되면 매번 디비를 조회해야하기때문에 임시비번으로 초기화한다.
+        memberDTO.setPassword("temppassword");
         memberDTO.setRole(role);
 
+        // CustomUserDetails 생성
         CustomUserDetails customUserDetails = new CustomUserDetails(memberDTO);
 
+        // 권한 확인 로그 추가
+        System.out.println("CustomUserDetails Authorities: " + customUserDetails.getAuthorities());
+
+        // Authentication 객체 생성
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
+        // 인증 정보 설정
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        System.out.println("authToken : " + authToken);
+        // 인증 정보 로그 추가
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            System.out.println("Authentication: " + authentication);
+            System.out.println("Roles: " + authentication.getAuthorities());
+        } else {
+            System.out.println("Authentication is null");
+        }
 
+        // 필터 체인 진행
         filterChain.doFilter(request, response);
     }
 }

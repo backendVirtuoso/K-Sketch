@@ -26,7 +26,7 @@
 }
 
 .header {
- 
+
   display: flex;
   align-items: center;
   height: 50px;
@@ -55,46 +55,42 @@ body {
   padding-top: 90px;
 }
 
-.video{
-  width:350px;
-  height:130px;
-  margin-top:10px;
+.video {
+  width: 350px;
+  height: 130px;
+  margin-top: 10px;
 }
 
 
 
-.path:hover{
-color:#4E82B4;
-text-decoration:underline;
-font-weight:500;
+.path:hover {
+  color: #4E82B4;
+  text-decoration: underline;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
-
-
   /* 모바일 해상도 기준 */
   .fauser {
     padding-top: 7.5px;
     cursor: pointer;
   }
 
-  .video{
-    width:150px;
-    height:130px;
+  .video {
+    width: 150px;
+    height: 130px;
     /* margin-top:10px; */
   }
-/* AppLayout.style.css */
 
-/* 모바일 환경에서 Navbar 요소들이 왼쪽에 붙게 만듦 */
-@media (max-width: 992px) { /* Bootstrap의 기본 모바일 브레이크포인트 */
+  /* AppLayout.style.css */
 
+  /* 모바일 환경에서 Navbar 요소들이 왼쪽에 붙게 만듦 */
+  @media (max-width: 992px) {
+    /* Bootstrap의 기본 모바일 브레이크포인트 */
 
-  .fauser {
-    margin-left: 0; /* 로그인/로그아웃 아이콘도 왼쪽에 붙임 */
+    .fauser {
+      margin-left: 0;
+      /* 로그인/로그아웃 아이콘도 왼쪽에 붙임 */
+    }
   }
-
-
 }
-
-}
-
