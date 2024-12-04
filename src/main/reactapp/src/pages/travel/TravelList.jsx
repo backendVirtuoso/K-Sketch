@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import TravelCard from "./travelcard/TravelCard";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
-import "./TravelList.style.css"; 
+import "./TravelList.style.css";
 import Loading from "../../common/Loading";
 
 const TravelList = () => {
@@ -13,7 +13,7 @@ const TravelList = () => {
   const keyword = query.get("q");
 
   const { data, isLoading, isError, error } = useSearch({ keyword });
-  const [categories, setCategories] = useState([]); 
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
@@ -97,35 +97,35 @@ const TravelList = () => {
 
           {/* 여행 카드 리스트 */}
           <Col lg={9} xs={12}>
-  <Row className="justify-content-center"> {/* Row에 수평 가운데 정렬 */}
-    {paginatedData.map((totravel) => (
-      <Col lg={4} md={6} xs={12} key={totravel.id} className="d-flex justify-content-center"> {/* 개별 카드에 가운데 정렬 */}
-        <TravelCard togotravel={totravel} />
-      </Col>
-    ))}
-  </Row>
-  <div className="page-center">
-            {/* 페이지네이션 */}
-            <ReactPaginate
-              nextLabel="Next >"
-              onPageChange={handlePageClick}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={2}
-              pageCount={Math.ceil(displayData.length / itemsPerPage)} // 전체 페이지 수
-              previousLabel="< Previous"
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              containerClassName="pagination"
-              activeClassName="active"
-              forcePage={currentPage - 1} // 현재 페이지
-            />
+            <Row className="justify-content-center"> {/* Row에 수평 가운데 정렬 */}
+              {paginatedData.map((totravel) => (
+                <Col lg={4} md={6} xs={12} key={totravel.id} className="d-flex justify-content-center"> {/* 개별 카드에 가운데 정렬 */}
+                  <TravelCard togotravel={totravel} />
+                </Col>
+              ))}
+            </Row>
+            <div className="page-center">
+              {/* 페이지네이션 */}
+              <ReactPaginate
+                nextLabel="Next >"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={3}
+                marginPagesDisplayed={2}
+                pageCount={Math.ceil(displayData.length / itemsPerPage)} // 전체 페이지 수
+                previousLabel="< Previous"
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakLabel="..."
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+                containerClassName="pagination"
+                activeClassName="active"
+                forcePage={currentPage - 1} // 현재 페이지
+              />
             </div>
           </Col>
         </Row>

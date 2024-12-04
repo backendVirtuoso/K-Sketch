@@ -157,7 +157,6 @@ export default function SignUp() {
         }
     };
     
-
     // 비밀번호 입력상자 = 정규표현식
     // 제한조건
     // 제한조건1 : 영문(소문자), 숫자, 특수문자 중 최소 2가지 이상 8-16자
@@ -640,7 +639,6 @@ export default function SignUp() {
                                     />
                                     <div className="duplicationButton_box">
                                             <button
-                                                 
                                                 disabled={!state.isDuplicationIdBtn}
                                                 className={`duplication_btn${state.isDuplicationIdBtn ? '' : ' off'}`}
                                                 onClick={onClickDuplicateId} 
@@ -705,7 +703,7 @@ export default function SignUp() {
                                                 className={`duplication_btn${state.isDuplicationEmailBtn ? '' : ' off'}`}
                                                 onClick={onClickDuplicateEmail} 
                                             >중복확인</button>
-                                        </div>
+                                    </div>
                                 </div>
                                 <div className="hide_text_box">
                                     <p className={`hide_text ${state.emailGuideText !== '' ? ' on' : ''}`}>{state.emailGuideText}</p>

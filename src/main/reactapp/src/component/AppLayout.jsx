@@ -70,7 +70,6 @@ const AppLayout = () => {
     <Navbar expand="lg" className="bg-body-tertiary navbar-fixed">
       <Container fluid  style={{ backgroundColor: "white" }}>
         <Navbar.Brand href="/" onClick={gotohome} className="header">
-       
           <video src={logo} autoPlay loop muted className="video" />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />

@@ -72,7 +72,6 @@ export default function SignIn() {
         window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
     }
 
-
     return (
         <div id='signIn'>
             <div className="container">

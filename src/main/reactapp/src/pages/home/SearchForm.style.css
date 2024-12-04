@@ -1,9 +1,9 @@
 .searchform-searchform {
   background-color: rgba(255, 255, 255, 0.735);
   width: 600px;
-  height:50px;
-
+  height: 50px;
 }
+
 .btn-outline-info {
   --bs-btn-color: #4E82B4;
   --bs-btn-border-color: #4E82B4;
