@@ -56,17 +56,9 @@ const Detail = ({ data, onClose, setModal, setShowCardDetail }) => {
           <CloseButton onClick={onClose}>×</CloseButton>
           <h2>{data.title}</h2>
           {data.firstimage ? (
-            <img
-              src={data.firstimage}
-              alt={data.title}
-              style={{ maxWidth: "100%", height: "500px", width: "100%" }}
-            />
+            <img src={data.firstimage} alt={data.title} style={{ maxWidth: "100%", height: "500px", width: "100%" }} />
           ) : (
-            <img
-              src={logo}
-              alt="로고"
-              style={{ maxWidth: "100%", height: "500px", width: "100%" }}
-            />
+            <img src={logo} alt='로고' style={{ maxWidth: "100%", height: "500px", width: "100%" }} />
           )}
           <p>{data.addr1}</p>
           <p>{data.addr2}</p>

@@ -50,7 +50,7 @@ const WeatherApi = {
                 appid: process.env.REACT_APP_WEATHER_API_KEY,
             },
         });
-        
+
         return response.data[0].local_names?.['ko'] || response.data[0].name;
     },
 

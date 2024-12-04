@@ -2,7 +2,8 @@ import React from 'react';
 import './scss/searchResult.scss'
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
-export default function IdSearchResult(){
+
+export default function IdSearchResult() {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -14,7 +15,6 @@ export default function IdSearchResult(){
 
         return `${year}-${month}-${day}`;
     };
-
 
     return (
         <div id='searchResult'>

@@ -56,7 +56,7 @@ export default function MainContent() {
             },
             {
                 queryKey: ["air_pollution", location.lat, location.lon],
-                queryFn: () => 
+                queryFn: () =>
                     location.lat && location.lon
                         ? WeatherApi.getAirPollution(location.lat, location.lon)
                         : Promise.reject(new Error("위치 정보 없음")),
@@ -70,7 +70,7 @@ export default function MainContent() {
         ],
     });
 
-    const [{ data: currentWeather }, { data: forecastData }, { data: city }, {data: airPollution}] = results;
+    const [{ data: currentWeather }, { data: forecastData }, { data: city }, { data: airPollution }] = results;
 
     const isLoading = results[0].isLoading || results[1].isLoading || results[2].isLoading || results[3].isLoading;
 
@@ -86,8 +86,8 @@ export default function MainContent() {
                     <Forecast forecastData={forecastData} />
                 </div>
                 <div className={styles.right}>
-                    <Highlights airPollution={airPollution} currentWeather={currentWeather}/>
-                    <HourlyForecast forecastData={forecastData}/>
+                    <Highlights airPollution={airPollution} currentWeather={currentWeather} />
+                    <HourlyForecast forecastData={forecastData} />
                 </div>
             </article>
         </main>

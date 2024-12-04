@@ -62,42 +62,40 @@ const RandomTravel = () => {
   const mapLink = `https://map.naver.com/p/search/${encodeURIComponent(randomItem?.addr1)}`;
 
   return (
-   
-     
-      <div>
+    <div>
       <div className="random-title"><span className="random-title-a">'k-sketch'</span><span className="random-title-b">표 쉬운 여행길잡이</span></div>
-      <div className="randomtravel">  
-      {error && <Error>{error}</Error>}
+      <div className="randomtravel">
+        {error && <Error>{error}</Error>}
         {randomItem ? (
           <div className="random-recipe-container-wrapper">
-<div className="my-random-img">
-  <div className={`random-recipe-img ${isActive ? "fade-in" : "fade-out"}`}>
-    {/* 이미지가 있을 경우 */}
-    {randomItem.firstimage ? (
-      <img 
-        src={randomItem.firstimage} 
-        alt={randomItem.title} 
-        className="random-img"
-      />
-    ) : (
-      // 이미지가 없을 경우
-      <div className="random-img no-image">
+            <div className="my-random-img">
+              <div className={`random-recipe-img ${isActive ? "fade-in" : "fade-out"}`}>
+                {/* 이미지가 있을 경우 */}
+                {randomItem.firstimage ? (
+                  <img
+                    src={randomItem.firstimage}
+                    alt={randomItem.title}
+                    className="random-img"
+                  />
+                ) : (
+                  // 이미지가 없을 경우
+                  <div className="random-img no-image">
 
-        <div> <img src={logoimage} /></div>
+                    <div> <img src={logoimage} /></div>
 
-      </div>
-    )}
-  </div>
-</div>
-            <div  className="my-random-dis2">
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="my-random-dis2">
               <div className={`random-recipe-content ${isActive ? "fade-in" : "fade-out"}`}>
                 <div className="title-randompage">{randomItem.title}</div>
                 <div classNmae="discrip-randompage">{randomItem.addr1}</div>
                 <div classNmae="discrip-randompage">{randomItem.addr2}</div>
                 <div className="dutton-random-travel">
-                <Button  className="btn-detail" variant="primary"  onClick={() => window.open(mapLink, "_blank")}>
-                  자세히보기 &gt;
-                </Button>
+                  <Button className="btn-detail" variant="primary" onClick={() => window.open(mapLink, "_blank")}>
+                    자세히보기 &gt;
+                  </Button>
                 </div>
               </div>
             </div>
@@ -106,7 +104,7 @@ const RandomTravel = () => {
           <p><Loading />.</p>
         )}
       </div>
-      </div>
+    </div>
   );
 };
 

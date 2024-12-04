@@ -10,7 +10,6 @@
     margin: 0 auto;
     width: 80%;
     height: auto;  /* max-height를 제대로 동작시키기 위해 height 설정 */
-
     &:hover {
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* 호버 시 그림자 효과 */
     }

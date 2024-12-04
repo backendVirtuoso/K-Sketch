@@ -1,11 +1,11 @@
-import React from 'react';
-import './scss/signUp.scss';
+import React, { useEffect, useState } from "react";
+import '../sign/scss/signUp.scss';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { confirmModal } from '../../reducer/confirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-export default function SignUp() {
+export default function UserInfoModify() {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
@@ -14,9 +14,7 @@ export default function SignUp() {
     const [state, setState] = React.useState({
 
         loginId: '',
-        idGuideText: '',
-        isDuplicationIdBtn: false,
-        idDuplicationCheck: false,  // 중복확인
+        idGuideText: '아이디는 변경할 수 없습니다.',
 
         pw: '',
         pwGuideText1: '',
@@ -25,8 +23,10 @@ export default function SignUp() {
         pwCheck: '',
         pwCheckGuideText1: '',
         pwCheckGuideText2: '',
+        originalPw: '',
 
         email: '',
+        originalEmail: '',
         emailGuideText: null,
         isDuplicationEmailBtn: false,
         emailDuplicationCheck: false,
@@ -52,6 +52,48 @@ export default function SignUp() {
         gender: '',
         genderGuideText: ''
     });
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            axios
+                .get("http://localhost:8080/api/userinfo", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    const data = response.data;
+                    const birthDate = data.birth || '';
+                    const [birthYear, birthMonth, birthDay] = birthDate.split('-');
+                    setState((prevState) => ({
+                        ...prevState,
+                        loginId: data.loginId || '',
+                        name: data.name || '',
+                        email: data.email || '',
+                        gender: data.gender || '',
+                        hp: data.phoneNumber || '',
+                        birthYear: birthYear || '',
+                        birthMonth: birthMonth || '',
+                        birthDate: birthDay || '',
+                        originalPw: data.password,
+                        originalEmail: data.email
+
+                    }));
+                })
+                .catch((err) => {
+                    console.error("사용자 정보 요청 실패:", err);
+                    setLoading(false);
+                });
+        } else {
+            setError("로그인이 필요합니다.");
+            setLoading(false);
+        }
+    }, []);
 
     //  컨펌모달 매서드
     const confirmModalMethod = (msg, msg2) => {
@@ -94,68 +136,6 @@ export default function SignUp() {
             isDuplicationIdBtn: isDuplicationIdBtn
         })
     }
-
-    const onClickDuplicateId = (e) => {
-        e.preventDefault();
-        const value = state.loginId;
-        let idGuideText = '';
-        let idDuplicationCheck = false;
-        const regexp1 = /^(.){4,12}$/g; // 4자 이상 12자 이하 영문 숫자
-        const regexp2 = /\s/g; // 공백 체크
-
-        // 유효성 검사: 아이디 길이와 규칙 체크
-        console.log("아이디 값 확인: ", value);  // 로그인 아이디 확인
-        if (value === null || value === '') {
-            idGuideText = '아이디를 입력해 주세요.';
-            idDuplicationCheck = false;
-            confirmModalMethod(idGuideText);  // 아이디가 없으면 안내 메시지
-            setState({
-                ...state,
-                idDuplicationCheck: idDuplicationCheck
-            });
-            return;  // 빈 값이면 더 이상 진행하지 않음
-        }
-
-        if (value.length < 4 || value.length > 12 || regexp1.test(value) === false || regexp2.test(value) === true) {
-            idGuideText = '4자 이상 12자 이하의 영문과 숫자(공백 제외)만 입력해 주세요.';
-            idDuplicationCheck = false;
-            confirmModalMethod(idGuideText);  // 유효성 검사 메시지 모달로 출력
-            setState({
-                ...state,
-                idDuplicationCheck: idDuplicationCheck
-            });
-        } else {
-            // 유효성 검사 통과 후 중복 확인 API 호출
-            console.log("중복 확인 API 호출: ", state.loginId);  // API 호출 전 로그인 아이디 확인
-            axios.post('http://localhost:8080/api/check-duplicate-id', {
-                loginId: state.loginId // 서버로 아이디 전달
-            })
-                .then((response) => {
-                    console.log("서버 응답: ", response.data);  // 서버 응답 확인
-                    if (response.status === 200) {
-                        if (response.data === 0) {
-                            // 사용 가능한 아이디
-                            idGuideText = '사용 할 수 있는 아이디 입니다.';
-                            idDuplicationCheck = true;
-                        } else if (response.data === 1) {
-                            // 이미 사용중인 아이디
-                            idGuideText = '이미 사용중인 아이디 입니다.';
-                            idDuplicationCheck = false;
-                        }
-                        confirmModalMethod(idGuideText);  // 아이디 중복 여부 메시지 모달로 출력
-                        setState({
-                            ...state,
-                            idDuplicationCheck: idDuplicationCheck
-                        });
-                    }
-                })
-                .catch((err) => {
-                    console.log("아이디 중복 확인 오류: ", err);
-                    idGuideText = '아이디 중복 확인 중 오류가 발생했습니다.';
-                    confirmModalMethod(idGuideText);  // 오류 발생 시 메시지 출력
-                });
-        }
-    };
 
     // 비밀번호 입력상자 = 정규표현식
     // 제한조건
@@ -272,59 +252,74 @@ export default function SignUp() {
         })
     }
 
-    // 이메일 중복확인
     const onClickDuplicateEmail = (e) => {
         e.preventDefault();
+
         const value = state.email;
         let emailGuideText = '';
         let emailDuplicationCheck = false;
         const regexp = /^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ`~!#$%^&*\-_=+{}|'?]+((\.)?[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?]+)*@[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?.]+((\.)?[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?.]+)*\.[A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ0-9`~!#$%^&*\-_=+{}|'?]+$/g;
+
+        // 1. 이메일 변경 여부 확인
+        if (value === state.originalEmail) {
+            // 기존 이메일과 동일한 경우 중복 확인 필요 없음
+            emailGuideText = '현재 사용 중인 이메일입니다.';
+            emailDuplicationCheck = true; // 이메일 중복 확인 상태를 true로 유지
+            confirmModalMethod(emailGuideText);
+            setState({
+                ...state,
+                emailDuplicationCheck: emailDuplicationCheck,
+            });
+            return; // 더 이상 처리하지 않고 종료
+        }
+
+        // 2. 이메일 입력 및 형식 유효성 검사
         if (value === '') {
             emailGuideText = '이메일을 입력해 주세요.';
             emailDuplicationCheck = false;
             confirmModalMethod(emailGuideText);
             setState({
                 ...state,
-                emailDuplicationCheck: emailDuplicationCheck
-            })
-        }
-        else if (regexp.test(value) === false) {
+                emailDuplicationCheck: emailDuplicationCheck,
+            });
+        } else if (!regexp.test(value)) {
             emailGuideText = '이메일 형식으로 입력해 주세요.';
             emailDuplicationCheck = false;
             confirmModalMethod(emailGuideText);
             setState({
                 ...state,
-                emailDuplicationCheck: emailDuplicationCheck
-            })
-        }
-        else {
-            axios.post('http://localhost:8080/api/check-duplicate-email', {
-                email: state.email
-            })
+                emailDuplicationCheck: emailDuplicationCheck,
+            });
+        } else {
+            // 3. 이메일 중복 확인 요청
+            axios
+                .post('http://localhost:8080/api/check-duplicate-email', {
+                    email: state.email,
+                })
                 .then((response) => {
-                    console.log("서버 응답: ", response.data);
+                    console.log('서버 응답: ', response.data);
                     if (response.status === 200) {
                         if (response.data === 0) {
-                            emailGuideText = '사용 할 수 있는 이메일 입니다.';
+                            emailGuideText = '사용할 수 있는 이메일입니다.';
                             emailDuplicationCheck = true;
                         } else if (response.data === 1) {
-                            emailGuideText = '이미 사용중인 이메일 입니다.';
+                            emailGuideText = '이미 사용 중인 이메일입니다.';
                             emailDuplicationCheck = false;
                         }
                         confirmModalMethod(emailGuideText);
                         setState({
                             ...state,
-                            emailDuplicationCheck: emailDuplicationCheck
+                            emailDuplicationCheck: emailDuplicationCheck,
                         });
                     }
                 })
                 .catch((err) => {
-                    console.log("이메일 중복 확인 오류: ", err);
+                    console.log('이메일 중복 확인 오류: ', err);
                     emailGuideText = '이메일 중복 확인 중 오류가 발생했습니다.';
                     confirmModalMethod(emailGuideText);
                 });
         }
-    }
+    };
 
     // 입력상자 = 이름
     const onChangeName = (e) => {
@@ -536,37 +531,36 @@ export default function SignUp() {
     const onsubmitForm = (e) => {
         e.preventDefault();
 
+        // 비밀번호와 이메일 변경 여부 확인
+        const isPwSame = state.pw === state.originalPw;
+        const isEmailSame = state.email === state.originalEmail;
+
+        // 비밀번호와 이메일 확인 상태 업데이트
+        const pwCheck = isPwSame ? true : state.pw === state.pwCheck;
+        const emailDuplicationCheck = isEmailSame || state.emailDuplicationCheck;
+
         // 유효성 검사
         if (state.loginId === '') {
             confirmModalMethod('아이디를 입력해 주세요.');
         }
-        else if (state.idDuplicationCheck === false) {
-            confirmModalMethod('아이디 중복 검사를 해주세요');
-        }
-        else if (state.pw === '') {
-            confirmModalMethod('비밀번호를 입력해 주세요.');
-        } else if (state.pwCheck === '') {
+        else if (!pwCheck) {
             confirmModalMethod('비밀번호를 다시 확인해 주세요.');
-        } else if (state.email === '') {
+        }
+        else if (state.email === '') {
             confirmModalMethod('이메일을 다시 확인해 주세요.');
-        }
-        else if (state.emailDuplicationCheck === false) {
-            confirmModalMethod('이메일 중복 검사를 해주세요');
-        }
-        else if (state.name === '') {
+        } else if (!emailDuplicationCheck) {
+            confirmModalMethod('이메일 중복 검사를 해주세요.');
+        } else if (state.name === '') {
             confirmModalMethod('이름을 입력해 주세요.');
-        }
-        else if (state.gender === '') {
+        } else if (state.gender === '') {
             confirmModalMethod('성별을 선택해 주세요.');
-        }
-        else if (state.birthYear === '') {
+        } else if (state.birthYear === '') {
             confirmModalMethod('생년을 입력해 주세요.');
         } else if (state.birthMonth === '') {
             confirmModalMethod('생월을 입력해 주세요.');
         } else if (state.birthDate === '') {
             confirmModalMethod('생일을 입력해 주세요.');
-        }
-        else {
+        } else {
             const regExp = /^(\d{3})(\d{3,4})(\d{4})$/g;
 
             // 서버로 보낼 데이터 객체 생성
@@ -580,14 +574,15 @@ export default function SignUp() {
                 gender: state.gender,
             };
 
+            // 서버에 요청
             axios
-                .post("http://localhost:8080/api/join", userData)
+                .post('http://localhost:8080/api/userinfo-Modify', userData)
                 .then((res) => {
-                    console.log(res.data);
+                    console.log(res.status);
                     if (res.status === 200) {
                         if (res.data === 1) {
-                            confirmModalMethod('K-Sketch 회원가입을 축하드립니다!');
-                            navigate('/login');
+                            window.location.reload();
+                            confirmModalMethod('개인 정보 수정이 완료되었습니다.');
                         } else if (res.data === 0) {
                             confirmModalMethod('입력한 정보를 다시 확인해 주세요.');
                         }
@@ -603,27 +598,14 @@ export default function SignUp() {
         <div id='signUp'>
             <div className="container">
                 <div className="title">
-                    <h3>회원가입</h3>
+                    <h3>개인 정보 수정</h3>
                     <div className="location">
                         <span><a href="!#">HOME</a><img src="./images/sign/signup/bg_arrow_01.webp" alt="" /></span>
-                        <strong>회원가입</strong>
+                        <strong>개인 정보 수정</strong>
                     </div>
                 </div>
                 <div className="content">
-                    <div className="top">
-                        <div className="family">
-                            <p>K-Sketch</p>
-                            <i>|</i>
-                            <span>Welcome. We invite you to travel to Korea!</span>
-                        </div>
-                        <div className="text-box">
-                            <p>모든 정보를 입력하셔야 K-Sketch의 회원으로 가입하실 수 있습니다.</p>
-                        </div>
-                    </div>
                     <form autoComplete='off' onSubmit={onsubmitForm}>
-                        <div className="form_title">
-                            <h3>필수정보</h3>
-                        </div>
                         <ul className="form_box">
                             <li>
                                 <div className="input_box">
@@ -633,17 +615,11 @@ export default function SignUp() {
                                         name='loginId'
                                         id='loginId'
                                         placeholder='아이디 (6~15자 영문, 숫자 조합)'
-                                        value={state.id}
+                                        value={state.loginId}
                                         onChange={onChangeId}
                                         className='input_obj'
+                                        disabled
                                     />
-                                    <div className="duplicationButton_box">
-                                        <button
-                                            disabled={!state.isDuplicationIdBtn}
-                                            className={`duplication_btn${state.isDuplicationIdBtn ? '' : ' off'}`}
-                                            onClick={onClickDuplicateId}
-                                        >중복확인</button>
-                                    </div>
                                 </div>
                                 <div className="hide_text_box">
                                     <p className={`hide_text ${state.idGuideText !== '' ? ' on' : ''}`}>{state.idGuideText}</p>
@@ -651,7 +627,7 @@ export default function SignUp() {
                             </li>
                             <li>
                                 <div className="input_box">
-                                    <label htmlFor="userPw">비밀번호<span></span></label>
+                                    <label htmlFor="userPw">변경할 비밀번호<span></span></label>
                                     <input
                                         type="password"
                                         name='userPw'
@@ -670,7 +646,7 @@ export default function SignUp() {
                             </li>
                             <li>
                                 <div className="input_box">
-                                    <label htmlFor="userPwCheck">비밀번호 확인<span></span></label>
+                                    <label htmlFor="userPwCheck">변경할 비밀번호 확인<span></span></label>
                                     <input
                                         type="password"
                                         name='userPwCheck'
@@ -788,6 +764,7 @@ export default function SignUp() {
                                                 value={state.birthYear}
                                                 onChange={onChangeYear}
                                                 maxLength={4}
+                                                disabled
                                             />
                                         </li>
                                         <li><i>/</i></li>
@@ -797,6 +774,7 @@ export default function SignUp() {
                                                 value={state.birthMonth}
                                                 onChange={onChangeMonth}
                                                 maxLength={2}
+                                                disabled
                                             />
                                         </li>
                                         <li><i>/</i></li>
@@ -806,6 +784,7 @@ export default function SignUp() {
                                                 value={state.birthDate}
                                                 onChange={onChangeDate}
                                                 maxLength={2}
+                                                disabled
                                             />
                                         </li>
                                     </ul>
@@ -814,20 +793,17 @@ export default function SignUp() {
                                     <p className={`guid_text${state.birthGuidText !== '' ? ' on' : ''}`}>{state.birthGuidText}</p>
                                 </div>
                             </div>
-
-                            <div className='button_box'>
+                            <div className='modify_button_box'>
                                 <button
-                                    type='submit'
-                                    className={state.submitBtn === true ? '' : 'on'}
+                                    onClick={onsubmitForm}
                                 >
-                                    <span>회원가입</span>
+                                    <span>수정</span>
                                 </button>
                             </div>
                         </ul>
                     </form>
                 </div>
             </div>
-
         </div>
     );
 };

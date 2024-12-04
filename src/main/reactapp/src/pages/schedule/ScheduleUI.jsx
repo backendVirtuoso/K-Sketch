@@ -4,11 +4,32 @@ import './ScheduleUI.style.css';
 import { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS } from './SchedulePlace';
 
 // 메인 UI 컴포넌트
-const ScheduleUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pathType, setPathType, handleSearch, searchRoute, results, handleSelectLocation, startPoint, endPoint, viaPoints, routeResult, transitDetails, handleAddPlace: parentHandleAddPlace, routeDetails, handleRemovePlace: parentHandleRemovePlace }) => {
+const ScheduleUI = ({
+    mapRef,
+    keyword,
+    setKeyword,
+    searchType,
+    setSearchType,
+    pathType,
+    setPathType,
+    handleSearch,
+    searchRoute,
+    results,
+    handleSelectLocation,
+    startPoint, endPoint, viaPoints,
+    routeResult,
+    transitDetails,
+    routeDetails,
+    handleAddPlace: parentHandleAddPlace,
+    handleRemovePlace: parentHandleRemovePlace
+}) => {
     const [currentStep, setCurrentStep] = useState('date');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
     const [selectedStays, setSelectedStays] = useState([]);
     const [placeDurations, setPlaceDurations] = useState({});
+    const [selectedDateRange, setSelectedDateRange] = useState(null);
+    const [selectedTimes, setSelectedTimes] = useState([]);
+    const [isDateSelectionComplete, setIsDateSelectionComplete] = useState(false);
 
     const handleAddPlace = (place) => {
         if (!selectedPlaces.some(p => p.title === place.title)) {
@@ -50,6 +71,27 @@ const ScheduleUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
     const totalHours = Math.floor(totalDuration / 60);
     const totalMinutes = totalDuration % 60;
 
+    // 일자별 총 가용 시간 계산 (분 단위)
+    const calculateTotalAvailableTime = () => {
+        if (!selectedTimes || selectedTimes.length === 0) return 0;
+
+        return selectedTimes.reduce((total, dateInfo) => {
+            const startHour = parseInt(dateInfo.startTime.split(':')[0]);
+            const endHour = parseInt(dateInfo.endTime.split(':')[0]);
+            const duration = (endHour - startHour) * 60; // 분 단위로 변환
+            return total + duration;
+        }, 0);
+    };
+
+    // 총 가용 시간을 시간:분 형식으로 변환
+    const formatTotalTime = (minutes) => {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}시간${mins > 0 ? ` ${mins}분` : ''}`;
+    };
+
+    const totalAvailableTime = calculateTotalAvailableTime();
+
     const placeSelectorProps = {
         onAddPlace: handleAddPlace,
         onRemovePlace: handleRemovePlace,
@@ -60,6 +102,31 @@ const ScheduleUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
         onAddPlace: handleAddStay,
         onRemovePlace: handleRemoveStay,
         selectedPlaces: selectedStays
+    };
+
+    const renderDateInfo = () => {
+        if (!selectedDateRange) return null;
+
+        return (
+            <div className="selected-date-info mb-3">
+                <small className="text-muted d-block">여행 일정</small>
+                <div className="fw-bold">
+                    {selectedDateRange[0].toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        weekday: 'short'
+                    })}
+                    {" - "}
+                    {selectedDateRange[1].toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        weekday: 'short'
+                    })}
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -169,7 +236,7 @@ const ScheduleUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
                                             key={index}
                                             className="list-group-item list-group-item-action py-2"
                                             onClick={() => handleSelectLocation(result)}
-                                            style={{borderRadius: '5px', marginBottom: '5px'}}
+                                            style={{ borderRadius: '5px', marginBottom: '5px' }}
                                         >
                                             <div className="fw-bold">{result.name}</div>
                                             {result.type === 'poi' && (
@@ -185,7 +252,7 @@ const ScheduleUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
                                 <div className="route-details-container">
                                     <h6 className="mb-2">경로 상세 정보</h6>
                                     <div>
-                                        {pathType === 'transit' ? (
+                                        {pathType === 'transit' && transitDetails ? (
                                             // 대중교통 경로 상세 정보
                                             transitDetails.map((detail, index) => (
                                                 <div key={index} className="route-step">
@@ -278,11 +345,26 @@ const ScheduleUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
                             )}
                         </>
                     ) : currentStep === 'date' ? (
-                        <DateSelector />
+                        <DateSelector
+                            onDateSelect={(dateRange, times, isComplete) => {
+                                setSelectedDateRange(dateRange);
+                                setSelectedTimes(times);
+                                setIsDateSelectionComplete(isComplete);
+                                if (isComplete) {
+                                    setCurrentStep('place');
+                                }
+                            }}
+                        />
                     ) : currentStep === 'stay' ? (
-                        <StaySelector {...staySelectorProps} />
+                        <>
+                            {isDateSelectionComplete && renderDateInfo()}
+                            <StaySelector {...staySelectorProps} />
+                        </>
                     ) : (
-                        <PlaceSelector {...placeSelectorProps} />
+                        <>
+                            {isDateSelectionComplete && renderDateInfo()}
+                            <PlaceSelector {...placeSelectorProps} />
+                        </>
                     )}
                 </div>
 
@@ -290,12 +372,19 @@ const ScheduleUI = ({ mapRef, keyword, setKeyword, searchType, setSearchType, pa
                 {(selectedPlaces.length > 0 || selectedStays.length > 0) && (
                     <div className="selected-places-panel">
                         <div className="p-3 border-bottom">
-                            <div className="d-flex justify-content-between align-items-center mb-2">
+                            <div className="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 className="m-0">선택한 장소/숙박 목록</h6>
-                                    <small className="text-muted">
-                                        총 소요시간: {totalHours}시간 {totalMinutes > 0 ? `${totalMinutes}분` : ''}
-                                    </small>
+                                    <div className="time-info-container">
+                                        <small className="text-muted">
+                                            총 소요시간: {totalHours}시간 {totalMinutes > 0 ? `${totalMinutes}분` : ''}
+                                        </small>
+                                        {isDateSelectionComplete && totalAvailableTime > 0 && (
+                                            <small className="text-muted">
+                                                / {formatTotalTime(totalAvailableTime)}
+                                            </small>
+                                        )}
+                                    </div>
                                 </div>
                                 <button
                                     className="btn btn-sm btn-outline-danger"
