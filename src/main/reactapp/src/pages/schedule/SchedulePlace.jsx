@@ -387,23 +387,57 @@ const DateSelector = ({ onDateSelect }) => {
     );
 };
 
-// 숙박 선택 컴포넌트
-const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
+// 숙박 선택 컴포넌트 수정
+const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces, selectedTimes }) => {
     const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
     const [keyword, setKeyword] = useState("부산");
-    const [contentTypeId] = useState("32"); // 숙박 시설 contentTypeId는 32로 고정
+    const [contentTypeId] = useState("32");
+    const [showDateModal, setShowDateModal] = useState(false);
+    const [selectedStay, setSelectedStay] = useState(null);
     const { places, error, isLoading } = usePlaces(apiType, keyword, contentTypeId);
 
-    const handleAddPlace = useCallback((place) => {
-        if (!selectedPlaces.some(p => p.title === place.title)) {
-            onAddPlace(place);
-        }
-    }, [selectedPlaces, onAddPlace]);
+    const handleStaySelect = (stay) => {
+        setSelectedStay(stay);
+        setShowDateModal(true);
+    };
 
-    const handleRemovePlace = useCallback((place) => {
-        onRemovePlace(place);
-    }, [onRemovePlace]);
+    const handleDateSelection = (stay, selectedDates, applyToAll) => {
+        if (applyToAll) {
+            // 모든 날짜에 동일한 숙소 적용
+            selectedTimes.forEach(dateInfo => {
+                const stayWithDate = {
+                    ...stay,
+                    isStay: true,
+                    stayDate: dateInfo.date.toISOString()
+                };
+                onAddPlace(stayWithDate);
+            });
+        } else {
+            // 선택된 날짜들에만 숙소 적용
+            selectedDates.forEach(date => {
+                const stayWithDate = {
+                    ...stay,
+                    isStay: true,
+                    stayDate: date
+                };
+                onAddPlace(stayWithDate);
+            });
+        }
+        setShowDateModal(false);
+        setSelectedStay(null);
+    };
+
+    // 선택 가능한 날짜가 있는지 확인
+    const hasAvailableDates = () => {
+        const selectedDates = selectedPlaces
+            .filter(s => s.stayDate)
+            .map(s => s.stayDate);
+        
+        return selectedTimes.some(dateInfo => 
+            !selectedDates.includes(dateInfo.date.toISOString())
+        );
+    };
 
     const handleSearch = () => {
         setKeyword(inputKeyword);
@@ -411,6 +445,20 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
 
     if (error) return <p>숙박 시설 데이터 로드 중 오류가 발생했습니다: {error.message}</p>;
     if (isLoading) return <p>숙박 시설 데이터를 로드하는 중입니다...</p>;
+
+    // 선택 가능한 날짜가 없을 때 메시지 표시
+    if (!hasAvailableDates()) {
+        return (
+            <div className="h-100 overflow-hidden">
+                <div className="p-3 border-bottom">
+                    <div className="alert alert-warning mb-0">
+                        <i className="bi bi-exclamation-triangle me-2"></i>
+                        모든 날짜가 선택되었습니다. 더 이상 숙박 시설을 추가할 수 없습니다.
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="h-100 overflow-hidden">
@@ -430,16 +478,183 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
                 </div>
             </div>
 
-            <div className="overflow-auto" style={{ height: 'calc(100% - 116px)', scrollbarWidth: 'none' }}>
+            <div className="overflow-auto" style={{ height: 'calc(100% - 160px)', scrollbarWidth: 'none' }}>
                 {places.map((place, index) => (
                     <PlaceListItem
                         key={index}
                         place={place}
-                        onAddClick={handleAddPlace}
-                        onRemoveClick={handleRemovePlace}
+                        onAddClick={() => handleStaySelect(place)}
+                        onRemoveClick={onRemovePlace}
                         isSelected={selectedPlaces.some(p => p.title === place.title)}
                     />
                 ))}
+            </div>
+
+            {showDateModal && selectedStay && (
+                <StayDateModal
+                    stay={selectedStay}
+                    selectedTimes={selectedTimes}
+                    onConfirm={handleDateSelection}
+                    onClose={() => {
+                        setShowDateModal(false);
+                        setSelectedStay(null);
+                    }}
+                />
+            )}
+        </div>
+    );
+};
+
+// StayDateModal 컴포넌트 수정
+const StayDateModal = ({ stay, selectedTimes, onConfirm, onClose }) => {
+    const [selectedDates, setSelectedDates] = useState([]);
+
+    const handleDateToggle = (dateString) => {
+        setSelectedDates(prev => {
+            if (prev.includes(dateString)) {
+                return prev.filter(d => d !== dateString);
+            } else {
+                return [...prev, dateString];
+            }
+        });
+    };
+
+    const formatDate = (date) => {
+        return date.toLocaleDateString('ko-KR', {
+            month: '2-digit',
+            day: '2-digit',
+            weekday: 'short'
+        });
+    };
+
+    return (
+        <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
+            <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">숙박 날짜 선택</h5>
+                        <button type="button" className="btn-close" onClick={onClose}></button>
+                    </div>
+                    <div className="modal-body">
+                        <div className="stay-info mb-4">
+                            <div className="d-flex gap-3 align-items-center">
+                                {stay.firstimage && (
+                                    <img 
+                                        src={stay.firstimage} 
+                                        alt={stay.title} 
+                                        className="rounded"
+                                        style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                                    />
+                                )}
+                                <div>
+                                    <div className="fw-bold">{stay.title}</div>
+                                    <small className="text-muted">{stay.addr1}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="date-selection">
+                            <p className="text-muted mb-3">
+                                <i className="bi bi-info-circle me-2"></i>
+                                숙박하실 날짜를 선택해주세요. (복수 선택 가능)
+                            </p>
+                            <div className="row g-2">
+                                {selectedTimes.map((dateInfo, index) => (
+                                    <div key={index} className="col-6">
+                                        <div 
+                                            className={`date-select-item p-3 rounded border ${
+                                                selectedDates.includes(dateInfo.date.toISOString()) 
+                                                    ? 'border-primary bg-primary bg-opacity-10' 
+                                                    : 'border-gray-200'
+                                            }`}
+                                            onClick={() => handleDateToggle(dateInfo.date.toISOString())}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <div className="d-flex align-items-center">
+                                                <div className="form-check">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-check-input"
+                                                        checked={selectedDates.includes(dateInfo.date.toISOString())}
+                                                        onChange={() => {}}
+                                                    />
+                                                </div>
+                                                <span className="ms-2">{formatDate(dateInfo.date)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modal-footer">
+                        <button 
+                            type="button" 
+                            className="btn btn-secondary" 
+                            onClick={onClose}
+                        >
+                            취소
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={() => onConfirm(stay, selectedDates)}
+                            disabled={selectedDates.length === 0}
+                        >
+                            확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div className="modal-backdrop fade show"></div>
+        </div>
+    );
+};
+
+// 선택된 숙박 아이템 컴포넌트 수정
+const SelectedStayItem = ({ stay, onRemove }) => {
+    // 날짜 포맷팅 함수
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ko-KR', {
+            month: '2-digit',
+            day: '2-digit',
+            weekday: 'short'
+        });
+    };
+
+    return (
+        <div className="selected-item">
+            <div className="d-flex align-items-center gap-3">
+                {stay.firstimage ? (
+                    <img
+                        src={stay.firstimage}
+                        alt={stay.title}
+                        className="selected-item-image"
+                    />
+                ) : (
+                    <div className="no-image-placeholder">
+                        <small className="text-muted m-0">이미지가<br />없습니다</small>
+                    </div>
+                )}
+                <div className="selected-item-content">
+                    <div className="fw-bold text-truncate" title={stay.title}>
+                        {stay.title}
+                    </div>
+                    <small className="text-muted text-truncate d-block" title={stay.addr1}>
+                        {stay.addr1 || '주소 정보가 없습니다'}
+                    </small>
+                    <small className="text-primary d-block mt-1">
+                        <i className="bi bi-calendar3 me-1"></i>
+                        {formatDate(stay.stayDate)}
+                    </small>
+                </div>
+                <button
+                    className="btn btn-sm btn-outline-danger flex-shrink-0"
+                    onClick={() => onRemove(stay)}
+                >
+                    <i className="bi bi-trash"></i>
+                </button>
             </div>
         </div>
     );
@@ -473,12 +688,26 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [hours, setHours] = useState(Math.floor(duration / 60));
     const [minutes, setMinutes] = useState(duration % 60);
+    const [tempHours, setTempHours] = useState(hours);
+    const [tempMinutes, setTempMinutes] = useState(minutes);
 
     const handleTimeChange = (newHours, newMinutes) => {
-        const totalMinutes = (newHours * 60) + newMinutes;
+        setTempHours(newHours);
+        setTempMinutes(newMinutes);
+    };
+
+    const handleConfirm = () => {
+        const totalMinutes = (tempHours * 60) + tempMinutes;
         onDurationChange(place, totalMinutes);
-        setHours(newHours);
-        setMinutes(newMinutes);
+        setHours(tempHours);
+        setMinutes(tempMinutes);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setTempHours(hours);
+        setTempMinutes(minutes);
+        setIsEditing(false);
     };
 
     return (
@@ -499,29 +728,45 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                 </div>
                 <div className="duration-controls">
                     {isEditing ? (
-                        <div className="time-editor">
-                            <div className="time-spinner">
-                                <button onClick={() => handleTimeChange(hours + 1, minutes)} className="spinner-button">▲</button>
-                                <input
-                                    type="number"
-                                    value={hours}
-                                    onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, minutes)}
-                                    className="time-input"
-                                />
-                                <button onClick={() => handleTimeChange(Math.max(0, hours - 1), minutes)} className="spinner-button">▼</button>
+                        <div className="d-flex align-items-center gap-2">
+                            <div className="time-editor">
+                                <div className="time-spinner">
+                                    <button onClick={() => handleTimeChange(tempHours + 1, tempMinutes)} className="spinner-button">▲</button>
+                                    <input
+                                        type="number"
+                                        value={tempHours}
+                                        onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, tempMinutes)}
+                                        className="time-input"
+                                    />
+                                    <button onClick={() => handleTimeChange(Math.max(0, tempHours - 1), tempMinutes)} className="spinner-button">▼</button>
+                                </div>
+                                <span>시간</span>
+                                <div className="time-spinner">
+                                    <button onClick={() => handleTimeChange(tempHours, (tempMinutes + 30) % 60)} className="spinner-button">▲</button>
+                                    <input
+                                        type="number"
+                                        value={tempMinutes}
+                                        onChange={(e) => handleTimeChange(tempHours, parseInt(e.target.value) || 0)}
+                                        className="time-input"
+                                    />
+                                    <button onClick={() => handleTimeChange(tempHours, Math.max(0, tempMinutes - 30))} className="spinner-button">▼</button>
+                                </div>
+                                <span>분</span>
                             </div>
-                            <span>시간</span>
-                            <div className="time-spinner">
-                                <button onClick={() => handleTimeChange(hours, (minutes + 30) % 60)} className="spinner-button">▲</button>
-                                <input
-                                    type="number"
-                                    value={minutes}
-                                    onChange={(e) => handleTimeChange(hours, parseInt(e.target.value) || 0)}
-                                    className="time-input"
-                                />
-                                <button onClick={() => handleTimeChange(hours, Math.max(0, minutes - 30))} className="spinner-button">▼</button>
+                            <div className="d-flex gap-1">
+                                <button 
+                                    className="btn btn-sm btn-primary" 
+                                    onClick={handleConfirm}
+                                >
+                                    <i className="bi bi-check"></i>
+                                </button>
+                                <button 
+                                    className="btn btn-sm btn-secondary" 
+                                    onClick={handleCancel}
+                                >
+                                    <i className="bi bi-x"></i>
+                                </button>
                             </div>
-                            <span>분</span>
                         </div>
                     ) : (
                         <button
@@ -543,4 +788,4 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
     );
 };
 
-export { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS };
+export { SelectedPlaceItem, SelectedStayItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS };
