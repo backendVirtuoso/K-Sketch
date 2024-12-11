@@ -508,19 +508,29 @@
 
 /* 경로 선택 모달 */
 .path-modal {
-    background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    width: 90%;
-    max-width: 400px;
+    padding: 1.5rem;
+    max-width: 360px;
 }
 
-/* 경로 옵션 버튼 */
+.path-modal .modal-header {
+    padding: 0 0 1rem 0;
+}
+
+.path-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.path-modal .modal-body {
+    padding: 0;
+}
+
 .path-option-btn {
-    background: none;
+    background: white;
     border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -535,6 +545,18 @@
 
 .path-option-btn .icon-wrapper {
     color: #0d6efd;
+    margin-bottom: 0.5rem;
+}
+
+.path-option-btn span {
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 모달 배경 스타일 수정 */
+.modal-backdrop {
+    opacity: 0.5;
 }
 
 /* 기존 스타일에 추가 */
@@ -586,19 +608,17 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 0.5rem;
-    margin-bottom: 1rem;
 }
 
 .date-item {
     padding: 0.75rem;
     border: 1px solid #dee2e6;
     border-radius: 6px;
-    cursor: pointer;
     text-align: center;
     transition: all 0.2s;
 }
 
-.date-item:hover {
+.date-item:not(.taken):hover {
     border-color: #0d6efd;
     background-color: #f8f9fa;
 }
@@ -607,6 +627,11 @@
     background-color: #0d6efd;
     color: white;
     border-color: #0d6efd;
+}
+
+.date-item.taken {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
 }
 
 .apply-all-option {
@@ -662,5 +687,182 @@
     border-right: 1px solid #dee2e6;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     z-index: 100;
+}
+
+/* 여행 일정 패널 스타일 */
+.travel-schedule-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 400px;
+    height: 100%;
+    background-color: white;
+    border-right: 1px solid #dee2e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+/* 일정 목록 스타일 */
+.schedule-days {
+    padding: 1rem;
+}
+
+.day-schedule {
+    padding: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: white;
+}
+
+.day-schedule:hover {
+    background-color: #f8f9fa;
+    border-color: #0d6efd;
+}
+
+.day-schedule.active {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+/* 타임라인 스타일 수정 */
+.schedule-timeline {
+    position: relative;
+    padding-left: 24px;
+    margin-top: 1rem;
+}
+
+.schedule-timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 0.75rem 0;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    background-color: #0d6efd;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.timeline-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-content {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+/* 숙박 시설 타임라인 아이템 */
+.timeline-item.stay {
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px dashed #dee2e6;
+}
+
+.timeline-item.stay::before {
+    background-color: #198754;
+}
+
+.timeline-item.stay .timeline-content {
+    color: #198754;
+}
+
+/* 순서 뱃지 스타일 */
+.order-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* 애니메이션 효과 추가 */
+.sidebar,
+.left-panel,
+.selected-places-panel,
+.travel-schedule-panel {
+    transition: all 0.3s ease-in-out;
+}
+
+/* 이동수단 아이콘 스타일 수정 */
+.timeline-transport {
+    position: relative;
+    height: 40px;
+    margin: -5px 0;
+}
+
+.transport-icon-wrapper {
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+    transition: all 0.2s ease;
+}
+
+.transport-icon-wrapper:hover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+.transport-icon {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.transport-icon-wrapper:hover .transport-icon {
+    color: #0d6efd;
+}
+
+.transport-text {
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: #6c757d;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+.timeline-transport:hover .transport-text {
+    opacity: 1;
 }
 

@@ -1,0 +1,174 @@
+/* 기본 여행 일정 스타일 */
+.travel-schedule-panel {
+    position: relative;
+    width: 100%;
+    height: auto;
+    background-color: white;
+    border: none;
+    box-shadow: none;
+    overflow-y: visible;
+    display: block;
+    flex-direction: column;
+}
+
+.travel-schedule-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background-color: white;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.schedule-days {
+    padding: 1rem;
+    overflow-y: visible;
+}
+
+/* 일정 카드 기본 스타일 */
+.day-schedule {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.day-schedule:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-color: #dee2e6;
+}
+
+.day-schedule.active {
+    border-color: #dee2e6;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 타임라인 기본 스타일 */
+.schedule-timeline {
+    position: relative;
+    padding-left: 20px;
+    margin-top: 1rem;
+}
+
+.schedule-timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+/* 타임라인 아이템 기본 스타일 */
+.timeline-item {
+    position: relative;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: #0d6efd;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    transition: all 0.2s ease;
+}
+
+.timeline-item:hover::before {
+    transform: translateY(-50%);
+}
+
+/* 이동수단 아이콘 기본 스타일 */
+.timeline-transport {
+    position: relative;
+    height: 32px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.transport-icon-wrapper {
+    position: absolute;
+    left: -20px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+.transport-icon-wrapper:hover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+    transform: scale(1.05);
+}
+
+.transport-text {
+    position: absolute;
+    left: 8px;
+    font-size: 0.75rem;
+    color: #6c757d;
+    opacity: 0;
+    transition: all 0.2s ease;
+    background-color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    z-index: 2;
+}
+
+.timeline-transport:hover .transport-text {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+/* 숙박 시설 기본 스타일 */
+.timeline-item.stay {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #dee2e6;
+}
+
+.timeline-item.stay::before {
+    background-color: #198754;
+}
+
+.timeline-item.stay .timeline-content {
+    color: #198754;
+}
+
+/* 순서 뱃지 기본 스타일 */
+.order-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(13, 110, 253, 0.2);
+}
