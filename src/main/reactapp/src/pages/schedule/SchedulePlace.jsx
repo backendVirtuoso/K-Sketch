@@ -392,21 +392,40 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
     const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
     const [keyword, setKeyword] = useState("부산");
+    const [showDateModal, setShowDateModal] = useState(false);
+    const [selectedStay, setSelectedStay] = useState(null);
     
-    // 숙박 가능한 날짜 수 계산 (마지막 날 제외)
-    const availableNights = selectedTimes ? selectedTimes.length - 1 : 0;
+    const { places: stays, error, isLoading } = usePlaces(apiType, keyword, "32");
 
-    const { places: stays, error, isLoading } = usePlaces(apiType, keyword, "32"); // 32는 숙박 시설 컨텐츠 타입
+    // 이미 선택된 날짜들을 계산
+    const getReservedDates = () => {
+        return selectedStays.reduce((dates, stay) => {
+            if (stay.selectedDates) {
+                return [...dates, ...stay.selectedDates];
+            }
+            return dates;
+        }, []);
+    };
 
     const handleSearch = () => {
         setKeyword(inputKeyword);
     };
 
-    // 선택된 숙소 수가 가능한 박 수와 같은지 확인
-    const isMaxStaysSelected = selectedStays.length >= availableNights;
+    const handleStaySelect = (stay) => {
+        setSelectedStay(stay);
+        setShowDateModal(true);
+    };
 
-    if (error) return <p>숙박 시설 데이터 로드 중 오류가 발생했습니다: {error.message}</p>;
-    if (isLoading) return <p>숙박 시설 데이터를 로드하는 중입니다...</p>;
+    const handleDateConfirm = (stay, selectedDates) => {
+        // 선택된 날짜들에 대해서만 숙소 추가
+        const newStay = {
+            ...stay,
+            selectedDates: selectedDates // 선택된 날짜들 저장
+        };
+        onAddPlace(newStay); // 하나의 숙소 객체만 추가
+        setShowDateModal(false);
+        setSelectedStay(null);
+    };
 
     return (
         <div className="h-100 overflow-hidden">
@@ -424,18 +443,6 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
                         <i className="bi bi-search"></i>
                     </button>
                 </div>
-                
-                {/* 선택 가능한 숙박 수 안내 */}
-                <div className="alert alert-info mb-3">
-                    <small>
-                        <i className="bi bi-info-circle me-2"></i>
-                        {availableNights}박 {availableNights + 1}일 일정입니다. 
-                        {isMaxStaysSelected 
-                            ? ' (모든 숙박일이 선택되었습니다)'
-                            : ` (추가로 ${availableNights - selectedStays.length}개의 숙소를 선택할 수 있습니다)`
-                        }
-                    </small>
-                </div>
             </div>
 
             <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
@@ -448,6 +455,7 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
                                         src={stay.firstimage}
                                         alt={stay.title}
                                         className="place-image"
+                                        style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px' }}
                                     />
                                 ) : (
                                     <div className="no-image-placeholder">
@@ -464,127 +472,147 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
                                 </div>
                             </div>
                         </div>
-                        {selectedStays.some(s => s.title === stay.title) ? (
-                            <button
-                                className="btn btn-primary btn-sm"
-                                onClick={() => onRemovePlace(stay)}
-                            >
-                                <i className="bi bi-check"></i>
-                            </button>
-                        ) : (
-                            <button
-                                className="btn btn-outline-primary btn-sm"
-                                onClick={() => onAddPlace(stay)}
-                                disabled={isMaxStaysSelected}
-                                title={isMaxStaysSelected ? '더 이상 숙소를 선택할 수 없습니다' : ''}
-                            >
-                                <i className="bi bi-plus"></i>
-                            </button>
-                        )}
+                        <button
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() => handleStaySelect(stay)}
+                        >
+                            <i className="bi bi-plus"></i>
+                        </button>
                     </div>
                 ))}
             </div>
+
+            {showDateModal && selectedStay && (
+                <StayDateModal
+                    stay={selectedStay}
+                    selectedTimes={selectedTimes}
+                    reservedDates={getReservedDates()} // 이미 선택된 날짜들 전달
+                    onConfirm={handleDateConfirm}
+                    onClose={() => {
+                        setShowDateModal(false);
+                        setSelectedStay(null);
+                    }}
+                />
+            )}
         </div>
     );
 };
 
 // StayDateModal 컴포넌트 수정
-const StayDateModal = ({ stay, selectedTimes, onConfirm, onClose }) => {
+const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose }) => {
     const [selectedDates, setSelectedDates] = useState([]);
 
-    const handleDateToggle = (dateString) => {
+    // 날짜 포맷팅 (12.15 형식)
+    const formatDateShort = (date) => {
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return `${month}.${day}`;
+    };
+
+    // 날짜가 이미 예약되었는지 확인
+    const isDateReserved = (date) => {
+        return reservedDates.some(reservedDate => 
+            reservedDate.getTime() === date.getTime()
+        );
+    };
+
+    const handleDateToggle = (date) => {
+        if (isDateReserved(date)) return; // 이미 예약된 날짜는 선택 불가
+
         setSelectedDates(prev => {
-            if (prev.includes(dateString)) {
-                return prev.filter(d => d !== dateString);
+            if (prev.includes(date)) {
+                return prev.filter(d => d !== date);
             } else {
-                return [...prev, dateString];
+                return [...prev, date].sort((a, b) => a - b);
             }
         });
     };
 
-    const formatDate = (date) => {
-        return date.toLocaleDateString('ko-KR', {
-            month: '2-digit',
-            day: '2-digit',
-            weekday: 'short'
-        });
+    // 이미 선택된 날짜인지 확인
+    const isDateSelected = (date) => {
+        return selectedDates.some(selectedDate => 
+            selectedDate.getTime() === date.getTime()
+        );
+    };
+
+    // 전체 선택 처리 함수 추가
+    const handleSelectAll = () => {
+        // 예약되지 않은 날짜들만 필터링하여 전체 선택
+        const availableDates = selectedTimes
+            .slice(0, -1)
+            .map(timeInfo => timeInfo.date)
+            .filter(date => !isDateReserved(date));
+        
+        setSelectedDates(availableDates);
     };
 
     return (
         <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">숙박 날짜 선택</h5>
+                    <div className="modal-header border-0">
                         <button type="button" className="btn-close" onClick={onClose}></button>
                     </div>
-                    <div className="modal-body">
-                        <div className="stay-info mb-4">
-                            <div className="d-flex gap-3 align-items-center">
-                                {stay.firstimage && (
-                                    <img 
-                                        src={stay.firstimage} 
-                                        alt={stay.title} 
-                                        className="rounded"
-                                        style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                                    />
-                                )}
-                                <div>
-                                    <div className="fw-bold">{stay.title}</div>
-                                    <small className="text-muted">{stay.addr1}</small>
-                                </div>
-                            </div>
+                    <div className="modal-body px-4">
+                        <h5 className="text-center mb-3">숙박하실 날짜를 선택해주세요.</h5>
+                        <p className="text-muted text-center small mb-4">
+                            *동일한 숙소에서 연박도 남은 날짜를 선택하여 가능합니다.
+                        </p>
+                        
+                        <div className="text-center mb-4">
+                            <h6>{stay.title}</h6>
+                            <p className="text-muted small">{stay.addr1}</p>
                         </div>
 
-                        <div className="date-selection">
-                            <p className="text-muted mb-3">
-                                <i className="bi bi-info-circle me-2"></i>
-                                숙박하실 날짜를 선택해주세요. (복수 선택 가능)
-                            </p>
-                            <div className="row g-2">
-                                {selectedTimes.map((dateInfo, index) => (
-                                    <div key={index} className="col-6">
-                                        <div 
-                                            className={`date-select-item p-3 rounded border ${
-                                                selectedDates.includes(dateInfo.date.toISOString()) 
-                                                    ? 'border-primary bg-primary bg-opacity-10' 
-                                                    : 'border-gray-200'
-                                            }`}
-                                            onClick={() => handleDateToggle(dateInfo.date.toISOString())}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <div className="d-flex align-items-center">
-                                                <div className="form-check">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        checked={selectedDates.includes(dateInfo.date.toISOString())}
-                                                        onChange={() => {}}
-                                                    />
-                                                </div>
-                                                <span className="ms-2">{formatDate(dateInfo.date)}</span>
-                                            </div>
-                                        </div>
+                        <div className="d-flex flex-wrap gap-2 justify-content-center">
+                            {selectedTimes.slice(0, -1).map((timeInfo, index) => {
+                                const isReserved = isDateReserved(timeInfo.date);
+                                return (
+                                    <div
+                                        key={index}
+                                        onClick={() => !isReserved && handleDateToggle(timeInfo.date)}
+                                        className={`date-select-button ${
+                                            isDateSelected(timeInfo.date) ? 'selected' : ''
+                                        } ${isReserved ? 'disabled' : ''}`}
+                                        style={{
+                                            cursor: isReserved ? 'not-allowed' : 'pointer',
+                                            padding: '8px 16px',
+                                            borderRadius: '20px',
+                                            border: '1px solid #ddd',
+                                            backgroundColor: isReserved 
+                                                ? '#f8f9fa'
+                                                : isDateSelected(timeInfo.date)
+                                                    ? '#5D2FFF' 
+                                                    : 'white',
+                                            color: isReserved
+                                                ? '#adb5bd'
+                                                : isDateSelected(timeInfo.date)
+                                                    ? 'white' 
+                                                    : 'black',
+                                            minWidth: '80px',
+                                            textAlign: 'center',
+                                            opacity: isReserved ? 0.7 : 1
+                                        }}
+                                    >
+                                        {formatDateShort(timeInfo.date)}
                                     </div>
-                                ))}
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
-                    <div className="modal-footer">
-                        <button 
-                            type="button" 
-                            className="btn btn-secondary" 
-                            onClick={onClose}
-                        >
-                            취소
-                        </button>
+                    <div className="modal-footer flex-column border-0 px-4 pb-4">
                         <button
-                            type="button"
-                            className="btn btn-primary"
+                            className="btn btn-primary w-100 py-2"
                             onClick={() => onConfirm(stay, selectedDates)}
                             disabled={selectedDates.length === 0}
                         >
-                            확인
+                            선택 완료
+                        </button>
+                        <button
+                            className="btn btn-outline-primary w-100 py-2 mt-2"
+                            onClick={handleSelectAll}
+                        >
+                            전체 선택
                         </button>
                     </div>
                 </div>
@@ -596,132 +624,75 @@ const StayDateModal = ({ stay, selectedTimes, onConfirm, onClose }) => {
 
 // 선택된 숙박 아이템 컴포넌트 수정
 const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, onRemove }) => {
-    const [showDateModal, setShowDateModal] = useState(false);
-
-    // 숙박 가능한 날짜 계산 (마지막 날 제외)
-    const availableDates = selectedTimes.slice(0, -1).map(time => time.date);
-
-    // 이미 선택된 날짜 확인
-    const isDateTaken = (date) => {
-        return selectedStays.some(s => 
-            s.stayDate && 
-            s.title !== stay.title && 
-            new Date(s.stayDate).toDateString() === new Date(date).toDateString()
-        );
-    };
-
     // 날짜 포맷팅
     const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('ko-KR', {
-            month: '2-digit',
-            day: '2-digit',
-            weekday: 'short'
-        });
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const endDate = new Date(date);
+        endDate.setDate(date.getDate() + 1);
+        const endDay = endDate.getDate();
+        
+        return `${month}.${day}(${getDayOfWeek(date)})-${month}.${endDay}(${getDayOfWeek(endDate)})`;
     };
 
-    return (
-        <div className="selected-item">
-            <div className="d-flex align-items-center gap-3">
-                {stay.firstimage ? (
-                    <img
-                        src={stay.firstimage}
-                        alt={stay.title}
-                        className="selected-item-image"
-                    />
-                ) : (
-                    <div className="no-image-placeholder">
-                        <small className="text-muted m-0">이미지가<br />없습니다</small>
-                    </div>
-                )}
-                <div className="selected-item-content">
-                    <div className="fw-bold text-truncate" title={stay.title}>
-                        {stay.title}
-                    </div>
-                    <small className="text-muted text-truncate d-block" title={stay.addr1}>
-                        {stay.addr1 || '주소 정보가 없습니다'}
-                    </small>
-                    <button
-                        className="btn btn-sm btn-outline-primary mt-2"
-                        onClick={() => setShowDateModal(true)}
-                    >
-                        {stay.stayDate ? (
-                            <span>
-                                <i className="bi bi-calendar3 me-1"></i>
-                                {formatDate(stay.stayDate)}
-                            </span>
-                        ) : (
-                            <span>
-                                <i className="bi bi-calendar3-plus me-1"></i>
-                                숙박일 선택
-                            </span>
-                        )}
-                    </button>
-                </div>
-                <button
-                    className="btn btn-sm btn-outline-danger flex-shrink-0"
-                    onClick={() => onRemove(stay)}
-                >
-                    <i className="bi bi-trash"></i>
-                </button>
-            </div>
+    // 요일 반환
+    const getDayOfWeek = (date) => {
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        return days[date.getDay()];
+    };
 
-            {/* 숙박일 선택 모달 */}
-            {showDateModal && (
-                <div className="modal show d-block">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">숙박일 선택</h5>
-                                <button type="button" className="btn-close" onClick={() => setShowDateModal(false)}></button>
-                            </div>
-                            <div className="modal-body">
-                                <div className="stay-info mb-3">
-                                    <img
-                                        src={stay.firstimage}
-                                        alt={stay.title}
-                                        className="stay-modal-image"
-                                    />
-                                    <div>
-                                        <h6 className="mb-1">{stay.title}</h6>
-                                        <small className="text-muted">{stay.addr1}</small>
-                                    </div>
-                                </div>
-                                <div className="date-list">
-                                    {availableDates.map((date, index) => {
-                                        const isSelected = stay.stayDate && 
-                                            new Date(stay.stayDate).toDateString() === new Date(date).toDateString();
-                                        const taken = isDateTaken(date);
-                                        
-                                        return (
-                                            <div
-                                                key={index}
-                                                className={`date-item ${isSelected ? 'selected' : ''} 
-                                                    ${taken ? 'taken' : ''}`}
-                                                onClick={() => {
-                                                    if (!taken || isSelected) {
-                                                        onDateChange(stay, date);
-                                                        setShowDateModal(false);
-                                                    }
-                                                }}
-                                                style={{
-                                                    cursor: taken && !isSelected ? 'not-allowed' : 'pointer',
-                                                    opacity: taken && !isSelected ? 0.5 : 1
-                                                }}
-                                            >
-                                                <div>{formatDate(date)}</div>
-                                                <small className="text-muted">
-                                                    {index + 1}박차
-                                                </small>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+    // 선택된 날짜들만 표시
+    const selectedDates = stay.selectedDates || [];
+
+    return (
+        <div className="selected-stays-container">
+            {selectedDates.map((date, index) => (
+                <div key={index} className="stay-date-item p-3 border-bottom">
+                    <div className="d-flex align-items-center gap-3">
+                        <div className="stay-number rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                             style={{ width: '24px', height: '24px', minWidth: '24px' }}>
+                            {index + 1}
                         </div>
+                        {stay.firstimage ? (
+                            <img
+                                src={stay.firstimage}
+                                alt={stay.title}
+                                className="stay-thumbnail"
+                                style={{ 
+                                    width: '48px', 
+                                    height: '48px', 
+                                    objectFit: 'cover', 
+                                    borderRadius: '4px'
+                                }}
+                            />
+                        ) : (
+                            <div className="no-image-placeholder"
+                                 style={{ 
+                                     width: '48px', 
+                                     height: '48px', 
+                                     background: '#f8f9fa', 
+                                     borderRadius: '4px', 
+                                     display: 'flex', 
+                                     alignItems: 'center', 
+                                     justifyContent: 'center'
+                                 }}>
+                                <small className="text-muted">No Image</small>
+                            </div>
+                        )}
+                        <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
+                            <div className="text-muted small">{formatDate(date)}</div>
+                            <div className="fw-bold text-truncate" title={stay.title}>{stay.title}</div>
+                        </div>
+                        <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => onRemove(stay)}
+                            style={{ padding: '4px 8px' }}
+                        >
+                            <i className="bi bi-trash"></i>
+                        </button>
                     </div>
-                    <div className="modal-backdrop fade show"></div>
                 </div>
-            )}
+            ))}
         </div>
     );
 };
