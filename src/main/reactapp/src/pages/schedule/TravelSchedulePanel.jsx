@@ -1,6 +1,7 @@
 import React from 'react';
 import './TravelSchedulePanel.style.css';
 
+// 카카오맵 경로 검색 컴포넌트
 const TransportRoute = ({ start, end, onClick }) => (
     <div className="timeline-transport">
         <div 
@@ -17,67 +18,51 @@ const TransportRoute = ({ start, end, onClick }) => (
     </div>
 );
 
+// 여행 일정 패널 컴포넌트
 const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
     const [selectedFilter, setSelectedFilter] = React.useState('all');
-    const [showSidebar, setShowSidebar] = React.useState(true);
-    const [showMainPanel, setShowMainPanel] = React.useState(true);
-    const [recommendedSchedule, setRecommendedSchedule] = React.useState(null);
-
-    // URL에서 사용할 제목 정리 함수 수정
-    const cleanTitle = (title) => {
-        return title.replace(/\([^)]*\)/g, '').trim();
-    };
-
-    // 카카오맵 경로 검색 URL 생성 함수 수정
-    const getKakaoMapRouteURL = (start, end, dayIndex) => {
-        const baseURL = 'https://map.kakao.com/link/to/';
-        const cleanEndTitle = cleanTitle(end.title);
-        const cleanStartTitle = cleanTitle(start.title);
-        return `${baseURL}${cleanEndTitle},${end.latitude},${end.longitude}/from/${cleanStartTitle},${start.latitude},${start.longitude}`;
-    };
-
-    // 경로 검색 핸들러
-    const handleRouteClick = (start, end, dayIndex) => {
-        const url = getKakaoMapRouteURL(start, end, dayIndex);
-        window.open(url, '_blank');
+    
+    // handleRouteClick 함수 추가
+    const handleRouteClick = (start, end) => {
+        const kakaoMapUrl = `https://map.kakao.com/link/to/${end.title},${end.latitude},${end.longitude}/from/${start.title},${start.latitude},${start.longitude}`;
+        window.open(kakaoMapUrl, '_blank');
     };
 
     return (
         <div className="travel-schedule-panel">
-            {showSidebar && (
-                <div className="schedule-filter">
-                    <div className="d-flex flex-wrap gap-2 p-3 border-bottom">
+            <div className="schedule-filter">
+                <div className="d-flex flex-wrap gap-2 p-3 border-bottom">
+                    <button
+                        className={`btn btn-sm ${selectedFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => {
+                            setSelectedFilter('all');
+                            onDaySelect(0);
+                        }}
+                    >
+                        전체일정
+                    </button>
+                    {schedule.days.map((_, index) => (
                         <button
-                            className={`btn btn-sm ${selectedFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
+                            key={index}
+                            className={`btn btn-sm ${selectedFilter === index ? 'btn-primary' : 'btn-outline-primary'}`}
                             onClick={() => {
-                                setSelectedFilter('all');
-                                onDaySelect(0);
+                                setSelectedFilter(index);
+                                onDaySelect(index);
                             }}
                         >
-                            전체일정
+                            {index + 1}일차
                         </button>
-                        {schedule.days.map((_, index) => (
-                            <button
-                                key={index}
-                                className={`btn btn-sm ${selectedFilter === index ? 'btn-primary' : 'btn-outline-primary'}`}
-                                onClick={() => {
-                                    setSelectedFilter(index);
-                                    onDaySelect(index);
-                                }}
-                            >
-                                {index + 1}일차
-                            </button>
-                        ))}
-                    </div>
+                    ))}
                 </div>
-            )}
-
+            </div>
+            
             <div className="schedule-days">
                 {schedule.days
                     .filter((_, index) => selectedFilter === 'all' || selectedFilter === index)
                     .map((day, dayIndex) => {
                         const actualDayIndex = selectedFilter === 'all' ? dayIndex : selectedFilter;
-                        
+                        const previousDay = schedule.days[actualDayIndex - 1];
+
                         return (
                             <div 
                                 key={dayIndex} 
@@ -97,13 +82,26 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                     </small>
                                 </div>
                                 <div className="schedule-timeline">
+                                    {actualDayIndex > 0 && previousDay.stays && previousDay.stays[0] && (
+                                        <>
+                                            <div className="timeline-item start-from-stay">
+                                                <div className="timeline-content">
+                                                    <i className="bi bi-house-door me-2"></i>
+                                                    <span className="text-truncate" title={previousDay.stays[0].title}>
+                                                        {previousDay.stays[0].title}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <TransportRoute 
+                                                start={previousDay.stays[0]}
+                                                end={day.places[0]}
+                                                onClick={(start, end) => handleRouteClick(start, end, actualDayIndex)}
+                                            />
+                                        </>
+                                    )}
                                     {day.places.map((place, placeIndex) => (
                                         <React.Fragment key={placeIndex}>
                                             <div className="timeline-item">
-                                                <div className="timeline-time">
-                                                    {Math.floor(place.duration / 60)}시간 
-                                                    {place.duration % 60 > 0 ? ` ${place.duration % 60}분` : ''}
-                                                </div>
                                                 <div className="timeline-content">
                                                     <span className="order-badge">{placeIndex + 1}</span>
                                                     <span className="text-truncate" title={place.title}>
