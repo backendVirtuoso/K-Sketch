@@ -691,9 +691,6 @@
 
 /* 여행 일정 패널 스타일 */
 .travel-schedule-panel {
-    position: absolute;
-    left: 0;
-    top: 0;
     width: 400px;
     height: 100%;
     background-color: white;

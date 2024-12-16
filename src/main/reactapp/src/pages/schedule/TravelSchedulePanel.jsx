@@ -21,6 +21,7 @@ const TransportRoute = ({ start, end, onClick }) => (
 // 여행 일정 패널 컴포넌트
 const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
     const [selectedFilter, setSelectedFilter] = React.useState('all');
+    const [showDays, setShowDays] = React.useState(true);
     
     // handleRouteClick 함수 추가
     const handleRouteClick = (start, end) => {
@@ -31,32 +32,46 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
     return (
         <div className="travel-schedule-panel">
             <div className="schedule-filter">
-                <div className="d-flex flex-wrap gap-2 p-3 border-bottom">
+                <div className="d-flex flex-column gap-2">
                     <button
-                        className={`btn btn-sm ${selectedFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
                         onClick={() => {
                             setSelectedFilter('all');
                             onDaySelect(0);
+                            setShowDays(true);
                         }}
+                        className={`sidebar-button btn border-0 p-3 rounded-3 ${
+                            selectedFilter === 'all'
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
+                        }`}
                     >
-                        전체일정
+                        <div className="sidebar-button-text">
+                            전체일정
+                        </div>
                     </button>
                     {schedule.days.map((_, index) => (
                         <button
                             key={index}
-                            className={`btn btn-sm ${selectedFilter === index ? 'btn-primary' : 'btn-outline-primary'}`}
                             onClick={() => {
                                 setSelectedFilter(index);
                                 onDaySelect(index);
+                                setShowDays(true);
                             }}
+                            className={`sidebar-button btn border-0 p-3 rounded-3 ${
+                                selectedFilter === index
+                                    ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                    : 'text-secondary bg-light'
+                            }`}
                         >
-                            {index + 1}일차
+                            <div className="sidebar-button-text">
+                                {index + 1}일차
+                            </div>
                         </button>
                     ))}
                 </div>
             </div>
             
-            <div className="schedule-days">
+            <div className={`schedule-days ${showDays ? 'active' : ''}`}>
                 {schedule.days
                     .filter((_, index) => selectedFilter === 'all' || selectedFilter === index)
                     .map((day, dayIndex) => {
