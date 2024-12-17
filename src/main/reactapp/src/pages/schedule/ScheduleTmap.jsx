@@ -9,7 +9,7 @@ const ScheduleTmap = () => {
   const [searchType, setSearchType] = useState('start');
   const [startPoint, setStartPoint] = useState(null);
   const [endPoint, setEndPoint] = useState(null);
-  const [pathType, setPathType] = useState('pedestrian');
+  const [pathType, setPathType] = useState('car');
   const [routeResult, setRouteResult] = useState('');
   const [currentMarkers, setCurrentMarkers] = useState([]);
   const [currentPolylines, setCurrentPolylines] = useState([]);
@@ -163,8 +163,9 @@ const ScheduleTmap = () => {
 
   // 통합된 경로 검색 함수
   const searchRoute = async () => {
-    if (!startPoint || !endPoint) {
-      alert('출발지와 도착지를 모두 선택해주세요.');
+    // 경유지가 없는 경우 검색 중단
+    if (viaPoints.length === 0) {
+      alert('최소 한 개 이상의 장소를 선택해주세요.');
       return;
     }
 
@@ -181,10 +182,19 @@ const ScheduleTmap = () => {
 
     try {
       let url, requestBody;
+      
+      // 출발지와 도착지 설정
+      const effectiveStartPoint = startPoint || viaPoints[0];
+      const effectiveEndPoint = endPoint || viaPoints[viaPoints.length - 1];
+      // 중간 경유지들 (출발지와 도착지를 제외한 나머지 포인트들)
+      const middleViaPoints = viaPoints.slice(
+        startPoint ? 0 : 1,
+        endPoint ? viaPoints.length : viaPoints.length - 1
+      );
 
       if (pathType === 'transit') {
-        // 대중교통 경로 요청을 경유지 개수만큼 나누어 처리
-        const points = [startPoint, ...viaPoints, endPoint];
+        // 대중교통 경로 요청 처리
+        const points = [effectiveStartPoint, ...middleViaPoints, effectiveEndPoint];
         const legs = [];
 
         // 연속된 두 지점 간의 경로를 각각 요청
@@ -202,7 +212,6 @@ const ScheduleTmap = () => {
             count: 1
           };
 
-          // 대중교통 경로 요청
           const transitResponse = await fetch(url, {
             method: 'POST',
             headers,
@@ -211,16 +220,11 @@ const ScheduleTmap = () => {
 
           const transitData = await transitResponse.json();
 
-          // 응답 데이터 구조 확인 및 수정
           if (transitData.metaData?.plans?.[0]?.itineraries?.[0]) {
             const itinerary = transitData.metaData.plans[0].itineraries[0];
-
-            // legs 배열이 없는 경우 빈 배열로 초기화
             if (!itinerary.legs) {
               itinerary.legs = [];
             }
-
-            // 각 leg의 필수 속성 확인 및 기본값 설정
             const enhancedLegs = itinerary.legs.map(leg => ({
               mode: leg.mode || 'WALK',
               sectionTime: leg.sectionTime || 0,
@@ -230,13 +234,11 @@ const ScheduleTmap = () => {
               route: leg.route || null,
               passShape: leg.passShape || { linestring: '' }
             }));
-
             itinerary.legs = enhancedLegs;
             legs.push(itinerary);
           }
         }
 
-        // 모든 경로 데이터 통합
         const combinedRoute = {
           metaData: {
             plan: {
@@ -255,57 +257,31 @@ const ScheduleTmap = () => {
 
         drawRoute(combinedRoute);
       } else {
-        // 보행자 or 자동차 경로 처리
-        url = pathType === 'pedestrian'
-          ? 'https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json'
-          : 'https://apis.openapi.sk.com/tmap/routes/routeOptimization20?version=1&format=json';
-
-        if (pathType === 'pedestrian') {
-          requestBody = {
-            startX: startPoint.lon.toString(),
-            startY: startPoint.lat.toString(),
-            endX: endPoint.lon.toString(),
-            endY: endPoint.lat.toString(),
-            reqCoordType: 'WGS84GEO',
-            resCoordType: 'WGS84GEO',
-            startName: encodeURIComponent('출발지'),
-            endName: encodeURIComponent('도착지'),
-            searchOption: '10'
-          };
-
-          if (viaPoints.length > 0) {
-            requestBody.passList = viaPoints
-              .map(point => `${point.lon},${point.lat}`)
-              .join('_');
-          }
-        } else {
-          // 경유지 최적화용 요청 본문
-          requestBody = {
-            startName: encodeURIComponent('출발지'),
-            startX: startPoint.lon.toString(),
-            startY: startPoint.lat.toString(),
-            startTime: "202402291200",  // 현재 시간으로 설정하는 것이 좋습니다
-            endName: encodeURIComponent('도착지'),
-            endX: endPoint.lon.toString(),
-            endY: endPoint.lat.toString(),
-            reqCoordType: 'WGS84GEO',
-            resCoordType: 'WGS84GEO',
-            searchOption: '0',
-            viaPoints: viaPoints.map((point, index) => ({
-              viaPointId: `via${index + 1}`,
-              viaPointName: encodeURIComponent(`경유지${index + 1}`),
-              viaX: point.lon.toString(),
-              viaY: point.lat.toString()
-            }))
-          };
-        }
+        // 자동차 경로 처리
+        url = 'https://apis.openapi.sk.com/tmap/routes/routeOptimization20?version=1&format=json';
+        
+        requestBody = {
+          startName: encodeURIComponent('출발지'),
+          startX: effectiveStartPoint.lon.toString(),
+          startY: effectiveStartPoint.lat.toString(),
+          startTime: "202402291200",
+          endName: encodeURIComponent('도착지'),
+          endX: effectiveEndPoint.lon.toString(),
+          endY: effectiveEndPoint.lat.toString(),
+          reqCoordType: 'WGS84GEO',
+          resCoordType: 'WGS84GEO',
+          searchOption: '0',
+          viaPoints: middleViaPoints.map((point, index) => ({
+            viaPointId: `via${index + 1}`,
+            viaPointName: encodeURIComponent(`경유지${index + 1}`),
+            viaX: point.lon.toString(),
+            viaY: point.lat.toString()
+          }))
+        };
 
         const response = await fetch(url, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'appKey': process.env.REACT_APP_TMAP_KEY
-          },
+          headers,
           body: JSON.stringify(requestBody)
         });
 
@@ -400,24 +376,17 @@ const ScheduleTmap = () => {
           }
         }
       });
-
     } else {
-      // 보행자/자동차 경로 그리기
+      // 자동차 경로 그리기
       if (!routeData.features || routeData.features.length === 0) {
         alert('유효한 경로를 찾을 수 없습니다.');
         return;
       }
 
-      // 경로 정보 설정 - 자동차/보행자 경로 구분
-      if (pathType === 'pedestrian') {
-        const totalDistance = (routeData.features[0].properties.totalDistance / 1000).toFixed(1);
-        const totalTime = Math.round(routeData.features[0].properties.totalTime / 60);
-        setRouteResult(`총 거리: ${totalDistance}km, 총 시간: ${totalTime}분`);
-      } else { // 자동차 경로
-        const totalDistance = (routeData.properties.totalDistance / 1000).toFixed(1);
-        const totalTime = Math.round(routeData.properties.totalTime / 60);
-        setRouteResult(`총 거리: ${totalDistance}km, 총 시간: ${totalTime}분`);
-      }
+      // 경로 정보 설정
+      const totalDistance = (routeData.properties.totalDistance / 1000).toFixed(1);
+      const totalTime = Math.round(routeData.properties.totalTime / 60);
+      setRouteResult(`총 거리: ${totalDistance}km, 총 시간: ${totalTime}분`);
 
       // 경로 상세 정보 설정
       setRouteDetails(routeData);
@@ -431,30 +400,10 @@ const ScheduleTmap = () => {
             return latLng;
           });
 
-          let strokeColor, strokeWeight;
-
-          if (pathType === 'pedestrian') {
-            strokeColor = "#00FF00";
-            strokeWeight = 6;
-          } else {
-            // 자동차 경로에서 도보 구간 구분
-            if (feature.properties.turnType === 211 || // 계단
-              feature.properties.turnType === 212 || // 지하보도
-              feature.properties.turnType === 213 || // 육교
-              feature.properties.turnType === 214 || // 도보
-              feature.properties.turnType === 215) { // 광장
-              strokeColor = "#00FF00";
-              strokeWeight = 6;
-            } else {
-              strokeColor = "#FF0000";
-              strokeWeight = 6;
-            }
-          }
-
           const polyline = new window.Tmapv2.Polyline({
             path: coordinates,
-            strokeColor: strokeColor,
-            strokeWeight: strokeWeight,
+            strokeColor: "#FF0000",
+            strokeWeight: 6,
             strokeStyle: 'solid',
             map: map
           });

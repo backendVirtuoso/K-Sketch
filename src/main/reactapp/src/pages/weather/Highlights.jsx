@@ -8,7 +8,7 @@ import { LiaTachometerAltSolid } from "react-icons/lia";
 import { MdOutlineVisibility } from "react-icons/md";
 import { getTime } from "../../util";
 
-export default function Highlights({airPollution, currentWeather}) {
+export default function Highlights({ airPollution, currentWeather }) {
     const {
         main: { aqi },
         components: { pm2_5, so2, no2, o3 },
@@ -27,7 +27,7 @@ export default function Highlights({airPollution, currentWeather}) {
         4: "나쁨",
         5: "매우 나쁨",
     };
-    
+
     return (
         <section className={styles.section}>
             <Card size="large">

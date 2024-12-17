@@ -1,24 +1,24 @@
 import React from 'react';
 import './scss/usersearch.scss';
-import { Link ,useNavigate} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-export default function UserPwSearch(){
+export default function UserPwSearch() {
+    const navigate = useNavigate();
 
-    const navigate=useNavigate();
-
-    const onClickPwSearch=(e)=>{
+    const onClickPwSearch = (e) => {
         e.preventDefault();
         navigate('/PwSearchEmailAuthentication');
     }
+    
     return (
         <div id='userSearch'>
             <div className="container">
                 <div className="title">
-                        <h3>비밀번호 찾기</h3>
-                        <div className="location">
-                            <span><a href="!#">HOME</a><img src="./images/sign/signup/bg_arrow_01.webp" alt="" /></span>
-                            <strong>비밀번호 찾기</strong>
-                        </div>
+                    <h3>비밀번호 찾기</h3>
+                    <div className="location">
+                        <span><a href="!#">HOME</a><img src="./images/sign/signup/bg_arrow_01.webp" alt="" /></span>
+                        <strong>비밀번호 찾기</strong>
+                    </div>
                 </div>
                 <div className="content">
                     <div className="tab-box">

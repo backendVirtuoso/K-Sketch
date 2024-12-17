@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import SignIn from "./pages/sign/SignIn";
+import OAuth2Success from "./pages/sign/OAuth2Success";
 import SignUp from "./pages/sign/SignUp";
 import UserIdSearch from "./pages/sign/UserIdSearch";
 import UserPwSearch from "./pages/sign/UserPwSearch";
@@ -21,8 +22,9 @@ import ConfirmModalComponent from "./pages/ConfirmModalComponent";
 import QuickMenuComponent from "./pages/QuickMenuComponent";
 import TravelList from "./pages/travel/TravelList";
 import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
-import ApiPlaces from "./pages/place/ApiPlaces"; 
+import ApiPlaces from "./pages/place/ApiPlaces";
 import MyPage from "./pages/mypage/MyPage";
+import UserInfoModify from "./pages/mypage/UserInfoModify";
 
 const App = () => {
   const selector = useSelector((state) => state);
@@ -34,6 +36,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<SignIn />} />
+        <Route path="/oauth2/success" element={<OAuth2Success />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/userIdSearch" element={<UserIdSearch />} />
         <Route path="/userPwSearch" element={<UserPwSearch />} />
@@ -47,6 +50,7 @@ const App = () => {
         <Route path="/places" element={<ApiPlaces />} />
         <Route path="/kafka" element={<Room />} />
         <Route path="/mypage" element={<MyPage />} />
+        <Route path="/userInfoModify" element={<UserInfoModify />} />
         <Route
           path="/api/kafkachat/room/enter/:roomId"
           element={<RoomDetail />}

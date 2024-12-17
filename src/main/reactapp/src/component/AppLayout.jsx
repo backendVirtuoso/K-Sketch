@@ -18,14 +18,14 @@ const AppLayout = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
 
   //  컨펌모달 매서드
- const confirmModalMethod = (msg, msg2) => {
-  const obj = {
+  const confirmModalMethod = (msg, msg2) => {
+    const obj = {
       isConfirmModal: true,
       isMsg: msg,
       isMsg2: msg2
+    }
+    dispatch(confirmModal(obj));
   }
-  dispatch(confirmModal(obj));
-}
 
   // 컴포넌트가 마운트될 때 로컬스토리지에서 토큰을 확인하여 로그인 상태를 결정함
   useEffect(() => {
@@ -55,6 +55,7 @@ const AppLayout = () => {
   const handleLogout = async () => {
     // 로컬 스토리지에서 토큰 삭제
     confirmModalMethod("로그아웃되었습니다.");
+    
     try {
       await axios.post("/api/logout");
       localStorage.removeItem("token");
@@ -68,9 +69,8 @@ const AppLayout = () => {
 
   return (
     <Navbar expand="lg" className="bg-body-tertiary navbar-fixed">
-      <Container fluid  style={{ backgroundColor: "white" }}>
+      <Container fluid style={{ backgroundColor: "white" }}>
         <Navbar.Brand href="/" onClick={gotohome} className="header">
-       
           <video src={logo} autoPlay loop muted className="video" />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
@@ -94,7 +94,7 @@ const AppLayout = () => {
               className="fauser path"
               onClick={isLoggedIn ? handleLogout : handleLogin}
             >
-            <FontAwesomeIcon icon={faUser} />
+              <FontAwesomeIcon icon={faUser} />
               {isLoggedIn ? "로그아웃" : "로그인"}
             </div>
             {/* </div> */}

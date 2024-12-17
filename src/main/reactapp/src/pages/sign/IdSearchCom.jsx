@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { confirmModal } from '../../reducer/confirmModal';
 import axios from 'axios';
 
-export default function IdSearchCom () {
+export default function IdSearchCom() {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -14,13 +14,13 @@ export default function IdSearchCom () {
         name: '',
         nameGuideText: '',
         email: '',
-        emailGuideText:'',
+        emailGuideText: '',
         isEmailAuthenNumberCheck: false,
     });
 
 
     // 컨펌모달
-    const confirmModalMethod=(msg)=>{
+    const confirmModalMethod = (msg) => {
         const obj = {
             isConfirmModal: true,
             isMsg: msg
@@ -29,16 +29,16 @@ export default function IdSearchCom () {
     }
 
     // 입력상자 = 이름
-    const onChangeName=(e)=>{
+    const onChangeName = (e) => {
         let nameGuideText = '';
-        let name = '';  
-        const {value} = e.target;
+        let name = '';
+        const { value } = e.target;
         const regexp = /[`~!@#$%^&*()\-_=+[{\]}\\/|;:'",<.>?]/g;
-        
-        name = value.replace(regexp,'');    // value값이 이름에 들어감
-        
-        if( name==='' ){    // 따라서 value===''도 가능하나 이름===''으로 해도 된다.
-            nameGuideText ='이름을 입력해 주세요.';
+
+        name = value.replace(regexp, '');    // value값이 이름에 들어감
+
+        if (name === '') {    // 따라서 value===''도 가능하나 이름===''으로 해도 된다.
+            nameGuideText = '이름을 입력해 주세요.';
         }
         else {
             nameGuideText = '';
@@ -50,7 +50,7 @@ export default function IdSearchCom () {
         })
     }
 
-        // 이메일 입력상자 = 정규표현식
+    // 이메일 입력상자 = 정규표현식
     // 제한조건
     // 제한조건1 : 특수문자 사용불가
     // 제한조건2 : 한글사용불가
@@ -77,16 +77,14 @@ export default function IdSearchCom () {
         })
     }
 
-
-
     // 폼 데이터 보내기
-    const onNameEmailSearch=(e)=>{
+    const onNameEmailSearch = (e) => {
         e.preventDefault();
 
-        if( state.name===''){
+        if (state.name === '') {
             confirmModalMethod('가입하신 이름를 입력해 주세요.');
         }
-        else if( state.email==='' ){
+        else if (state.email === '') {
             confirmModalMethod('가입하신 이메일 주소를 입력해 주세요.');
         }
         else {
@@ -94,12 +92,12 @@ export default function IdSearchCom () {
                 name: state.name,
                 email: state.email,
             };
-    
+
             axios.post('http://localhost:8080/api/search-id-email', userData)
                 .then((response) => {
                     if (response.status === 200) {
                         console.log(response.data);  // response.data는 MemberDTO 객체 또는 null
-    
+
                         if (response.data) {
                             console.log(response.data);
                             //아이디와 생성일자가 존재하면 결과 페이지로 이동
@@ -123,7 +121,6 @@ export default function IdSearchCom () {
         }
     }
 
-
     return (
         <div id='search'>
             <div className="container">
@@ -131,14 +128,14 @@ export default function IdSearchCom () {
                     <div className="header_box">
                         <h2>아이디 찾기</h2>
                     </div>
-                </div>                    
+                </div>
                 <div className="content">
                     <form autoComplete='off' onSubmit={onNameEmailSearch}>
                         <ul className="form_box">
                             <li>
                                 <div className="col-gap">
                                     <label htmlFor="userName">이름</label>
-                                    <input 
+                                    <input
                                         type="text" name='userName' id='userName' placeholder='이름을 입력해주세요'
                                         value={state.name}
                                         onChange={onChangeName}
@@ -148,7 +145,7 @@ export default function IdSearchCom () {
                             <li>
                                 <div className="col-gap">
                                     <label htmlFor="userHp">가입 시 입력한 이메일 주소</label>
-                                    <input 
+                                    <input
                                         type="text" name='userEmail' id='userEmail' placeholder='가입 시 입력한 이메일 주소를 입력해주세요'
                                         value={state.email}
                                         onChange={onChangeEmail}

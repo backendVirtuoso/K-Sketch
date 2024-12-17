@@ -16,7 +16,7 @@ const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
                     />
                 ) : (
                     <div className="no-image-placeholder">
-                        <small className="text-muted m-0">이미지가<br/>없습니다</small>
+                        <small className="text-muted m-0">이미지가<br />없습니다</small>
                     </div>
                 )}
                 <div className="place-info">
@@ -94,11 +94,10 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
                         <button
                             key={type.id}
                             onClick={() => setContentTypeId(type.id)}
-                            className={`btn btn-sm content-type-button ${
-                                contentTypeId === type.id
+                            className={`btn btn-sm content-type-button ${contentTypeId === type.id
                                     ? 'btn-primary'
                                     : 'btn-outline-primary'
-                            }`}
+                                }`}
                         >
                             {type.text}
                         </button>
@@ -336,7 +335,7 @@ const DateSelector = ({ onDateSelect }) => {
                                             value={dateInfo.startTime}
                                             onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
                                         >
-                                            {Array.from({length: 24}, (_, i) => {
+                                            {Array.from({ length: 24 }, (_, i) => {
                                                 const timeValue = `${String(i).padStart(2, '0')}:00`;
                                                 return (
                                                     <option key={i} value={timeValue}>
@@ -358,7 +357,7 @@ const DateSelector = ({ onDateSelect }) => {
                                             value={dateInfo.endTime}
                                             onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
                                         >
-                                            {Array.from({length: 24}, (_, i) => {
+                                            {Array.from({ length: 24 }, (_, i) => {
                                                 const timeValue = `${String(i).padStart(2, '0')}:00`;
                                                 return (
                                                     <option key={i} value={timeValue}>
@@ -373,7 +372,7 @@ const DateSelector = ({ onDateSelect }) => {
                         ))}
                     </div>
                     <div className="mt-3 d-flex justify-content-between">
-                        <button 
+                        <button
                             className="btn btn-primary"
                             onClick={() => {
                                 onDateSelect([startDate, endDate], selectedDates, true); // 완료 상태를 전달
@@ -388,30 +387,45 @@ const DateSelector = ({ onDateSelect }) => {
     );
 };
 
-// 숙박 선택 컴포넌트
-const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
+// 숙박 선택 컴포넌트 수정
+const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays, selectedTimes }) => {
     const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
     const [keyword, setKeyword] = useState("부산");
-    const [contentTypeId] = useState("32"); // 숙박 시설 contentTypeId는 32로 고정
-    const { places, error, isLoading } = usePlaces(apiType, keyword, contentTypeId);
+    const [showDateModal, setShowDateModal] = useState(false);
+    const [selectedStay, setSelectedStay] = useState(null);
+    
+    const { places: stays, error, isLoading } = usePlaces(apiType, keyword, "32");
 
-    const handleAddPlace = useCallback((place) => {
-        if (!selectedPlaces.some(p => p.title === place.title)) {
-            onAddPlace(place);
-        }
-    }, [selectedPlaces, onAddPlace]);
-
-    const handleRemovePlace = useCallback((place) => {
-        onRemovePlace(place);
-    }, [onRemovePlace]);
+    // 이미 선택된 날짜들을 계산
+    const getReservedDates = () => {
+        return selectedStays.reduce((dates, stay) => {
+            if (stay.selectedDates) {
+                return [...dates, ...stay.selectedDates];
+            }
+            return dates;
+        }, []);
+    };
 
     const handleSearch = () => {
         setKeyword(inputKeyword);
     };
 
-    if (error) return <p>숙박 시설 데이터 로드 중 오류가 발생했습니다: {error.message}</p>;
-    if (isLoading) return <p>숙박 시설 데이터를 로드하는 중입니다...</p>;
+    const handleStaySelect = (stay) => {
+        setSelectedStay(stay);
+        setShowDateModal(true);
+    };
+
+    const handleDateConfirm = (stay, selectedDates) => {
+        // 선택된 날짜들에 대해서만 숙소 추가
+        const newStay = {
+            ...stay,
+            selectedDates: selectedDates // 선택된 날짜들 저장
+        };
+        onAddPlace(newStay); // 하나의 숙소 객체만 추가
+        setShowDateModal(false);
+        setSelectedStay(null);
+    };
 
     return (
         <div className="h-100 overflow-hidden">
@@ -420,7 +434,7 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
                     <input
                         type="text"
                         className="form-control"
-                        placeholder="숙박 시설명을 입력하세요"
+                        placeholder="숙소명을 입력하세요"
                         value={inputKeyword}
                         onChange={(e) => setInputKeyword(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -431,17 +445,254 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
                 </div>
             </div>
 
-            <div className="overflow-auto" style={{ height: 'calc(100% - 116px)', scrollbarWidth: 'none' }}>
-                {places.map((place, index) => (
-                    <PlaceListItem
-                        key={index}
-                        place={place}
-                        onAddClick={handleAddPlace}
-                        onRemoveClick={handleRemovePlace}
-                        isSelected={selectedPlaces.some(p => p.title === place.title)}
-                    />
+            <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
+                {stays.map((stay, index) => (
+                    <div key={index} className="place-list-item">
+                        <div className="flex-grow-1">
+                            <div className="d-flex align-items-center gap-3">
+                                {stay.firstimage ? (
+                                    <img
+                                        src={stay.firstimage}
+                                        alt={stay.title}
+                                        className="place-image"
+                                        style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px' }}
+                                    />
+                                ) : (
+                                    <div className="no-image-placeholder">
+                                        <small className="text-muted m-0">이미지가<br />없습니다</small>
+                                    </div>
+                                )}
+                                <div className="place-info">
+                                    <div className="fw-bold text-truncate" title={stay.title}>
+                                        {stay.title}
+                                    </div>
+                                    <small className="text-muted text-truncate d-block" title={stay.addr1}>
+                                        {stay.addr1}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() => handleStaySelect(stay)}
+                        >
+                            <i className="bi bi-plus"></i>
+                        </button>
+                    </div>
                 ))}
             </div>
+
+            {showDateModal && selectedStay && (
+                <StayDateModal
+                    stay={selectedStay}
+                    selectedTimes={selectedTimes}
+                    reservedDates={getReservedDates()} // 이미 선택된 날짜들 전달
+                    onConfirm={handleDateConfirm}
+                    onClose={() => {
+                        setShowDateModal(false);
+                        setSelectedStay(null);
+                    }}
+                />
+            )}
+        </div>
+    );
+};
+
+// StayDateModal 컴포넌트 수정
+const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose }) => {
+    const [selectedDates, setSelectedDates] = useState([]);
+
+    // 날짜 포맷팅 (12.15 형식)
+    const formatDateShort = (date) => {
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return `${month}.${day}`;
+    };
+
+    // 날짜가 이미 예약되었는지 확인
+    const isDateReserved = (date) => {
+        return reservedDates.some(reservedDate => 
+            reservedDate.getTime() === date.getTime()
+        );
+    };
+
+    const handleDateToggle = (date) => {
+        if (isDateReserved(date)) return; // 이미 예약된 날짜는 선택 불가
+
+        setSelectedDates(prev => {
+            if (prev.includes(date)) {
+                return prev.filter(d => d !== date);
+            } else {
+                return [...prev, date].sort((a, b) => a - b);
+            }
+        });
+    };
+
+    // 이미 선택된 날짜인지 확인
+    const isDateSelected = (date) => {
+        return selectedDates.some(selectedDate => 
+            selectedDate.getTime() === date.getTime()
+        );
+    };
+
+    // 전체 선택 처리 함수 추가
+    const handleSelectAll = () => {
+        // 예약되지 않은 날짜들만 필터링하여 전체 선택
+        const availableDates = selectedTimes
+            .slice(0, -1)
+            .map(timeInfo => timeInfo.date)
+            .filter(date => !isDateReserved(date));
+        
+        setSelectedDates(availableDates);
+    };
+
+    return (
+        <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
+            <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                    <div className="modal-header border-0">
+                        <button type="button" className="btn-close" onClick={onClose}></button>
+                    </div>
+                    <div className="modal-body px-4">
+                        <h5 className="text-center mb-3">숙박하실 날짜를 선택해주세요.</h5>
+                        <p className="text-muted text-center small mb-4">
+                            *동일한 숙소에서 연박도 남은 날짜를 선택하여 가능합니다.
+                        </p>
+                        
+                        <div className="text-center mb-4">
+                            <h6>{stay.title}</h6>
+                            <p className="text-muted small">{stay.addr1}</p>
+                        </div>
+
+                        <div className="d-flex flex-wrap gap-2 justify-content-center">
+                            {selectedTimes.slice(0, -1).map((timeInfo, index) => {
+                                const isReserved = isDateReserved(timeInfo.date);
+                                return (
+                                    <div
+                                        key={index}
+                                        onClick={() => !isReserved && handleDateToggle(timeInfo.date)}
+                                        className={`date-select-button ${
+                                            isDateSelected(timeInfo.date) ? 'selected' : ''
+                                        } ${isReserved ? 'disabled' : ''}`}
+                                        style={{
+                                            cursor: isReserved ? 'not-allowed' : 'pointer',
+                                            padding: '8px 16px',
+                                            borderRadius: '20px',
+                                            border: '1px solid #ddd',
+                                            backgroundColor: isReserved 
+                                                ? '#f8f9fa'
+                                                : isDateSelected(timeInfo.date)
+                                                    ? '#5D2FFF' 
+                                                    : 'white',
+                                            color: isReserved
+                                                ? '#adb5bd'
+                                                : isDateSelected(timeInfo.date)
+                                                    ? 'white' 
+                                                    : 'black',
+                                            minWidth: '80px',
+                                            textAlign: 'center',
+                                            opacity: isReserved ? 0.7 : 1
+                                        }}
+                                    >
+                                        {formatDateShort(timeInfo.date)}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    <div className="modal-footer flex-column border-0 px-4 pb-4">
+                        <button
+                            className="btn btn-primary w-100 py-2"
+                            onClick={() => onConfirm(stay, selectedDates)}
+                            disabled={selectedDates.length === 0}
+                        >
+                            선택 완료
+                        </button>
+                        <button
+                            className="btn btn-outline-primary w-100 py-2 mt-2"
+                            onClick={handleSelectAll}
+                        >
+                            전체 선택
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div className="modal-backdrop fade show"></div>
+        </div>
+    );
+};
+
+// 선택된 숙박 아이템 컴포넌트 수정
+const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, onRemove }) => {
+    // 날짜 포맷팅
+    const formatDate = (date) => {
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const endDate = new Date(date);
+        endDate.setDate(date.getDate() + 1);
+        const endDay = endDate.getDate();
+        
+        return `${month}.${day}(${getDayOfWeek(date)})-${month}.${endDay}(${getDayOfWeek(endDate)})`;
+    };
+
+    // 요일 반환
+    const getDayOfWeek = (date) => {
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        return days[date.getDay()];
+    };
+
+    // 선택된 날짜들만 표시
+    const selectedDates = stay.selectedDates || [];
+
+    return (
+        <div className="selected-stays-container">
+            {selectedDates.map((date, index) => (
+                <div key={index} className="stay-date-item p-3 border-bottom">
+                    <div className="d-flex align-items-center gap-3">
+                        <div className="stay-number rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                             style={{ width: '24px', height: '24px', minWidth: '24px' }}>
+                            {index + 1}
+                        </div>
+                        {stay.firstimage ? (
+                            <img
+                                src={stay.firstimage}
+                                alt={stay.title}
+                                className="stay-thumbnail"
+                                style={{ 
+                                    width: '48px', 
+                                    height: '48px', 
+                                    objectFit: 'cover', 
+                                    borderRadius: '4px'
+                                }}
+                            />
+                        ) : (
+                            <div className="no-image-placeholder"
+                                 style={{ 
+                                     width: '48px', 
+                                     height: '48px', 
+                                     background: '#f8f9fa', 
+                                     borderRadius: '4px', 
+                                     display: 'flex', 
+                                     alignItems: 'center', 
+                                     justifyContent: 'center'
+                                 }}>
+                                <small className="text-muted">No Image</small>
+                            </div>
+                        )}
+                        <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
+                            <div className="text-muted small">{formatDate(date)}</div>
+                            <div className="fw-bold text-truncate" title={stay.title}>{stay.title}</div>
+                        </div>
+                        <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => onRemove(stay)}
+                            style={{ padding: '4px 8px' }}
+                        >
+                            <i className="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };
@@ -451,21 +702,20 @@ const STEP_BUTTONS = [
     { id: 'date', step: 1, text: '날짜 선택' },
     { id: 'place', step: 2, text: '장소 선택' },
     { id: 'stay', step: 3, text: '숙박 선택' },
-    { id: 'path', step: 4, text: '길찾기 경로' }
+    // { id: 'path', step: 4, text: '길찾기 경로' }
 ];
 
 // 사이드바 버튼 컴포넌트
 const StepButton = ({ id, step, text, currentStep, onClick }) => (
     <button
         onClick={() => onClick(id)}
-        className={`sidebar-button btn border-0 p-3 rounded-3 ${
-            currentStep === id
+        className={`sidebar-button btn border-0 p-3 rounded-3 ${currentStep === id
                 ? 'text-primary fw-bold bg-primary bg-opacity-10'
                 : 'text-secondary bg-light'
-        }`}
+            }`}
     >
         <div className="sidebar-button-text">
-            STEP {step}<br/>{text}
+            STEP {step}<br />{text}
         </div>
     </button>
 );
@@ -475,12 +725,26 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [hours, setHours] = useState(Math.floor(duration / 60));
     const [minutes, setMinutes] = useState(duration % 60);
+    const [tempHours, setTempHours] = useState(hours);
+    const [tempMinutes, setTempMinutes] = useState(minutes);
 
     const handleTimeChange = (newHours, newMinutes) => {
-        const totalMinutes = (newHours * 60) + newMinutes;
+        setTempHours(newHours);
+        setTempMinutes(newMinutes);
+    };
+
+    const handleConfirm = () => {
+        const totalMinutes = (tempHours * 60) + tempMinutes;
         onDurationChange(place, totalMinutes);
-        setHours(newHours);
-        setMinutes(newMinutes);
+        setHours(tempHours);
+        setMinutes(tempMinutes);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setTempHours(hours);
+        setTempMinutes(minutes);
+        setIsEditing(false);
     };
 
     return (
@@ -501,29 +765,45 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                 </div>
                 <div className="duration-controls">
                     {isEditing ? (
-                        <div className="time-editor">
-                            <div className="time-spinner">
-                                <button onClick={() => handleTimeChange(hours + 1, minutes)} className="spinner-button">▲</button>
-                                <input
-                                    type="number"
-                                    value={hours}
-                                    onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, minutes)}
-                                    className="time-input"
-                                />
-                                <button onClick={() => handleTimeChange(Math.max(0, hours - 1), minutes)} className="spinner-button">▼</button>
+                        <div className="d-flex align-items-center gap-2">
+                            <div className="time-editor">
+                                <div className="time-spinner">
+                                    <button onClick={() => handleTimeChange(tempHours + 1, tempMinutes)} className="spinner-button">▲</button>
+                                    <input
+                                        type="number"
+                                        value={tempHours}
+                                        onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, tempMinutes)}
+                                        className="time-input"
+                                    />
+                                    <button onClick={() => handleTimeChange(Math.max(0, tempHours - 1), tempMinutes)} className="spinner-button">▼</button>
+                                </div>
+                                <span>시간</span>
+                                <div className="time-spinner">
+                                    <button onClick={() => handleTimeChange(tempHours, (tempMinutes + 30) % 60)} className="spinner-button">▲</button>
+                                    <input
+                                        type="number"
+                                        value={tempMinutes}
+                                        onChange={(e) => handleTimeChange(tempHours, parseInt(e.target.value) || 0)}
+                                        className="time-input"
+                                    />
+                                    <button onClick={() => handleTimeChange(tempHours, Math.max(0, tempMinutes - 30))} className="spinner-button">▼</button>
+                                </div>
+                                <span>분</span>
                             </div>
-                            <span>시간</span>
-                            <div className="time-spinner">
-                                <button onClick={() => handleTimeChange(hours, (minutes + 30) % 60)} className="spinner-button">▲</button>
-                                <input
-                                    type="number"
-                                    value={minutes}
-                                    onChange={(e) => handleTimeChange(hours, parseInt(e.target.value) || 0)}
-                                    className="time-input"
-                                />
-                                <button onClick={() => handleTimeChange(hours, Math.max(0, minutes - 30))} className="spinner-button">▼</button>
+                            <div className="d-flex gap-1">
+                                <button 
+                                    className="btn btn-sm btn-primary" 
+                                    onClick={handleConfirm}
+                                >
+                                    <i className="bi bi-check"></i>
+                                </button>
+                                <button 
+                                    className="btn btn-sm btn-secondary" 
+                                    onClick={handleCancel}
+                                >
+                                    <i className="bi bi-x"></i>
+                                </button>
                             </div>
-                            <span>분</span>
                         </div>
                     ) : (
                         <button
@@ -545,4 +825,4 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
     );
 };
 
-export { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS };
+export { SelectedPlaceItem, SelectedStayItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS };
