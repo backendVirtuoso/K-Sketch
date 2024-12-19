@@ -119,7 +119,7 @@ const ScheduleTmap = () => {
     }
   };
 
-  // 도로명 주소 포맷팅
+  // 도명 주소 포맷팅
   const formatRoadAddress = (result) => {
     let address = `${result.city_do} ${result.gu_gun}`;
     if (result.eup_myun) {
@@ -180,279 +180,184 @@ const ScheduleTmap = () => {
     setKeyword('');
   };
 
-  // 통합된 경로 검색 함수
-  const searchRoute = async () => {
-    // 경유지가 없는 경우 검색 중단
-    if (viaPoints.length === 0) {
-      alert('최소 한 개 이상의 장소를 선택해주세요.');
-      return;
-    }
-
-    // 기존 경로 삭제
-    currentPolylines.forEach(polyline => {
-      if (polyline) polyline.setMap(null);
-    });
-    setCurrentPolylines([]);
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'appKey': process.env.REACT_APP_TMAP_KEY
-    };
-
+  // 경로 초기화 함수 수정
+  const clearAllRoutes = () => {
     try {
-      let url, requestBody;
-
-      // 출발지와 도착지 설정
-      const effectiveStartPoint = startPoint || viaPoints[0];
-      const effectiveEndPoint = endPoint || viaPoints[viaPoints.length - 1];
-      // 중간 경유지들 (출발지와 도착지를 제외한 나머지 포인트들)
-      const middleViaPoints = viaPoints.slice(
-        startPoint ? 0 : 1,
-        endPoint ? viaPoints.length : viaPoints.length - 1
-      );
-
-      if (pathType === 'transit') {
-        // 대중교통 경로 요청 처리
-        const points = [effectiveStartPoint, ...middleViaPoints, effectiveEndPoint];
-        const legs = [];
-
-        // 연속된 두 지점 간의 경로를 각각 요청
-        for (let i = 0; i < points.length - 1; i++) {
-          const start = points[i];
-          const end = points[i + 1];
-
-          url = 'https://apis.openapi.sk.com/transit/routes';
-          requestBody = {
-            startX: start.lon.toString(),
-            startY: start.lat.toString(),
-            endX: end.lon.toString(),
-            endY: end.lat.toString(),
-            format: 'json',
-            count: 1
-          };
-
-          const transitResponse = await fetch(url, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(requestBody)
-          });
-
-          const transitData = await transitResponse.json();
-
-          if (transitData.metaData?.plans?.[0]?.itineraries?.[0]) {
-            const itinerary = transitData.metaData.plans[0].itineraries[0];
-            if (!itinerary.legs) {
-              itinerary.legs = [];
-            }
-            const enhancedLegs = itinerary.legs.map(leg => ({
-              mode: leg.mode || 'WALK',
-              sectionTime: leg.sectionTime || 0,
-              distance: leg.distance || 0,
-              start: leg.start || { name: start.name, lat: start.lat, lon: start.lon },
-              end: leg.end || { name: end.name, lat: end.lat, lon: end.lon },
-              route: leg.route || null,
-              passShape: leg.passShape || { linestring: '' }
-            }));
-            itinerary.legs = enhancedLegs;
-            legs.push(itinerary);
-          }
+      currentPolylines.forEach(polyline => {
+        if (polyline && polyline.getMap()) {
+          polyline.setMap(null);
         }
-
-        const combinedRoute = {
-          metaData: {
-            plan: {
-              itineraries: [{
-                legs: legs.flatMap(itinerary => itinerary.legs),
-                totalDistance: legs.reduce((sum, itinerary) =>
-                  sum + (itinerary.totalDistance || 0), 0),
-                totalTime: legs.reduce((sum, itinerary) =>
-                  sum + (itinerary.totalTime || 0), 0),
-                transferCount: legs.reduce((sum, itinerary) =>
-                  sum + (itinerary.transferCount || 0), 0)
-              }]
-            }
-          }
-        };
-
-        // drawRoute(combinedRoute);
-        drawDayRoute(combinedRoute, 0);
-      } else {
-        // 자동차 경로 처리
-        url = 'https://apis.openapi.sk.com/tmap/routes/routeOptimization20?version=1&format=json';
-
-        requestBody = {
-          startName: encodeURIComponent('출발지'),
-          startX: effectiveStartPoint.lon.toString(),
-          startY: effectiveStartPoint.lat.toString(),
-          startTime: "202402291200",
-          endName: encodeURIComponent('도착지'),
-          endX: effectiveEndPoint.lon.toString(),
-          endY: effectiveEndPoint.lat.toString(),
-          reqCoordType: 'WGS84GEO',
-          resCoordType: 'WGS84GEO',
-          searchOption: '0',
-          viaPoints: middleViaPoints.map((point, index) => ({
-            viaPointId: `via${index + 1}`,
-            viaPointName: encodeURIComponent(`경유지${index + 1}`),
-            viaX: point.lon.toString(),
-            viaY: point.lat.toString()
-          }))
-        };
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(requestBody)
-        });
-
-        if (!response.ok) {
-          const errorData = await response.text();
-          console.error('API 오류:', errorData);
-          throw new Error(`API 요청 실패: ${response.status}`);
-        }
-
-        const data = await response.json();
-        drawRoute(data);
-      }
+      });
+      setCurrentPolylines([]);
     } catch (error) {
-      console.error('경로 검색 오류:', error);
-      alert('경로 검색 중 오류가 발생했습니다.');
+      console.error('경로 초기화 중 오류:', error);
     }
   };
 
-  // 통합된 경로 그리기 함수
-  const drawRoute = (routeData, dayIndex) => {
-    const newPolylines = [];
-    const bounds = new window.Tmapv2.LatLngBounds();
-    let hasValidCoordinates = false;
+  // 두 지점 간 경로 검색 함수 추가
+  const searchRouteBetweenPoints = async (start, end, routeColor) => {
+    if (!start || !end) {
+      console.warn('유효한 경로 포인트가 없습니다.');
+      return;
+    }
 
-    if (pathType === 'transit') {
-      // 대중교통 경로 그리기
-      const itinerary = routeData.metaData?.plan?.itineraries?.[0];
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'appKey': process.env.REACT_APP_TMAP_KEY
+      };
 
-      if (!itinerary) {
-        console.error('유효한 경로 데이터가 없습니다.');
-        return;
+      let url, requestBody;
+
+      if (pathType === 'transit') {
+        url = 'https://apis.openapi.sk.com/transit/routes';
+        requestBody = {
+          startX: start.lon.toString(),
+          startY: start.lat.toString(),
+          endX: end.lon.toString(),
+          endY: end.lat.toString(),
+          format: 'json',
+          count: 1
+        };
+      } else {
+        url = 'https://apis.openapi.sk.com/tmap/routes?version=1&format=json';
+        requestBody = {
+          startX: start.lon.toString(),
+          startY: start.lat.toString(),
+          endX: end.lon.toString(),
+          endY: end.lat.toString(),
+          reqCoordType: 'WGS84GEO',
+          resCoordType: 'WGS84GEO',
+          searchOption: '0',
+          trafficInfo: 'Y'
+        };
       }
 
-      // 경로 정보 설정
-      const tDistance = `총 거리: ${((itinerary.totalDistance || 0) / 1000).toFixed(1)}km`;
-      const tTime = `총 시간: ${Math.round((itinerary.totalTime || 0) / 60)}분`;
-      const tTransfer = `환승: ${itinerary.transferCount || 0}회`;
-      setRouteResult(`${tDistance}, ${tTime}, ${tTransfer}`);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(requestBody)
+      });
 
-      // 상세 정보 설정
-      const details = itinerary.legs?.map(leg => ({
-        mode: leg.mode || 'WALK',
-        sectionTime: Math.round((leg.sectionTime || 0) / 60),
-        distance: ((leg.distance || 0) / 1000).toFixed(1),
-        start: leg.start?.name || '알 수 없음',
-        end: leg.end?.name || '알 수 없음',
-        routeName: leg.route?.name,
-        routeNumber: leg.route?.name
-      })) || [];
-      setTransitDetails(details);
+      const data = await response.json();
+      const newPolylines = [];
 
-      // 경로 그리기
-      itinerary.legs?.forEach(leg => {
-        if (leg.passShape?.linestring) {
-          let coordinates;
-          try {
-            if (typeof leg.passShape.linestring === 'string') {
-              coordinates = leg.passShape.linestring
-                .split(' ')
-                .map(coord => {
-                  const [lon, lat] = coord.split(',').map(Number);
-                  if (isNaN(lat) || isNaN(lon)) return null;
-                  return new window.Tmapv2.LatLng(lat, lon);
-                })
-                .filter(coord => coord !== null);
-            } else if (Array.isArray(leg.passShape.linestring)) {
-              coordinates = leg.passShape.linestring
-                .map(coord => {
-                  if (!Array.isArray(coord) || coord.length !== 2) return null;
-                  const [lon, lat] = coord;
-                  if (isNaN(lat) || isNaN(lon)) return null;
-                  return new window.Tmapv2.LatLng(lat, lon);
-                })
-                .filter(coord => coord !== null);
+      if (pathType === 'transit') {
+        const itinerary = data.metaData?.plan?.itineraries?.[0];
+        if (itinerary?.legs) {
+          itinerary.legs.forEach(leg => {
+            if (leg.passShape?.linestring) {
+              try {
+                const coordinates = leg.passShape.linestring
+                  .split(' ')
+                  .map(coord => {
+                    const [lon, lat] = coord.split(',').map(Number);
+                    return new window.Tmapv2.LatLng(lat, lon);
+                  });
+
+                const polyline = new window.Tmapv2.Polyline({
+                  path: coordinates,
+                  strokeColor: routeColor,
+                  strokeWeight: 6,
+                  map: map
+                });
+
+                newPolylines.push(polyline);
+              } catch (e) {
+                console.warn('폴리라인 생성 중 오류:', e);
+              }
             }
+          });
+        }
+      } else {
+        if (data.features) {
+          data.features.forEach(feature => {
+            if (feature.geometry.type === 'LineString') {
+              try {
+                const coordinates = feature.geometry.coordinates.map(coord => 
+                  new window.Tmapv2.LatLng(coord[1], coord[0])
+                );
 
-            if (coordinates && coordinates.length > 0) {
-              hasValidCoordinates = true;
-              coordinates.forEach(coord => bounds.extend(coord));
+                const polyline = new window.Tmapv2.Polyline({
+                  path: coordinates,
+                  strokeColor: routeColor,
+                  strokeWeight: 6,
+                  map: map
+                });
 
-              const polyline = new window.Tmapv2.Polyline({
-                path: coordinates,
-                strokeColor: dayIndex !== undefined ? DAY_COLORS[dayIndex] :
-                  (leg.mode === 'WALK' ? "#00ff00" : leg.mode === 'BUS' ? "#ff0000" : "#0000ff"),
-                strokeWeight: 6,
-                map: map
-              });
-
-              newPolylines.push(polyline);
+                newPolylines.push(polyline);
+              } catch (e) {
+                console.warn('폴리라인 생성 중 오류:', e);
+              }
             }
-          } catch (error) {
-            console.error('경로 좌표 처리 중 오류:', error);
+          });
+        }
+      }
+
+      setCurrentPolylines(prev => [...prev, ...newPolylines]);
+    } catch (error) {
+      console.error('경로 검색 오류:', error);
+    }
+  };
+
+  // drawDayRoute 함수 수정
+  const drawDayRoute = async (day, dayIndex) => {
+    if (!day || !day.places || day.places.length < 2) {
+      console.warn('유효한 일정 데이터가 없습니다.');
+      return;
+    }
+
+    try {
+      const dayPlaces = day.places.map(place => {
+        const placeData = viaPoints.find(p => p.name === place.title);
+        return placeData ? {
+          ...placeData,
+          duration: place.duration
+        } : null;
+      }).filter(place => place !== null);
+
+      if (dayPlaces.length >= 2) {
+        const routeColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
+        
+        // 모든 연속된 장소 간의 경로 검색
+        for (let i = 0; i < dayPlaces.length - 1; i++) {
+          await searchRouteBetweenPoints(dayPlaces[i], dayPlaces[i + 1], routeColor);
+        }
+
+        // 마지막 장소에서 숙소로의 경로 (숙소가 있는 경우)
+        if (day.stays && day.stays[0]) {
+          const stayData = viaPoints.find(p => p.name === day.stays[0].title);
+          if (stayData) {
+            await searchRouteBetweenPoints(
+              dayPlaces[dayPlaces.length - 1],
+              stayData,
+              routeColor
+            );
           }
         }
-      });
-    } else {
-      // 자동차 경로 그리기
-      if (!routeData.features || routeData.features.length === 0) {
-        alert('유효한 경로를 찾을 수 없습니다.');
-        return;
       }
+    } catch (error) {
+      console.error('일차별 경로 그리기 오류:', error);
+    }
+  };
 
-      // 경로 정보 설정
-      const totalDistance = (routeData.properties.totalDistance / 1000).toFixed(1);
-      const totalTime = Math.round(routeData.properties.totalTime / 60);
-      setRouteResult(`총 거리: ${totalDistance}km, 총 시간: ${totalTime}분`);
-
-      // 경로 상세 정보 설정
-      setRouteDetails(routeData);
-
-      // 경로 그리기
-      routeData.features.forEach(feature => {
-        if (feature.geometry.type === 'LineString') {
-          const coordinates = feature.geometry.coordinates.map(coord => {
-            const latLng = new window.Tmapv2.LatLng(coord[1], coord[0]);
-            bounds.extend(latLng);
-            return latLng;
-          });
-
-          const polyline = new window.Tmapv2.Polyline({
-            path: coordinates,
-            strokeColor: DAY_COLORS[dayIndex],
-            strokeWeight: 6,
-            strokeStyle: 'solid',
-            map: map
-          });
-
-          newPolylines.push(polyline);
+  // handleDaySelect 함수 수정
+  const handleDaySelect = async (dayIndex, recommendedSchedule) => {
+    try {
+      clearAllRoutes();
+      
+      if (dayIndex === -1) {
+        // 전체 일정 표시
+        for (let i = 0; i < recommendedSchedule.days.length; i++) {
+          await drawDayRoute(recommendedSchedule.days[i], i);
         }
-      });
-    }
-
-    // 유효한 좌표가 있을 때만 지도 범위 조정
-    if (hasValidCoordinates) {
-      map.fitBounds(bounds);
-    } else {
-      // 유효한 경로가 없을 경우 시작점과 도착점을 기준으로 지도 범위 조정
-      const defaultBounds = new window.Tmapv2.LatLngBounds();
-      if (startPoint) {
-        defaultBounds.extend(new window.Tmapv2.LatLng(startPoint.lat, startPoint.lon));
+      } else if (recommendedSchedule.days[dayIndex]) {
+        // 특정 일차 표시
+        await drawDayRoute(recommendedSchedule.days[dayIndex], dayIndex);
       }
-      if (endPoint) {
-        defaultBounds.extend(new window.Tmapv2.LatLng(endPoint.lat, endPoint.lon));
-      }
-      viaPoints.forEach(point => {
-        defaultBounds.extend(new window.Tmapv2.LatLng(point.lat, point.lon));
-      });
-      map.fitBounds(defaultBounds);
+    } catch (error) {
+      console.error('일차 선택 처리 오류:', error);
     }
-
-    setCurrentPolylines(newPolylines);
   };
 
   // 새로운 장소 추가 (경유지로)
@@ -549,151 +454,6 @@ const ScheduleTmap = () => {
     }
   };
 
-  // 경로 초기화 함수 추가
-  const clearAllRoutes = () => {
-    // 모든 마커 제거
-    currentMarkers.forEach(marker => {
-      if (marker.marker) marker.marker.setMap(null);
-    });
-    setCurrentMarkers([]);
-
-    // 모든 경로선 제거
-    currentPolylines.forEach(polyline => {
-      if (polyline) polyline.setMap(null);
-    });
-    setCurrentPolylines([]);
-
-    // 저장된 경로 데이터 초기화
-    setDayRoutes({});
-    setSelectedDayIndex(null);
-  };
-
-  // 일자별 경로 그리기 함수 수정
-  const drawDayRoute = async (dayPlaces, dayIndex) => {
-    // 기존 경로 초기화
-    clearAllRoutes();
-
-    const newPolylines = [];
-    const bounds = new window.Tmapv2.LatLngBounds();
-
-    try {
-      // 해당 일자의 장소들로 경로 생성
-      for (let i = 0; i < dayPlaces.length - 1; i++) {
-        const start = dayPlaces[i];
-        const end = dayPlaces[i + 1];
-
-        const url = 'https://apis.openapi.sk.com/tmap/routes?version=1';
-        const headers = {
-          'Content-Type': 'application/json',
-          'appKey': process.env.REACT_APP_TMAP_KEY
-        };
-
-        const requestBody = {
-          startX: start.longitude.toString(),
-          startY: start.latitude.toString(),
-          endX: end.longitude.toString(),
-          endY: end.latitude.toString(),
-          reqCoordType: 'WGS84GEO',
-          resCoordType: 'WGS84GEO'
-        };
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(requestBody)
-        });
-
-        if (!response.ok) {
-          throw new Error(`API 요청 실패: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.features) {
-          data.features.forEach(feature => {
-            if (feature.geometry.type === 'LineString') {
-              const coordinates = feature.geometry.coordinates.map(coord => {
-                const latLng = new window.Tmapv2.LatLng(coord[1], coord[0]);
-                bounds.extend(latLng);
-                return latLng;
-              });
-
-              const polyline = new window.Tmapv2.Polyline({
-                path: coordinates,
-                strokeColor: DAY_COLORS[dayIndex % DAY_COLORS.length], // 일자별 색상 적용
-                strokeWeight: 6,
-                map: map
-              });
-
-              newPolylines.push(polyline);
-            }
-          });
-        }
-      }
-
-      // 마커 생성
-      dayPlaces.forEach((place, index) => {
-        const marker = new window.Tmapv2.Marker({
-          position: new window.Tmapv2.LatLng(place.latitude, place.longitude),
-          icon: `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_${index + 1}.png`,
-          iconSize: new window.Tmapv2.Size(24, 38),
-          map: map
-        });
-        setCurrentMarkers(prev => [...prev, { type: 'place', marker }]);
-      });
-
-      // 경로 저장
-      setDayRoutes(prev => ({
-        ...prev,
-        [dayIndex]: {
-          polylines: newPolylines,
-          places: dayPlaces
-        }
-      }));
-
-      // 지도 범위 조정
-      if (bounds.hasValidBounds()) {
-        map.fitBounds(bounds);
-      }
-
-      setSelectedDayIndex(dayIndex);
-      setCurrentPolylines(newPolylines);
-
-    } catch (error) {
-      console.error('경로 그리기 오류:', error);
-      alert('경로를 그리는 중 오류가 발생했습니다.');
-    }
-  };
-
-  // 일자 선택 시 해당 경로 표시
-  const handleDaySelect = (dayIndex) => {
-    // 기존 경로 초기화
-    clearAllRoutes();
-
-    // 선택된 일자의 경로와 마커 표시
-    if (dayRoutes[dayIndex]) {
-      const { polylines, places } = dayRoutes[dayIndex];
-
-      // 경로 표시
-      polylines.forEach(polyline => {
-        polyline.setMap(map);
-      });
-      setCurrentPolylines(polylines);
-
-      // 마커 표시
-      places.forEach((place, index) => {
-        const marker = new window.Tmapv2.Marker({
-          position: new window.Tmapv2.LatLng(place.latitude, place.longitude),
-          icon: `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_${index + 1}.png`,
-          iconSize: new window.Tmapv2.Size(24, 38),
-          map: map
-        });
-        setCurrentMarkers(prev => [...prev, { type: 'place', marker }]);
-      });
-    }
-    setSelectedDayIndex(dayIndex);
-  };
-
   return (
     <ScheduleUI
       mapRef={mapRef}
@@ -704,7 +464,6 @@ const ScheduleTmap = () => {
       pathType={pathType}
       setPathType={setPathType}
       handleSearch={handleSearch}
-      searchRoute={searchRoute}
       results={results}
       handleSelectLocation={handleSelectLocation}
       startPoint={startPoint}
@@ -715,6 +474,9 @@ const ScheduleTmap = () => {
       routeDetails={routeDetails}
       handleAddPlace={handleAddPlace}
       handleRemovePlace={handleRemovePlace}
+      drawDayRoute={drawDayRoute}
+      handleDaySelect={handleDaySelect}
+      clearAllRoutes={clearAllRoutes}
     />
   );
 };

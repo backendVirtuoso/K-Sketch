@@ -24,7 +24,10 @@ const ScheduleUI = ({
     transitDetails,
     routeDetails,
     handleAddPlace: parentHandleAddPlace,
-    handleRemovePlace: parentHandleRemovePlace
+    handleRemovePlace: parentHandleRemovePlace,
+    drawDayRoute,
+    handleDaySelect: parentHandleDaySelect,
+    clearAllRoutes
 }) => {
     const [currentStep, setCurrentStep] = useState('date');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
@@ -143,7 +146,7 @@ const ScheduleUI = ({
     // 경로 타입 선택 핸들러
     const handlePathSelect = async (type) => {
         try {
-            setIsLoading(true); // 로딩 시작
+            setIsLoading(true);
             setPathType(type);
             setShowPathModal(false);
             
@@ -155,12 +158,11 @@ const ScheduleUI = ({
             );
             setRecommendedSchedule(schedule);
             
-            // 첫째 날 로 표시
-            if (schedule.days.length > 0) {
-                drawDayRoute(schedule.days[0], 0); // 일차 인덱스 추가
-            }
+            // 전체 일정 표시
+            schedule.days.forEach((day, index) => {
+                drawDayRoute(day, index);
+            });
             
-            // 사이드바와 메인 패널 숨기기
             setShowSidebar(false);
             setShowMainPanel(false);
             setIsScheduleGenerated(true);
@@ -168,7 +170,21 @@ const ScheduleUI = ({
             console.error('일정 생성 중 오류:', error);
             alert('일정 생성 중 오류가 발생했습니다.');
         } finally {
-            setIsLoading(false); // 로딩 종료
+            setIsLoading(false);
+        }
+    };
+
+    // 일차 선택 핸들러
+    const handleDaySelect = (dayIndex) => {
+        setSelectedDay(dayIndex);
+        clearAllRoutes(); // 기존 경로 모두 제거
+        
+        if (dayIndex === -1) { // 전체 일정 선택
+            recommendedSchedule.days.forEach((day, index) => {
+                drawDayRoute(day, index);
+            });
+        } else { // 특정 일차 선택
+            drawDayRoute(recommendedSchedule.days[dayIndex], dayIndex);
         }
     };
 
@@ -180,51 +196,6 @@ const ScheduleUI = ({
             console.error('일정 생성 중 오류:', error);
             alert('일정 생성 중 오류가 발생했습니다.');
         }
-    };
-
-    // 일차별 경로 그리기
-    const drawDayRoute = (day, dayIndex) => {
-        const dayPlaces = day.places.map(place => {
-            const placeData = selectedPlaces.find(p => p.title === place.title);
-            return {
-                ...placeData,
-                duration: place.duration
-            };
-        });
-
-        // 숙박 시설 추가
-        if (day.stay) {
-            const stayData = selectedStays.find(s => s.title === day.stay);
-            if (stayData) {
-                dayPlaces.push(stayData);
-            }
-        }
-
-        // dayIndex 전달하여 경로 색상 구분
-        searchRoute(dayPlaces, dayIndex);
-    };
-
-    // 일차 선택 핸들러
-    const handleDaySelect = (dayIndex) => {
-        setSelectedDay(dayIndex);
-        const dayPlaces = recommendedSchedule.days[dayIndex].places.map(place => {
-            const placeData = selectedPlaces.find(p => p.title === place.title);
-            return {
-                ...placeData,
-                duration: place.duration
-            };
-        });
-
-        // 숙박 시설 추가
-        if (recommendedSchedule.days[dayIndex].stay) {
-            const stayData = selectedStays.find(s => s.title === recommendedSchedule.days[dayIndex].stay);
-            if (stayData) {
-                dayPlaces.push(stayData);
-            }
-        }
-
-        // dayIndex 전달하여 경로 색상 구분
-        searchRoute(dayPlaces, dayIndex);
     };
 
     return (

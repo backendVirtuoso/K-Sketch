@@ -36,7 +36,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                     <button
                         onClick={() => {
                             setSelectedFilter('all');
-                            onDaySelect(0);
+                            onDaySelect(-1);
                             setShowDays(true);
                         }}
                         className={`sidebar-button btn border-0 p-3 rounded-3 ${
@@ -72,8 +72,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
             </div>
             
             <div className={`schedule-days ${showDays ? 'active' : ''}`}>
-                {schedule.days
-                    .filter((_, index) => selectedFilter === 'all' || selectedFilter === index)
+                {(selectedFilter === 'all' ? schedule.days : [schedule.days[selectedFilter]])
                     .map((day, dayIndex) => {
                         const actualDayIndex = selectedFilter === 'all' ? dayIndex : selectedFilter;
                         const previousDay = schedule.days[actualDayIndex - 1];
@@ -82,7 +81,12 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                             <div 
                                 key={dayIndex} 
                                 className={`day-schedule ${selectedDay === actualDayIndex ? 'active' : ''}`}
-                                onClick={() => onDaySelect(actualDayIndex)}
+                                onClick={() => {
+                                    if (selectedFilter === 'all') {
+                                        setSelectedFilter(actualDayIndex);
+                                        onDaySelect(actualDayIndex);
+                                    }
+                                }}
                             >
                                 <div className="d-flex justify-content-between align-items-center">
                                     <h6 className="mb-0">
@@ -110,7 +114,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                             <TransportRoute 
                                                 start={previousDay.stays[0]}
                                                 end={day.places[0]}
-                                                onClick={(start, end) => handleRouteClick(start, end, actualDayIndex)}
+                                                onClick={(start, end) => handleRouteClick(start, end, actualDayIndex, 0)}
                                             />
                                         </>
                                     )}
@@ -128,7 +132,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                                 <TransportRoute 
                                                     start={place}
                                                     end={day.places[placeIndex + 1]}
-                                                    onClick={(start, end) => handleRouteClick(start, end, actualDayIndex)}
+                                                    onClick={(start, end) => handleRouteClick(start, end, actualDayIndex, placeIndex + 1)}
                                                 />
                                             )}
                                         </React.Fragment>
@@ -139,7 +143,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                                 <TransportRoute 
                                                     start={day.places[day.places.length - 1]}
                                                     end={day.stays[0]}
-                                                    onClick={(start, end) => handleRouteClick(start, end, actualDayIndex)}
+                                                    onClick={(start, end) => handleRouteClick(start, end, actualDayIndex, day.places.length - 1)}
                                                 />
                                             )}
                                             <div className="timeline-item stay">
