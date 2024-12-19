@@ -18,20 +18,10 @@ const DAY_COLORS = [
 const ScheduleTmap = () => {
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
-  const [keyword, setKeyword] = useState('');
-  const [results, setResults] = useState([]);
-  const [searchType, setSearchType] = useState('start');
-  const [startPoint, setStartPoint] = useState(null);
-  const [endPoint, setEndPoint] = useState(null);
   const [pathType, setPathType] = useState('car');
-  const [routeResult, setRouteResult] = useState('');
   const [currentMarkers, setCurrentMarkers] = useState([]);
   const [currentPolylines, setCurrentPolylines] = useState([]);
-  const [transitDetails, setTransitDetails] = useState(null);
   const [viaPoints, setViaPoints] = useState([]);
-  const [routeDetails, setRouteDetails] = useState(null);
-  const [dayRoutes, setDayRoutes] = useState({});
-  const [selectedDayIndex, setSelectedDayIndex] = useState(null);
 
   useEffect(() => {
     const initTmap = () => {
@@ -50,135 +40,6 @@ const ScheduleTmap = () => {
     };
     initTmap();
   }, []);
-
-  // 키워드로 장소 검색 (주소 검색 + POI 검색)
-  const handleSearch = async () => {
-    if (keyword.trim() === '') {
-      alert('검색어를 입력해주세요.');
-      return;
-    }
-
-    const headers = {
-      appKey: process.env.REACT_APP_TMAP_KEY
-    };
-
-    try {
-      const addressResponse = await fetch(
-        `https://apis.openapi.sk.com/tmap/geo/postcode?${new URLSearchParams({
-          coordType: 'WGS84GEO',
-          addressFlag: 'F00',
-          format: 'json',
-          page: 1,
-          count: 5,
-          addr: keyword
-        })}`,
-        { headers }
-      );
-      const addressData = await addressResponse.json();
-
-      const poiResponse = await fetch(
-        `https://apis.openapi.sk.com/tmap/pois?${new URLSearchParams({
-          version: 1,
-          format: 'json',
-          searchKeyword: keyword,
-          resCoordType: 'WGS84GEO',
-          reqCoordType: 'WGS84GEO',
-          count: 5
-        })}`,
-        { headers }
-      );
-      const poiData = await poiResponse.json();
-
-      const combinedResults = [];
-
-      if (addressData.coordinateInfo?.coordinate) {
-        const addressResults = addressData.coordinateInfo.coordinate.map(item => ({
-          lat: item.lat,
-          lon: item.lon,
-          name: formatRoadAddress(item),
-          type: 'address',
-          rawData: item
-        }));
-        combinedResults.push(...addressResults);
-      }
-
-      if (poiData.searchPoiInfo?.pois?.poi) {
-        const poiResults = poiData.searchPoiInfo.pois.poi.map(item => ({
-          lat: item.noorLat,
-          lon: item.noorLon,
-          name: item.name,
-          address: item.upperAddrName + ' ' + item.middleAddrName + ' ' + item.lowerAddrName,
-          type: 'poi'
-        }));
-        combinedResults.push(...poiResults);
-      }
-
-      setResults(combinedResults);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  // 도명 주소 포맷팅
-  const formatRoadAddress = (result) => {
-    let address = `${result.city_do} ${result.gu_gun}`;
-    if (result.eup_myun) {
-      address += ` ${result.eup_myun}`;
-    }
-    address += ` ${result.newRoadName} ${result.newBuildingIndex}`;
-    if (result.buildingName) {
-      address += ` (${result.buildingName})`;
-    }
-    return address;
-  };
-
-  // 검색 결과에서 장소 선택 시 마커 생성 및 상태 업데이트
-  const handleSelectLocation = (location) => {
-    const point = {
-      lat: parseFloat(location.lat),
-      lon: parseFloat(location.lon),
-      address: location.type === 'address' ? location.name : location.address,
-      name: location.name
-    };
-
-    // via 포인트의 현재 개수를 기준으로 마커 번호 결정
-    const markerNumber = viaPoints.length + 1;
-
-    const marker = new window.Tmapv2.Marker({
-      position: new window.Tmapv2.LatLng(point.lat, point.lon),
-      icon: searchType === 'start'
-        ? 'https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_s.png'
-        : searchType === 'end'
-          ? 'https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png'
-          : `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_${markerNumber}.png`,  // 숫자 마커로 변경
-      iconSize: new window.Tmapv2.Size(24, 38),
-      map: map
-    });
-
-    if (searchType === 'via') {
-      setViaPoints(prev => [...prev, point]);
-    } else {
-      if (searchType === 'start') {
-        currentMarkers.forEach(m => {
-          if (m.type === 'start') m.marker.setMap(null);
-        });
-        setStartPoint(point);
-      } else {
-        currentMarkers.forEach(m => {
-          if (m.type === 'end') m.marker.setMap(null);
-        });
-        setEndPoint(point);
-      }
-    }
-
-    setCurrentMarkers(prev => [
-      ...prev.filter(m => m.type !== searchType),
-      { type: searchType, marker }
-    ]);
-
-    setResults([]);
-    setKeyword('');
-  };
 
   // 경로 초기화 함수 수정
   const clearAllRoutes = () => {
@@ -274,7 +135,7 @@ const ScheduleTmap = () => {
           data.features.forEach(feature => {
             if (feature.geometry.type === 'LineString') {
               try {
-                const coordinates = feature.geometry.coordinates.map(coord => 
+                const coordinates = feature.geometry.coordinates.map(coord =>
                   new window.Tmapv2.LatLng(coord[1], coord[0])
                 );
 
@@ -300,7 +161,7 @@ const ScheduleTmap = () => {
     }
   };
 
-  // drawDayRoute 함수 수정
+  // 일자별 경로 그리는 함수
   const drawDayRoute = async (day, dayIndex) => {
     if (!day || !day.places || day.places.length < 2) {
       console.warn('유효한 일정 데이터가 없습니다.');
@@ -318,7 +179,7 @@ const ScheduleTmap = () => {
 
       if (dayPlaces.length >= 2) {
         const routeColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
-        
+
         // 모든 연속된 장소 간의 경로 검색
         for (let i = 0; i < dayPlaces.length - 1; i++) {
           await searchRouteBetweenPoints(dayPlaces[i], dayPlaces[i + 1], routeColor);
@@ -341,11 +202,11 @@ const ScheduleTmap = () => {
     }
   };
 
-  // handleDaySelect 함수 수정
+  // 일자 선택 함수
   const handleDaySelect = async (dayIndex, recommendedSchedule) => {
     try {
       clearAllRoutes();
-      
+
       if (dayIndex === -1) {
         // 전체 일정 표시
         for (let i = 0; i < recommendedSchedule.days.length; i++) {
@@ -457,21 +318,7 @@ const ScheduleTmap = () => {
   return (
     <ScheduleUI
       mapRef={mapRef}
-      keyword={keyword}
-      setKeyword={setKeyword}
-      searchType={searchType}
-      setSearchType={setSearchType}
-      pathType={pathType}
       setPathType={setPathType}
-      handleSearch={handleSearch}
-      results={results}
-      handleSelectLocation={handleSelectLocation}
-      startPoint={startPoint}
-      endPoint={endPoint}
-      viaPoints={viaPoints}
-      routeResult={routeResult}
-      transitDetails={transitDetails}
-      routeDetails={routeDetails}
       handleAddPlace={handleAddPlace}
       handleRemovePlace={handleRemovePlace}
       drawDayRoute={drawDayRoute}

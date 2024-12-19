@@ -6,29 +6,17 @@ import { generateTravelSchedule } from '../../services/openaiService';
 import TravelSchedulePanel from './TravelSchedulePanel';
 import Loading from '../../common/Loading';
 
+// 선택된 장소들의 총 소요시간 계산
+const calculateTotalDuration = (placeDurations) => {
+    const totalMinutes = Object.values(placeDurations).reduce((sum, duration) => sum + duration, 0);
+    return {
+        hours: Math.floor(totalMinutes / 60),
+        minutes: totalMinutes % 60
+    };
+};
+
 // 메인 UI 컴포넌트
-const ScheduleUI = ({
-    mapRef,
-    keyword,
-    setKeyword,
-    searchType,
-    setSearchType,
-    pathType,
-    setPathType,
-    handleSearch,
-    searchRoute,
-    results,
-    handleSelectLocation,
-    startPoint, endPoint, viaPoints,
-    routeResult,
-    transitDetails,
-    routeDetails,
-    handleAddPlace: parentHandleAddPlace,
-    handleRemovePlace: parentHandleRemovePlace,
-    drawDayRoute,
-    handleDaySelect: parentHandleDaySelect,
-    clearAllRoutes
-}) => {
+const ScheduleUI = ({ mapRef, setPathType, handleAddPlace: parentHandleAddPlace, handleRemovePlace: parentHandleRemovePlace, drawDayRoute, handleDaySelect: parentHandleDaySelect, clearAllRoutes }) => {
     const [currentStep, setCurrentStep] = useState('date');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
     const [selectedStays, setSelectedStays] = useState([]);
@@ -44,6 +32,10 @@ const ScheduleUI = ({
     const [isScheduleGenerated, setIsScheduleGenerated] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    // 총 소요시간 계산
+    const { hours: totalHours, minutes: totalMinutes } = calculateTotalDuration(placeDurations);
+
+    // 새로운 장소를 선택 목록에 추가하고 기본 체류시간(2시간) 설정
     const handleAddPlace = (place) => {
         if (!selectedPlaces.some(p => p.title === place.title)) {
             setSelectedPlaces(prev => [...prev, place]);
@@ -55,11 +47,13 @@ const ScheduleUI = ({
         }
     };
 
+    // 선택된 장소를 목록에서 제거
     const handleRemovePlace = (placeToRemove) => {
         setSelectedPlaces(prev => prev.filter(place => place.title !== placeToRemove.title));
         parentHandleRemovePlace(placeToRemove);
     };
 
+    // 새로운 숙박 시설을 선택 목록에 추가
     const handleAddStay = (stay) => {
         if (!selectedStays.some(s => s.title === stay.title)) {
             setSelectedStays(prev => [...prev, stay]);
@@ -67,11 +61,13 @@ const ScheduleUI = ({
         }
     };
 
+    // 선택된 숙박 시설을 목록에서 제거
     const handleRemoveStay = (stayToRemove) => {
         setSelectedStays(prev => prev.filter(stay => stay.title !== stayToRemove.title));
         parentHandleRemovePlace(stayToRemove);
     };
 
+    // 특정 장소의 체류 시간을 변경
     const handleDurationChange = (place, duration) => {
         setPlaceDurations(prev => ({
             ...prev,
@@ -79,12 +75,7 @@ const ScheduleUI = ({
         }));
     };
 
-    // 총 소요 시간 계산
-    const totalDuration = Object.values(placeDurations).reduce((sum, duration) => sum + duration, 0);
-    const totalHours = Math.floor(totalDuration / 60);
-    const totalMinutes = totalDuration % 60;
-
-    // 일자별 총 가용 시간 계산 (분 단위)
+    // 선택된 시간대의 총 가용 시간을 분 단위로 계산
     const calculateTotalAvailableTime = () => {
         if (!selectedTimes || selectedTimes.length === 0) return 0;
 
@@ -96,21 +87,24 @@ const ScheduleUI = ({
         }, 0);
     };
 
-    // 총 가용 시간을 시간:분 형식으로 변환
+    // 분 단위 시간을 "X시간 Y분" 형식의 문자열로 변환
     const formatTotalTime = (minutes) => {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
         return `${hours}시간${mins > 0 ? ` ${mins}분` : ''}`;
     };
 
+    // 선택된 시간대의 총 가용 시간 계산 결과
     const totalAvailableTime = calculateTotalAvailableTime();
 
+    // 장소 선택기에 전달할 props 설정
     const placeSelectorProps = {
         onAddPlace: handleAddPlace,
         onRemovePlace: handleRemovePlace,
         selectedPlaces
     };
 
+    // 숙박시설 선택기에 전달할 props 설정
     const staySelectorProps = {
         onAddPlace: handleAddStay,
         onRemovePlace: handleRemoveStay,
@@ -118,6 +112,7 @@ const ScheduleUI = ({
         selectedTimes: selectedTimes
     };
 
+    // 선택된 여행 날짜 범위를 표시하는 컴포넌트
     const renderDateInfo = () => {
         if (!selectedDateRange) return null;
 
@@ -143,13 +138,13 @@ const ScheduleUI = ({
         );
     };
 
-    // 경로 타입 선택 핸들러
+    // 선택된 경로 타입에 따라 AI 기반 여행 일정을 생성하고 지도에 표시
     const handlePathSelect = async (type) => {
         try {
             setIsLoading(true);
             setPathType(type);
             setShowPathModal(false);
-            
+
             const schedule = await generateTravelSchedule(
                 selectedPlaces,
                 selectedStays,
@@ -157,12 +152,12 @@ const ScheduleUI = ({
                 selectedTimes
             );
             setRecommendedSchedule(schedule);
-            
+
             // 전체 일정 표시
             schedule.days.forEach((day, index) => {
                 drawDayRoute(day, index);
             });
-            
+
             setShowSidebar(false);
             setShowMainPanel(false);
             setIsScheduleGenerated(true);
@@ -174,11 +169,11 @@ const ScheduleUI = ({
         }
     };
 
-    // 일차 선택 핸들러
+    // 특정 일차 또는 전체 일정을 지도에 표시
     const handleDaySelect = (dayIndex) => {
         setSelectedDay(dayIndex);
         clearAllRoutes(); // 기존 경로 모두 제거
-        
+
         if (dayIndex === -1) { // 전체 일정 선택
             recommendedSchedule.days.forEach((day, index) => {
                 drawDayRoute(day, index);
@@ -188,7 +183,7 @@ const ScheduleUI = ({
         }
     };
 
-    // 일정 추천 함수
+    // 경로 타입 선택 모달을 표시하여 일정 생성 시작
     const generateSchedule = async () => {
         try {
             setShowPathModal(true); // 경로 타입 선택 모달 표시
@@ -222,7 +217,7 @@ const ScheduleUI = ({
                             />
                         ))}
 
-                        <button 
+                        <button
                             className="btn btn-primary"
                             onClick={generateSchedule}
                         >
@@ -233,7 +228,7 @@ const ScheduleUI = ({
             )}
 
             {isScheduleGenerated && (
-                <TravelSchedulePanel 
+                <TravelSchedulePanel
                     schedule={recommendedSchedule}
                     onDaySelect={handleDaySelect}
                     selectedDay={selectedDay}
@@ -271,89 +266,89 @@ const ScheduleUI = ({
                 )}
 
                 {/* 선택된 장소/숙박 록 패널 - 조건부 렌더링 */}
-                {showMainPanel && ((currentStep === 'place' && selectedPlaces.length > 0) || 
-                  (currentStep === 'stay' && selectedStays.length > 0)) && (
-                    <div className="selected-places-panel">
-                        <div className="p-3 border-bottom">
-                            <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 className="m-0">
-                                        {currentStep === 'place' ? '선택한 장소 목록' : '선택한 숙박 목록'}
-                                    </h6>
-                                    {currentStep === 'place' && (
-                                        <div className="time-info-container">
-                                            <small className="text-muted">
-                                                총 소요시간: {totalHours}시간 {totalMinutes > 0 ? `${totalMinutes}분` : ''}
-                                            </small>
-                                            {isDateSelectionComplete && totalAvailableTime > 0 && (
+                {showMainPanel && ((currentStep === 'place' && selectedPlaces.length > 0) ||
+                    (currentStep === 'stay' && selectedStays.length > 0)) && (
+                        <div className="selected-places-panel">
+                            <div className="p-3 border-bottom">
+                                <div className="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 className="m-0">
+                                            {currentStep === 'place' ? '선택한 장소 목록' : '선택한 숙박 목록'}
+                                        </h6>
+                                        {currentStep === 'place' && (
+                                            <div className="time-info-container">
                                                 <small className="text-muted">
-                                                    / {formatTotalTime(totalAvailableTime)}
+                                                    총 소요시간: {totalHours}시간 {totalMinutes > 0 ? `${totalMinutes}분` : ''}
                                                 </small>
-                                            )}
-                                        </div>
-                                    )}
+                                                {isDateSelectionComplete && totalAvailableTime > 0 && (
+                                                    <small className="text-muted">
+                                                        / {formatTotalTime(totalAvailableTime)}
+                                                    </small>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        className="btn btn-sm btn-outline-danger"
+                                        onClick={() => {
+                                            if (currentStep === 'place') {
+                                                setSelectedPlaces([]);
+                                                setPlaceDurations({});
+                                                selectedPlaces.forEach(place => parentHandleRemovePlace(place));
+                                            } else {
+                                                setSelectedStays([]);
+                                                selectedStays.forEach(stay => parentHandleRemovePlace(stay));
+                                            }
+                                        }}
+                                    >
+                                        전체 초기화
+                                    </button>
                                 </div>
-                                <button
-                                    className="btn btn-sm btn-outline-danger"
-                                    onClick={() => {
-                                        if (currentStep === 'place') {
-                                            setSelectedPlaces([]);
-                                            setPlaceDurations({});
-                                            selectedPlaces.forEach(place => parentHandleRemovePlace(place));
-                                        } else {
-                                            setSelectedStays([]);
-                                            selectedStays.forEach(stay => parentHandleRemovePlace(stay));
-                                        }
-                                    }}
-                                >
-                                    전체 초기화
-                                </button>
+                            </div>
+                            <div className="overflow-auto h-100 p-3">
+                                {/* 선택된 장소 목록 */}
+                                {currentStep === 'place' && selectedPlaces.length > 0 && (
+                                    <div>
+                                        {selectedPlaces.map((place, index) => (
+                                            <SelectedPlaceItem
+                                                key={`place-${index}`}
+                                                place={place}
+                                                duration={placeDurations[place.title] || 120}
+                                                onDurationChange={handleDurationChange}
+                                                onRemove={() => {
+                                                    handleRemovePlace(place);
+                                                    const newDurations = { ...placeDurations };
+                                                    delete newDurations[place.title];
+                                                    setPlaceDurations(newDurations);
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* 선택된 숙박 시설 목록 */}
+                                {currentStep === 'stay' && selectedStays.length > 0 && (
+                                    <div>
+                                        {selectedStays.map((stay, index) => (
+                                            <SelectedStayItem
+                                                key={`stay-${index}`}
+                                                stay={stay}
+                                                selectedTimes={selectedTimes}
+                                                selectedStays={selectedStays}
+                                                onDateChange={(stay, date) => {
+                                                    const updatedStays = selectedStays.map(s =>
+                                                        s.title === stay.title ? { ...s, stayDate: date } : s
+                                                    );
+                                                    setSelectedStays(updatedStays);
+                                                }}
+                                                onRemove={handleRemoveStay}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <div className="overflow-auto h-100 p-3">
-                            {/* 선택된 장소 목록 */}
-                            {currentStep === 'place' && selectedPlaces.length > 0 && (
-                                <div>
-                                    {selectedPlaces.map((place, index) => (
-                                        <SelectedPlaceItem
-                                            key={`place-${index}`}
-                                            place={place}
-                                            duration={placeDurations[place.title] || 120}
-                                            onDurationChange={handleDurationChange}
-                                            onRemove={() => {
-                                                handleRemovePlace(place);
-                                                const newDurations = { ...placeDurations };
-                                                delete newDurations[place.title];
-                                                setPlaceDurations(newDurations);
-                                            }}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                            
-                            {/* 선택된 숙박 시설 목록 */}
-                            {currentStep === 'stay' && selectedStays.length > 0 && (
-                                <div>
-                                    {selectedStays.map((stay, index) => (
-                                        <SelectedStayItem
-                                            key={`stay-${index}`}
-                                            stay={stay}
-                                            selectedTimes={selectedTimes}
-                                            selectedStays={selectedStays}
-                                            onDateChange={(stay, date) => {
-                                                const updatedStays = selectedStays.map(s => 
-                                                    s.title === stay.title ? { ...s, stayDate: date } : s
-                                                );
-                                                setSelectedStays(updatedStays);
-                                            }}
-                                            onRemove={handleRemoveStay}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
+                    )}
 
                 <div id="map_div" ref={mapRef} className="map-container" />
             </div>
@@ -369,7 +364,7 @@ const ScheduleUI = ({
                             </div>
                             <div className="modal-body">
                                 <div className="d-flex gap-3">
-                                    <button 
+                                    <button
                                         className="path-option-btn flex-grow-1"
                                         onClick={() => handlePathSelect('car')}
                                     >
@@ -378,7 +373,7 @@ const ScheduleUI = ({
                                         </div>
                                         <span>자동차</span>
                                     </button>
-                                    <button 
+                                    <button
                                         className="path-option-btn flex-grow-1"
                                         onClick={() => handlePathSelect('transit')}
                                     >

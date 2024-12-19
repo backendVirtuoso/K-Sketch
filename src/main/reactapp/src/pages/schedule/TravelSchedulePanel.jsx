@@ -1,10 +1,10 @@
 import React from 'react';
 import './TravelSchedulePanel.style.css';
 
-// 카카오맵 경로 검색 컴포넌트
+// 카카오 맵 경로 검색 컴포넌트
 const TransportRoute = ({ start, end, onClick }) => (
     <div className="timeline-transport">
-        <div 
+        <div
             className="transport-icon-wrapper"
             onClick={(e) => {
                 e.stopPropagation();
@@ -22,8 +22,8 @@ const TransportRoute = ({ start, end, onClick }) => (
 const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
     const [selectedFilter, setSelectedFilter] = React.useState('all');
     const [showDays, setShowDays] = React.useState(true);
-    
-    // handleRouteClick 함수 추가
+
+    // 카카오 맵으로 이동 함수
     const handleRouteClick = (start, end) => {
         const kakaoMapUrl = `https://map.kakao.com/link/to/${end.title},${end.latitude},${end.longitude}/from/${start.title},${start.latitude},${start.longitude}`;
         window.open(kakaoMapUrl, '_blank');
@@ -39,11 +39,10 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                             onDaySelect(-1);
                             setShowDays(true);
                         }}
-                        className={`sidebar-button btn border-0 p-3 rounded-3 ${
-                            selectedFilter === 'all'
+                        className={`sidebar-button btn border-0 p-3 rounded-3 ${selectedFilter === 'all'
                                 ? 'text-primary fw-bold bg-primary bg-opacity-10'
                                 : 'text-secondary bg-light'
-                        }`}
+                            }`}
                     >
                         <div className="sidebar-button-text">
                             전체일정
@@ -57,11 +56,10 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                 onDaySelect(index);
                                 setShowDays(true);
                             }}
-                            className={`sidebar-button btn border-0 p-3 rounded-3 ${
-                                selectedFilter === index
+                            className={`sidebar-button btn border-0 p-3 rounded-3 ${selectedFilter === index
                                     ? 'text-primary fw-bold bg-primary bg-opacity-10'
                                     : 'text-secondary bg-light'
-                            }`}
+                                }`}
                         >
                             <div className="sidebar-button-text">
                                 {index + 1}일차
@@ -70,7 +68,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                     ))}
                 </div>
             </div>
-            
+
             <div className={`schedule-days ${showDays ? 'active' : ''}`}>
                 {(selectedFilter === 'all' ? schedule.days : [schedule.days[selectedFilter]])
                     .map((day, dayIndex) => {
@@ -78,8 +76,8 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                         const previousDay = schedule.days[actualDayIndex - 1];
 
                         return (
-                            <div 
-                                key={dayIndex} 
+                            <div
+                                key={dayIndex}
                                 className={`day-schedule ${selectedDay === actualDayIndex ? 'active' : ''}`}
                                 onClick={() => {
                                     if (selectedFilter === 'all') {
@@ -111,7 +109,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                                     </span>
                                                 </div>
                                             </div>
-                                            <TransportRoute 
+                                            <TransportRoute
                                                 start={previousDay.stays[0]}
                                                 end={day.places[0]}
                                                 onClick={(start, end) => handleRouteClick(start, end, actualDayIndex, 0)}
@@ -129,7 +127,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                                 </div>
                                             </div>
                                             {placeIndex < day.places.length - 1 && (
-                                                <TransportRoute 
+                                                <TransportRoute
                                                     start={place}
                                                     end={day.places[placeIndex + 1]}
                                                     onClick={(start, end) => handleRouteClick(start, end, actualDayIndex, placeIndex + 1)}
@@ -140,7 +138,7 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                     {day.stays && day.stays[0] && (
                                         <>
                                             {day.places.length > 0 && (
-                                                <TransportRoute 
+                                                <TransportRoute
                                                     start={day.places[day.places.length - 1]}
                                                     end={day.stays[0]}
                                                     onClick={(start, end) => handleRouteClick(start, end, actualDayIndex, day.places.length - 1)}

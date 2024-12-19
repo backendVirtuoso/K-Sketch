@@ -95,8 +95,8 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
                             key={type.id}
                             onClick={() => setContentTypeId(type.id)}
                             className={`btn btn-sm content-type-button ${contentTypeId === type.id
-                                    ? 'btn-primary'
-                                    : 'btn-outline-primary'
+                                ? 'btn-primary'
+                                : 'btn-outline-primary'
                                 }`}
                         >
                             {type.text}
@@ -317,7 +317,7 @@ const DateSelector = ({ onDateSelect }) => {
                             <i className="bi bi-calendar3 fs-5"></i>
                         </button>
                     </div>
-                    <div className="overflow-auto time-selector-container">
+                    <div className="time-selector-container">
                         {selectedDates.map((dateInfo, index) => (
                             <div key={index} className="border-bottom">
                                 <div className="d-flex align-items-center py-3">
@@ -371,11 +371,11 @@ const DateSelector = ({ onDateSelect }) => {
                             </div>
                         ))}
                     </div>
-                    <div className="mt-3 d-flex justify-content-between">
+                    <div className="time-selector-actions">
                         <button
-                            className="btn btn-primary"
+                            className="btn btn-primary w-100"
                             onClick={() => {
-                                onDateSelect([startDate, endDate], selectedDates, true); // 완료 상태를 전달
+                                onDateSelect([startDate, endDate], selectedDates, true);
                             }}
                         >
                             시간 설정 완료
@@ -394,7 +394,7 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
     const [keyword, setKeyword] = useState("부산");
     const [showDateModal, setShowDateModal] = useState(false);
     const [selectedStay, setSelectedStay] = useState(null);
-    
+
     const { places: stays, error, isLoading } = usePlaces(apiType, keyword, "32");
 
     // 이미 선택된 날짜들을 계산
@@ -511,7 +511,7 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
 
     // 날짜가 이미 예약되었는지 확인
     const isDateReserved = (date) => {
-        return reservedDates.some(reservedDate => 
+        return reservedDates.some(reservedDate =>
             reservedDate.getTime() === date.getTime()
         );
     };
@@ -530,7 +530,7 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
 
     // 이미 선택된 날짜인지 확인
     const isDateSelected = (date) => {
-        return selectedDates.some(selectedDate => 
+        return selectedDates.some(selectedDate =>
             selectedDate.getTime() === date.getTime()
         );
     };
@@ -542,7 +542,7 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
             .slice(0, -1)
             .map(timeInfo => timeInfo.date)
             .filter(date => !isDateReserved(date));
-        
+
         setSelectedDates(availableDates);
     };
 
@@ -558,7 +558,7 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
                         <p className="text-muted text-center small mb-4">
                             *동일한 숙소에서 연박도 남은 날짜를 선택하여 가능합니다.
                         </p>
-                        
+
                         <div className="text-center mb-4">
                             <h6>{stay.title}</h6>
                             <p className="text-muted small">{stay.addr1}</p>
@@ -571,23 +571,22 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
                                     <div
                                         key={index}
                                         onClick={() => !isReserved && handleDateToggle(timeInfo.date)}
-                                        className={`date-select-button ${
-                                            isDateSelected(timeInfo.date) ? 'selected' : ''
-                                        } ${isReserved ? 'disabled' : ''}`}
+                                        className={`date-select-button ${isDateSelected(timeInfo.date) ? 'selected' : ''
+                                            } ${isReserved ? 'disabled' : ''}`}
                                         style={{
                                             cursor: isReserved ? 'not-allowed' : 'pointer',
                                             padding: '8px 16px',
                                             borderRadius: '20px',
                                             border: '1px solid #ddd',
-                                            backgroundColor: isReserved 
+                                            backgroundColor: isReserved
                                                 ? '#f8f9fa'
                                                 : isDateSelected(timeInfo.date)
-                                                    ? '#5D2FFF' 
+                                                    ? '#5D2FFF'
                                                     : 'white',
                                             color: isReserved
                                                 ? '#adb5bd'
                                                 : isDateSelected(timeInfo.date)
-                                                    ? 'white' 
+                                                    ? 'white'
                                                     : 'black',
                                             minWidth: '80px',
                                             textAlign: 'center',
@@ -631,7 +630,7 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
         const endDate = new Date(date);
         endDate.setDate(date.getDate() + 1);
         const endDay = endDate.getDate();
-        
+
         return `${month}.${day}(${getDayOfWeek(date)})-${month}.${endDay}(${getDayOfWeek(endDate)})`;
     };
 
@@ -649,8 +648,8 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
             {selectedDates.map((date, index) => (
                 <div key={index} className="stay-date-item p-3 border-bottom">
                     <div className="d-flex align-items-center gap-3">
-                        <div className="stay-number rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
-                             style={{ width: '24px', height: '24px', minWidth: '24px' }}>
+                        <div className="stay-number rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                            style={{ width: '24px', height: '24px', minWidth: '24px' }}>
                             {index + 1}
                         </div>
                         {stay.firstimage ? (
@@ -658,24 +657,24 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
                                 src={stay.firstimage}
                                 alt={stay.title}
                                 className="stay-thumbnail"
-                                style={{ 
-                                    width: '48px', 
-                                    height: '48px', 
-                                    objectFit: 'cover', 
+                                style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    objectFit: 'cover',
                                     borderRadius: '4px'
                                 }}
                             />
                         ) : (
                             <div className="no-image-placeholder"
-                                 style={{ 
-                                     width: '48px', 
-                                     height: '48px', 
-                                     background: '#f8f9fa', 
-                                     borderRadius: '4px', 
-                                     display: 'flex', 
-                                     alignItems: 'center', 
-                                     justifyContent: 'center'
-                                 }}>
+                                style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    background: '#f8f9fa',
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
                                 <small className="text-muted">No Image</small>
                             </div>
                         )}
@@ -710,8 +709,8 @@ const StepButton = ({ id, step, text, currentStep, onClick }) => (
     <button
         onClick={() => onClick(id)}
         className={`sidebar-button btn border-0 p-3 rounded-3 ${currentStep === id
-                ? 'text-primary fw-bold bg-primary bg-opacity-10'
-                : 'text-secondary bg-light'
+            ? 'text-primary fw-bold bg-primary bg-opacity-10'
+            : 'text-secondary bg-light'
             }`}
     >
         <div className="sidebar-button-text">
@@ -791,14 +790,14 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                                 <span>분</span>
                             </div>
                             <div className="d-flex gap-1">
-                                <button 
-                                    className="btn btn-sm btn-primary" 
+                                <button
+                                    className="btn btn-sm btn-primary"
                                     onClick={handleConfirm}
                                 >
                                     <i className="bi bi-check"></i>
                                 </button>
-                                <button 
-                                    className="btn btn-sm btn-secondary" 
+                                <button
+                                    className="btn btn-sm btn-secondary"
                                     onClick={handleCancel}
                                 >
                                     <i className="bi bi-x"></i>

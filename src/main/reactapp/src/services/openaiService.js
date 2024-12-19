@@ -102,7 +102,7 @@ export const generateTravelSchedule = async (places, stays, dateRange, selectedT
                 }
             ],
             temperature: 0.2,
-            max_tokens: 1500,
+            max_tokens: 2048,
             top_p: 1
         });
 
