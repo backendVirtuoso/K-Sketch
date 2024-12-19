@@ -863,3 +863,31 @@
     opacity: 1;
 }
 
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+/* LoadingLottie.style.css 파일 수정 */
+.loading-lottie {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    z-index: 10001;
+}
+
+.loading-lottie .lottie-img {
+    max-width: 150px;
+    height: auto;
+}
+

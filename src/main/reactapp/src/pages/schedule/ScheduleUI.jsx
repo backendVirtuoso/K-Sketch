@@ -4,6 +4,7 @@ import './ScheduleUI.style.css';
 import { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS, SelectedStayItem } from './SchedulePlace';
 import { generateTravelSchedule } from '../../services/openaiService';
 import TravelSchedulePanel from './TravelSchedulePanel';
+import Loading from '../../common/Loading';
 
 // 메인 UI 컴포넌트
 const ScheduleUI = ({
@@ -38,6 +39,7 @@ const ScheduleUI = ({
     const [showSidebar, setShowSidebar] = useState(true);
     const [showMainPanel, setShowMainPanel] = useState(true);
     const [isScheduleGenerated, setIsScheduleGenerated] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleAddPlace = (place) => {
         if (!selectedPlaces.some(p => p.title === place.title)) {
@@ -138,9 +140,10 @@ const ScheduleUI = ({
         );
     };
 
-    // 경로 타입 선택 ��들러
+    // 경로 타입 선택 핸들러
     const handlePathSelect = async (type) => {
         try {
+            setIsLoading(true); // 로딩 시작
             setPathType(type);
             setShowPathModal(false);
             
@@ -164,6 +167,8 @@ const ScheduleUI = ({
         } catch (error) {
             console.error('일정 생성 중 오류:', error);
             alert('일정 생성 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false); // 로딩 종료
         }
     };
 
@@ -224,6 +229,13 @@ const ScheduleUI = ({
 
     return (
         <div className="tmap-container">
+            {/* 로딩 오버레이 추가 */}
+            {isLoading && (
+                <div className="loading-overlay">
+                    <Loading />
+                </div>
+            )}
+
             {/* 사이드바 - 조건부 렌더링 */}
             {!isScheduleGenerated && (
                 <div className="sidebar">

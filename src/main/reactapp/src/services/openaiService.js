@@ -61,6 +61,7 @@ export const generateTravelSchedule = async (places, stays, dateRange, selectedT
             - 전체 식당 개수를 여행 일수로 나누어 일자별로 동일한 수의 식당을 배정
             - 가능한 점심과 저녁 시간대에 맞추어 식당을 배치
             - 식당 간의 방문은 최소 3시간 이상의 간격을 두어 배치
+        11. 마지막 날 일정의 마지막 장소는 숙소가 아닌 선택한 장소로 지정.
 
         다음 JSON 형식으로 응답해주세요:
         {
