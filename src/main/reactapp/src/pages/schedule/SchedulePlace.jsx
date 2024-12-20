@@ -36,90 +36,6 @@ const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
     </div>
 );
 
-// 장소 선택 컴포넌트
-const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
-    const [apiType, setApiType] = useState("search");
-    const [inputKeyword, setInputKeyword] = useState("");
-    const [keyword, setKeyword] = useState("부산");
-    const [contentTypeId, setContentTypeId] = useState("12");
-
-    const CONTENT_TYPES = [
-        { id: '12', text: '관광지' },
-        { id: '14', text: '문화시설' },
-        { id: '15', text: '축제공연' },
-        { id: '25', text: '여행코스' },
-        { id: '28', text: '레포츠' },
-        { id: '38', text: '쇼핑' },
-        { id: '39', text: '음식점' }
-    ];
-
-    const { places, error, isLoading } = usePlaces(apiType, keyword, contentTypeId);
-
-    const handleAddPlace = useCallback((place) => {
-        if (!selectedPlaces.some(p => p.title === place.title)) {
-            onAddPlace(place);
-        }
-    }, [selectedPlaces, onAddPlace]);
-
-    const handleRemovePlace = useCallback((place) => {
-        onRemovePlace(place);
-    }, [onRemovePlace]);
-
-    const handleSearch = () => {
-        setKeyword(inputKeyword);
-    };
-
-    if (error) return <p>장소 데이터 로드 중 오류가 발생했습니다: {error.message}</p>;
-    if (isLoading) return <p>장소 데이터를 로드하는 중입니다...</p>;
-
-    return (
-        <div className="h-100 overflow-hidden">
-            <div className="p-3 border-bottom">
-                <div className="input-group mb-3">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="장소명을 입력하세요"
-                        value={inputKeyword}
-                        onChange={(e) => setInputKeyword(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    />
-                    <button className="btn btn-primary" onClick={handleSearch}>
-                        <i className="bi bi-search"></i>
-                    </button>
-                </div>
-
-                <div className="content-type-buttons">
-                    {CONTENT_TYPES.map(type => (
-                        <button
-                            key={type.id}
-                            onClick={() => setContentTypeId(type.id)}
-                            className={`btn btn-sm content-type-button ${contentTypeId === type.id
-                                ? 'btn-primary'
-                                : 'btn-outline-primary'
-                                }`}
-                        >
-                            {type.text}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
-                {places.map((place, index) => (
-                    <PlaceListItem
-                        key={index}
-                        place={place}
-                        onAddClick={handleAddPlace}
-                        onRemoveClick={handleRemovePlace}
-                        isSelected={selectedPlaces.some(p => p.title === place.title)}
-                    />
-                ))}
-            </div>
-        </div>
-    );
-};
-
 // 날짜 선택 컴포넌트
 const DateSelector = ({ onDateSelect }) => {
     const [dateRange, setDateRange] = useState([null, null]);
@@ -387,7 +303,91 @@ const DateSelector = ({ onDateSelect }) => {
     );
 };
 
-// 숙박 선택 컴포넌트 수정
+// 장소 선택 컴포넌트
+const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
+    const [apiType, setApiType] = useState("search");
+    const [inputKeyword, setInputKeyword] = useState("");
+    const [keyword, setKeyword] = useState("부산");
+    const [contentTypeId, setContentTypeId] = useState("12");
+
+    const CONTENT_TYPES = [
+        { id: '12', text: '관광지' },
+        { id: '14', text: '문화시설' },
+        { id: '15', text: '축제공연' },
+        { id: '25', text: '여행코스' },
+        { id: '28', text: '레포츠' },
+        { id: '38', text: '쇼핑' },
+        { id: '39', text: '음식점' }
+    ];
+
+    const { places, error, isLoading } = usePlaces(apiType, keyword, contentTypeId);
+
+    const handleAddPlace = useCallback((place) => {
+        if (!selectedPlaces.some(p => p.title === place.title)) {
+            onAddPlace(place);
+        }
+    }, [selectedPlaces, onAddPlace]);
+
+    const handleRemovePlace = useCallback((place) => {
+        onRemovePlace(place);
+    }, [onRemovePlace]);
+
+    const handleSearch = () => {
+        setKeyword(inputKeyword);
+    };
+
+    if (error) return <p>장소 데이터 로드 중 오류가 발생했습니다: {error.message}</p>;
+    if (isLoading) return <p>장소 데이터를 로드하는 중입니다...</p>;
+
+    return (
+        <div className="h-100 overflow-hidden">
+            <div className="p-3 border-bottom">
+                <div className="input-group mb-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="장소명을 입력하세요"
+                        value={inputKeyword}
+                        onChange={(e) => setInputKeyword(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    />
+                    <button className="btn btn-primary" onClick={handleSearch}>
+                        <i className="bi bi-search"></i>
+                    </button>
+                </div>
+
+                <div className="content-type-buttons">
+                    {CONTENT_TYPES.map(type => (
+                        <button
+                            key={type.id}
+                            onClick={() => setContentTypeId(type.id)}
+                            className={`btn btn-sm content-type-button ${contentTypeId === type.id
+                                ? 'btn-primary'
+                                : 'btn-outline-primary'
+                                }`}
+                        >
+                            {type.text}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
+                {places.map((place, index) => (
+                    <PlaceListItem
+                        key={index}
+                        place={place}
+                        onAddClick={handleAddPlace}
+                        onRemoveClick={handleRemovePlace}
+                        isSelected={selectedPlaces.some(p => p.title === place.title)}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// 숙박 선택 컴포넌트
 const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays, selectedTimes }) => {
     const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
@@ -498,7 +498,7 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
     );
 };
 
-// StayDateModal 컴포넌트 수정
+// StayDateModal 컴포넌트
 const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose }) => {
     const [selectedDates, setSelectedDates] = useState([]);
 
@@ -621,7 +621,7 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
     );
 };
 
-// 선택된 숙박 아이템 컴포넌트 수정
+// 선택된 숙박 아이템 컴포넌트
 const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, onRemove }) => {
     // 날짜 포맷팅
     const formatDate = (date) => {

@@ -41,7 +41,7 @@ const ScheduleTmap = () => {
     initTmap();
   }, []);
 
-  // 경로 초기화 함수 수정
+  // 경로 초기화 함수
   const clearAllRoutes = () => {
     try {
       currentPolylines.forEach(polyline => {
@@ -119,7 +119,9 @@ const ScheduleTmap = () => {
                 const polyline = new window.Tmapv2.Polyline({
                   path: coordinates,
                   strokeColor: routeColor,
-                  strokeWeight: 6,
+                  strokeWeight: 3,
+                  strokeStyle: 'dash',
+                  strokeOpacity: 0.7,
                   map: map
                 });
 
@@ -142,7 +144,9 @@ const ScheduleTmap = () => {
                 const polyline = new window.Tmapv2.Polyline({
                   path: coordinates,
                   strokeColor: routeColor,
-                  strokeWeight: 6,
+                  strokeWeight: 3,
+                  strokeStyle: 'dash',
+                  strokeOpacity: 0.7,
                   map: map
                 });
 
@@ -161,6 +165,57 @@ const ScheduleTmap = () => {
     }
   };
 
+  // 마커 생성 함수
+  const createMarker = (location, label, order, color) => {
+    const markerPosition = new window.Tmapv2.LatLng(location.lat, location.lon);
+    
+    // 마커 스타일 설정 - 색상을 매개변수로 받아 적용
+    const markerHtml = `
+      <div style="
+        width: 24px;
+        height: 24px;
+        background-color: ${color};
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      ">
+        ${order}
+      </div>
+    `;
+
+    const marker = new window.Tmapv2.Marker({
+      position: markerPosition,
+      icon: markerHtml,
+      iconHTML: markerHtml,
+      map: map,
+      title: location.name
+    });
+
+    // 마커 클릭 이벤트 추가
+    marker.addListener('click', function() {
+      const infoWindow = new window.Tmapv2.InfoWindow({
+        position: markerPosition,
+        content: `
+          <div style="padding: 8px;">
+            <strong>${location.name}</strong>
+            <p style="margin: 4px 0 0; font-size: 12px; color: #666;">
+              ${location.address || ''}
+            </p>
+          </div>
+        `,
+        type: 2,
+        map: map
+      });
+    });
+
+    return marker;
+  };
+
   // 일자별 경로 그리는 함수
   const drawDayRoute = async (day, dayIndex) => {
     if (!day || !day.places || day.places.length < 2) {
@@ -169,6 +224,14 @@ const ScheduleTmap = () => {
     }
 
     try {
+      // 기존 마커 제거
+      currentMarkers.forEach(marker => {
+        if (marker.marker) {
+          marker.marker.setMap(null);
+        }
+      });
+      setCurrentMarkers([]);
+
       const dayPlaces = day.places.map(place => {
         const placeData = viaPoints.find(p => p.name === place.title);
         return placeData ? {
@@ -180,6 +243,12 @@ const ScheduleTmap = () => {
       if (dayPlaces.length >= 2) {
         const routeColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
 
+        // 모든 장소에 대해 마커 생성 - 색상 전달
+        dayPlaces.forEach((place, index) => {
+          const marker = createMarker(place, place.name, index + 1, routeColor);
+          setCurrentMarkers(prev => [...prev, { type: 'place', marker }]);
+        });
+
         // 모든 연속된 장소 간의 경로 검색
         for (let i = 0; i < dayPlaces.length - 1; i++) {
           await searchRouteBetweenPoints(dayPlaces[i], dayPlaces[i + 1], routeColor);
@@ -189,6 +258,10 @@ const ScheduleTmap = () => {
         if (day.stays && day.stays[0]) {
           const stayData = viaPoints.find(p => p.name === day.stays[0].title);
           if (stayData) {
+            // 숙소 마커 생성 - 같은 색상 사용
+            const stayMarker = createMarker(stayData, stayData.name, '숙', routeColor);
+            setCurrentMarkers(prev => [...prev, { type: 'stay', marker: stayMarker }]);
+
             await searchRouteBetweenPoints(
               dayPlaces[dayPlaces.length - 1],
               stayData,
@@ -221,9 +294,8 @@ const ScheduleTmap = () => {
     }
   };
 
-  // 새로운 장소 추가 (경유지로)
+  // handleAddPlace 함수 수정
   const handleAddPlace = (place) => {
-    // POI 검색으로 위경도 조회
     const searchPOI = async (keyword) => {
       const headers = {
         appKey: process.env.REACT_APP_TMAP_KEY
@@ -259,11 +331,9 @@ const ScheduleTmap = () => {
       }
     };
 
-    // 장소 마커 추가
     const addPlaceMarker = async () => {
       let locationData;
 
-      // 좌표가 있는 경우 (mapx, mapy)
       if (place.mapx && place.mapy) {
         locationData = {
           lat: parseFloat(place.mapy),
@@ -272,26 +342,11 @@ const ScheduleTmap = () => {
           address: place.addr1
         };
       } else {
-        // 좌표가 없는 경우 POI 검색 수행
         locationData = await searchPOI(place.title);
       }
 
       if (locationData) {
-        // 경유지 마커 생성
-        const marker = new window.Tmapv2.Marker({
-          position: new window.Tmapv2.LatLng(locationData.lat, locationData.lon),
-          icon: 'https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_p.png',
-          iconSize: new window.Tmapv2.Size(24, 38),
-          map: map
-        });
-
-        // 경유지 목록에 추가
         setViaPoints(prev => [...prev, locationData]);
-        setCurrentMarkers(prev => [...prev, { type: 'via', marker }]);
-
-        // 지도 중심 이동
-        map.setCenter(new window.Tmapv2.LatLng(locationData.lat, locationData.lon));
-        map.setZoom(16);
       }
     };
 
