@@ -294,7 +294,7 @@ const ScheduleTmap = () => {
     }
   };
 
-  // handleAddPlace 함수 수정
+  // handleAddPlace 함수
   const handleAddPlace = (place) => {
     const searchPOI = async (keyword) => {
       const headers = {

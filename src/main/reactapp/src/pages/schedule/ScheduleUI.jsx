@@ -305,7 +305,7 @@ const ScheduleUI = ({ mapRef, setPathType, handleAddPlace: parentHandleAddPlace,
                                     </button>
                                 </div>
                             </div>
-                            <div className="overflow-auto h-100 p-3">
+                            <div className="overflow-auto p-3">
                                 {/* 선택된 장소 목록 */}
                                 {currentStep === 'place' && selectedPlaces.length > 0 && (
                                     <div>
