@@ -1,5 +1,5 @@
 import React from 'react';
-import './TravelSchedulePanel.style.css';
+import './scss/TravelSchedulePanel.scss';
 
 // 카카오 맵 경로 검색 컴포넌트
 const TransportRoute = ({ start, end, onClick }) => (

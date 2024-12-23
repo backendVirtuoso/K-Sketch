@@ -2,39 +2,8 @@ import React, { useState, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import { ko } from 'date-fns/locale';
 import usePlaces from '../../hooks/usePlaces'; // 필요한 커스텀 훅 import 필요
-
-// 장소 목록 아이템 컴포넌트
-const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
-    <div className="place-list-item">
-        <div className="flex-grow-1">
-            <div className="d-flex align-items-center gap-3">
-                {place.firstimage ? (
-                    <img
-                        src={place.firstimage}
-                        alt={place.title}
-                        className="place-image"
-                    />
-                ) : (
-                    <div className="no-image-placeholder">
-                        <small className="text-muted m-0">이미지가<br />없습니다</small>
-                    </div>
-                )}
-                <div className="place-info">
-                    <div className="fw-bold text-truncate" title={place.title}>{place.title}</div>
-                    <small className="text-muted text-truncate d-block" title={place.addr1}>
-                        {place.addr1}
-                    </small>
-                </div>
-            </div>
-        </div>
-        <button
-            className={`btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
-            onClick={isSelected ? () => onRemoveClick(place) : () => onAddClick(place)}
-        >
-            <i className={`bi ${isSelected ? 'bi-check' : 'bi-plus'}`}></i>
-        </button>
-    </div>
-);
+import logoImage from '../../logoimage.png';
+import './scss/SchedulePlace.scss';
 
 // 날짜 선택 컴포넌트
 const DateSelector = ({ onDateSelect }) => {
@@ -303,8 +272,46 @@ const DateSelector = ({ onDateSelect }) => {
     );
 };
 
+// 장소 목록 아이템 컴포넌트
+const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
+    <div className="poi-result">
+        <div className="poi-info">
+            <div className="info-container">
+                {place.firstimage ? (
+                    <img
+                        src={place.firstimage}
+                        alt={place.title}
+                        className="place-image cover"
+                    />
+                ) : (
+                    <img
+                        src={logoImage}
+                        alt="기본 이미지"
+                        className="place-image contain"
+                    />
+                )}
+                <div className="text-container">
+                    <div className="poi-title" title={place.title}>
+                        {place.title}
+                    </div>
+                    <div className="poi-address" title={place.addr1}>
+                        {place.addr1}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button
+            className={`btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
+            onClick={() => isSelected ? onRemoveClick(place) : onAddClick(place)}
+        >
+            <i className={`bi ${isSelected ? 'bi-check' : 'bi-plus'}`}></i>
+        </button>
+    </div>
+);
+
 // 장소 선택 컴포넌트
 const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
+    const [activeTab, setActiveTab] = useState('existing'); // 'existing' 또는 'new'
     const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
     const [keyword, setKeyword] = useState("부산");
@@ -314,7 +321,6 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
         { id: '12', text: '관광지' },
         { id: '14', text: '문화시설' },
         { id: '15', text: '축제공연' },
-        { id: '25', text: '여행코스' },
         { id: '28', text: '레포츠' },
         { id: '38', text: '쇼핑' },
         { id: '39', text: '음식점' }
@@ -341,47 +347,295 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
 
     return (
         <div className="h-100 overflow-hidden">
-            <div className="p-3 border-bottom">
-                <div className="input-group mb-3">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="장소명을 입력하세요"
-                        value={inputKeyword}
-                        onChange={(e) => setInputKeyword(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    />
-                    <button className="btn btn-primary" onClick={handleSearch}>
-                        <i className="bi bi-search"></i>
-                    </button>
-                </div>
-
-                <div className="content-type-buttons">
-                    {CONTENT_TYPES.map(type => (
-                        <button
-                            key={type.id}
-                            onClick={() => setContentTypeId(type.id)}
-                            className={`btn btn-sm content-type-button ${contentTypeId === type.id
-                                ? 'btn-primary'
-                                : 'btn-outline-primary'
-                                }`}
-                        >
-                            {type.text}
-                        </button>
-                    ))}
-                </div>
+            <div className="search-tabs">
+                <button 
+                    className={`tab-button ${activeTab === 'existing' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('existing')}
+                >
+                    장소 선택
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'new' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('new')}
+                >
+                    신규 장소 등록
+                </button>
             </div>
 
-            <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
-                {places.map((place, index) => (
-                    <PlaceListItem
-                        key={index}
-                        place={place}
-                        onAddClick={handleAddPlace}
-                        onRemoveClick={handleRemovePlace}
-                        isSelected={selectedPlaces.some(p => p.title === place.title)}
-                    />
-                ))}
+            {activeTab === 'existing' ? (
+                // 기 장소 검색 UI
+                <>
+                    <div className="p-3 border-bottom">
+                        <div className="input-group mb-3">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="장소명을 입력하세요"
+                                value={inputKeyword}
+                                onChange={(e) => setInputKeyword(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <button className="btn btn-primary" onClick={handleSearch}>
+                                <i className="bi bi-search"></i>
+                            </button>
+                        </div>
+
+                        <div className="content-type-buttons">
+                            {CONTENT_TYPES.map(type => (
+                                <button
+                                    key={type.id}
+                                    onClick={() => setContentTypeId(type.id)}
+                                    className={`btn btn-sm content-type-button ${
+                                        contentTypeId === type.id ? 'btn-primary' : 'btn-outline-primary'
+                                    }`}
+                                >
+                                    {type.text}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
+                        {places.map((place, index) => (
+                            <PlaceListItem
+                                key={index}
+                                place={place}
+                                onAddClick={handleAddPlace}
+                                onRemoveClick={handleRemovePlace}
+                                isSelected={selectedPlaces.some(p => p.title === place.title)}
+                            />
+                        ))}
+                    </div>
+                </>
+            ) : (
+                <PoiSearchTab 
+                    onAddPlace={handleAddPlace} 
+                    selectedPlaces={selectedPlaces}
+                />
+            )}
+        </div>
+    );
+};
+
+// POI 검색 탭 컴포넌트
+const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
+    const [keyword, setKeyword] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // 장소가 이미 선택되었는지 확인하는 함수
+    const isPlaceSelected = (place) => {
+        return selectedPlaces.some(p => 
+            p.title === place.title && 
+            p.addr1 === place.addr1
+        );
+    };
+
+    const searchPOI = async (searchKeyword) => {
+        if (!searchKeyword) return;
+        
+        setIsLoading(true);
+        const headers = {
+            appKey: process.env.REACT_APP_TMAP_KEY
+        };
+
+        try {
+            const response = await fetch(
+                `https://apis.openapi.sk.com/tmap/pois?${new URLSearchParams({
+                    version: 1,
+                    format: 'json',
+                    searchKeyword: searchKeyword,
+                    resCoordType: 'WGS84GEO',
+                    reqCoordType: 'WGS84GEO',
+                    count: 20
+                })}`,
+                { headers }
+            );
+            const data = await response.json();
+
+            if (data.searchPoiInfo?.pois?.poi) {
+                const results = data.searchPoiInfo.pois.poi.map(poi => ({
+                    title: poi.name,
+                    addr1: `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`,
+                    mapx: poi.noorLon,
+                    mapy: poi.noorLat,
+                    firstimage: null
+                }));
+                setSearchResults(results);
+            }
+        } catch (error) {
+            console.error('POI 검색 오류:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSearch = () => {
+        searchPOI(keyword);
+    };
+
+    return (
+        <div className="p-3">
+            <div className="input-group mb-3">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="장소명 또는 주소를 입력하세요"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <button 
+                    className="btn btn-primary" 
+                    onClick={handleSearch}
+                    disabled={isLoading}
+                >
+                    <i className="bi bi-search"></i>
+                </button>
+            </div>
+
+            <div className="overflow-auto" style={{ height: 'calc(100% - 70px)' }}>
+                {isLoading ? (
+                    <div className="text-center p-3">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">검색중...</span>
+                        </div>
+                    </div>
+                ) : (
+                    searchResults.map((result, index) => (
+                        <div key={index} className="poi-result">
+                            <div className="poi-info">
+                                <div className="info-container">
+                                    <img
+                                        src={logoImage}
+                                        alt="기본 이미지"
+                                        className="place-image contain"
+                                    />
+                                    <div className="text-container">
+                                        <div className="poi-title" title={result.title}>
+                                            {result.title}
+                                        </div>
+                                        <div className="poi-address" title={result.addr1}>
+                                            {result.addr1}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                className={`btn ${isPlaceSelected(result) ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
+                                onClick={() => onAddPlace(result)}
+                                disabled={isPlaceSelected(result)}
+                            >
+                                <i className={`bi ${isPlaceSelected(result) ? 'bi-check' : 'bi-plus'}`}></i>
+                            </button>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+};
+
+// 선택된 장소 아이템 컴포넌트
+const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [hours, setHours] = useState(Math.floor(duration / 60));
+    const [minutes, setMinutes] = useState(duration % 60);
+    const [tempHours, setTempHours] = useState(hours);
+    const [tempMinutes, setTempMinutes] = useState(minutes);
+
+    const handleTimeChange = (newHours, newMinutes) => {
+        setTempHours(newHours);
+        setTempMinutes(newMinutes);
+    };
+
+    const handleConfirm = () => {
+        const totalMinutes = (tempHours * 60) + tempMinutes;
+        onDurationChange(place, totalMinutes);
+        setHours(tempHours);
+        setMinutes(tempMinutes);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setTempHours(hours);
+        setTempMinutes(minutes);
+        setIsEditing(false);
+    };
+
+    return (
+        <div className="selected-item">
+            <div className="d-flex align-items-center gap-3">
+                <img
+                    src={place.firstimage || logoImage}
+                    alt={place.firstimage ? place.title : "기본 이미지"}
+                    className="selected-item-image"
+                />
+                <div className="selected-item-content">
+                    <div className="fw-bold text-truncate" title={place.title}>
+                        {place.title}
+                    </div>
+                    <small className="text-muted text-truncate d-block" title={place.addr1 || '주소 정보가 없습니다'}>
+                        {place.addr1 || '주소 정보가 없습니다'}
+                    </small>
+                </div>
+                <div className="duration-controls">
+                    {isEditing ? (
+                        <div className="d-flex align-items-center gap-2">
+                            <div className="time-editor">
+                                <div className="time-spinner">
+                                    <button onClick={() => handleTimeChange(tempHours + 1, tempMinutes)} className="spinner-button">▲</button>
+                                    <input
+                                        type="number"
+                                        value={tempHours}
+                                        onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, tempMinutes)}
+                                        className="time-input"
+                                    />
+                                    <button onClick={() => handleTimeChange(Math.max(0, tempHours - 1), tempMinutes)} className="spinner-button">▼</button>
+                                </div>
+                                <span>시간</span>
+                                <div className="time-spinner">
+                                    <button onClick={() => handleTimeChange(tempHours, (tempMinutes + 30) % 60)} className="spinner-button">▲</button>
+                                    <input
+                                        type="number"
+                                        value={tempMinutes}
+                                        onChange={(e) => handleTimeChange(tempHours, parseInt(e.target.value) || 0)}
+                                        className="time-input"
+                                    />
+                                    <button onClick={() => handleTimeChange(tempHours, Math.max(0, tempMinutes - 30))} className="spinner-button">▼</button>
+                                </div>
+                                <span>분</span>
+                            </div>
+                            <div className="d-flex gap-1">
+                                <button
+                                    className="btn btn-sm btn-primary"
+                                    onClick={handleConfirm}
+                                >
+                                    <i className="bi bi-check"></i>
+                                </button>
+                                <button
+                                    className="btn btn-sm btn-secondary"
+                                    onClick={handleCancel}
+                                >
+                                    <i className="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <button
+                            className="btn btn-sm btn-outline-secondary duration-button"
+                            onClick={() => setIsEditing(true)}
+                        >
+                            {hours}시간 {minutes > 0 ? `${minutes}분` : ''}
+                        </button>
+                    )}
+                </div>
+                <button
+                    className="btn btn-sm btn-outline-danger flex-shrink-0"
+                    onClick={() => onRemove(place)}
+                >
+                    <i className="bi bi-trash"></i>
+                </button>
             </div>
         </div>
     );
@@ -389,6 +643,7 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
 
 // 숙박 선택 컴포넌트
 const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays, selectedTimes }) => {
+    const [activeTab, setActiveTab] = useState('existing');
     const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
     const [keyword, setKeyword] = useState("부산");
@@ -396,16 +651,6 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
     const [selectedStay, setSelectedStay] = useState(null);
 
     const { places: stays, error, isLoading } = usePlaces(apiType, keyword, "32");
-
-    // 이미 선택된 날짜들을 계산
-    const getReservedDates = () => {
-        return selectedStays.reduce((dates, stay) => {
-            if (stay.selectedDates) {
-                return [...dates, ...stay.selectedDates];
-            }
-            return dates;
-        }, []);
-    };
 
     const handleSearch = () => {
         setKeyword(inputKeyword);
@@ -417,76 +662,102 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
     };
 
     const handleDateConfirm = (stay, selectedDates) => {
-        // 선택된 날짜들에 대해서만 숙소 추가
         const newStay = {
             ...stay,
-            selectedDates: selectedDates // 선택된 날짜들 저장
+            selectedDates: selectedDates
         };
-        onAddPlace(newStay); // 하나의 숙소 객체만 추가
+        onAddPlace(newStay);
         setShowDateModal(false);
         setSelectedStay(null);
     };
 
     return (
         <div className="h-100 overflow-hidden">
-            <div className="p-3 border-bottom">
-                <div className="input-group mb-3">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="숙소명을 입력하세요"
-                        value={inputKeyword}
-                        onChange={(e) => setInputKeyword(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    />
-                    <button className="btn btn-primary" onClick={handleSearch}>
-                        <i className="bi bi-search"></i>
-                    </button>
-                </div>
+            <div className="search-tabs">
+                <button 
+                    className={`tab-button ${activeTab === 'existing' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('existing')}
+                >
+                    숙소 선택
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'new' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('new')}
+                >
+                    신규 숙소 등록
+                </button>
             </div>
 
-            <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
-                {stays.map((stay, index) => (
-                    <div key={index} className="place-list-item">
-                        <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-3">
-                                {stay.firstimage ? (
-                                    <img
-                                        src={stay.firstimage}
-                                        alt={stay.title}
-                                        className="place-image"
-                                        style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px' }}
-                                    />
-                                ) : (
-                                    <div className="no-image-placeholder">
-                                        <small className="text-muted m-0">이미지가<br />없습니다</small>
-                                    </div>
-                                )}
-                                <div className="place-info">
-                                    <div className="fw-bold text-truncate" title={stay.title}>
-                                        {stay.title}
-                                    </div>
-                                    <small className="text-muted text-truncate d-block" title={stay.addr1}>
-                                        {stay.addr1}
-                                    </small>
-                                </div>
-                            </div>
+            {activeTab === 'existing' ? (
+                <>
+                    <div className="p-3 border-bottom">
+                        <div className="input-group mb-3">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="숙소명을 입력하세요"
+                                value={inputKeyword}
+                                onChange={(e) => setInputKeyword(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <button className="btn btn-primary" onClick={handleSearch}>
+                                <i className="bi bi-search"></i>
+                            </button>
                         </div>
-                        <button
-                            className="btn btn-outline-primary btn-sm"
-                            onClick={() => handleStaySelect(stay)}
-                        >
-                            <i className="bi bi-plus"></i>
-                        </button>
                     </div>
-                ))}
-            </div>
+
+                    <div className="overflow-auto" style={{ height: 'calc(100% - 150px)', scrollbarWidth: 'none' }}>
+                        {stays.map((stay, index) => (
+                            <div key={index} className="poi-result">
+                                <div className="poi-info">
+                                    <div className="info-container">
+                                        {stay.firstimage ? (
+                                            <img
+                                                src={stay.firstimage}
+                                                alt={stay.title}
+                                                className="place-image cover"
+                                            />
+                                        ) : (
+                                            <img
+                                                src={logoImage}
+                                                alt="기본 이미지"
+                                                className="place-image contain"
+                                            />
+                                        )}
+                                        <div className="text-container">
+                                            <div className="poi-title" title={stay.title}>
+                                                {stay.title}
+                                            </div>
+                                            <div className="poi-address" title={stay.addr1}>
+                                                {stay.addr1}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    className="btn btn-outline-primary btn-sm"
+                                    onClick={() => handleStaySelect(stay)}
+                                >
+                                    <i className="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            ) : (
+                <StayPoiSearchTab 
+                    onStaySelect={handleStaySelect} 
+                    selectedStays={selectedStays}
+                    selectedTimes={selectedTimes}
+                />
+            )}
 
             {showDateModal && selectedStay && (
                 <StayDateModal
                     stay={selectedStay}
                     selectedTimes={selectedTimes}
-                    reservedDates={getReservedDates()} // 이미 선택된 날짜들 전달
+                    reservedDates={selectedStays.reduce((dates, stay) => 
+                        [...dates, ...(stay.selectedDates || [])], [])}
                     onConfirm={handleDateConfirm}
                     onClose={() => {
                         setShowDateModal(false);
@@ -498,11 +769,133 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
     );
 };
 
+// 숙소 POI 검색 탭 컴포넌트
+const StayPoiSearchTab = ({ onStaySelect, selectedStays }) => {
+    const [keyword, setKeyword] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // 숙소가 이미 선택되었는지 확인하는 함수
+    const isStaySelected = (stay) => {
+        return selectedStays.some(s => 
+            s.title === stay.title && 
+            s.addr1 === stay.addr1
+        );
+    };
+
+    const searchPOI = async (searchKeyword) => {
+        if (!searchKeyword) return;
+        
+        setIsLoading(true);
+        const headers = {
+            appKey: process.env.REACT_APP_TMAP_KEY
+        };
+
+        try {
+            const response = await fetch(
+                `https://apis.openapi.sk.com/tmap/pois?${new URLSearchParams({
+                    version: 1,
+                    format: 'json',
+                    searchKeyword: searchKeyword,
+                    resCoordType: 'WGS84GEO',
+                    reqCoordType: 'WGS84GEO',
+                    count: 20,
+                    searchType: 'all',
+                    multiPoint: 'N',
+                    categoryCode: '숙박'  // 숙박 시설 카테고리로 필터링
+                })}`,
+                { headers }
+            );
+            const data = await response.json();
+
+            if (data.searchPoiInfo?.pois?.poi) {
+                const results = data.searchPoiInfo.pois.poi.map(poi => ({
+                    title: poi.name,
+                    addr1: `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`,
+                    mapx: poi.noorLon,
+                    mapy: poi.noorLat,
+                    firstimage: null  // POI API에서는 이미지를 제공하지 않음
+                }));
+                setSearchResults(results);
+            }
+        } catch (error) {
+            console.error('POI 검색 오류:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSearch = () => {
+        searchPOI(keyword);
+    };
+
+    return (
+        <div className="p-3">
+            <div className="input-group mb-3">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="숙소명 또는 주소를 입력하세요"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <button 
+                    className="btn btn-primary" 
+                    onClick={handleSearch}
+                    disabled={isLoading}
+                >
+                    <i className="bi bi-search"></i>
+                </button>
+            </div>
+
+            <div className="overflow-auto" style={{ height: 'calc(100% - 70px)' }}>
+                {isLoading ? (
+                    <div className="text-center p-3">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">검색중...</span>
+                        </div>
+                    </div>
+                ) : (
+                    searchResults.map((result, index) => (
+                        <div key={index} className="poi-result">
+                            <div className="poi-info">
+                                <div className="info-container">
+                                    <img
+                                        src={logoImage}
+                                        alt="기본 이미지"
+                                        className="place-image contain"
+                                    />
+                                    <div className="text-container">
+                                        <div className="poi-title" title={result.title}>
+                                            {result.title}
+                                        </div>
+                                        <div className="poi-address" title={result.addr1}>
+                                            {result.addr1}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                className={`btn ${isStaySelected(result) ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
+                                onClick={() => onStaySelect(result)}
+                                disabled={isStaySelected(result)}
+                            >
+                                <i className={`bi ${isStaySelected(result) ? 'bi-check' : 'bi-plus'}`}></i>
+                            </button>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+};
+
 // StayDateModal 컴포넌트
 const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose }) => {
     const [selectedDates, setSelectedDates] = useState([]);
 
-    // 날짜 포맷팅 (12.15 형식)
+    // 날짜 포맷팅 (yy.mm 형식)
     const formatDateShort = (date) => {
         const month = date.getMonth() + 1;
         const day = date.getDate();
@@ -517,7 +910,7 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
     };
 
     const handleDateToggle = (date) => {
-        if (isDateReserved(date)) return; // 이미 예약된 날짜는 선택 불가
+        if (isDateReserved(date)) return; // 미 예약된 날짜는 선택 불가
 
         setSelectedDates(prev => {
             if (prev.includes(date)) {
@@ -665,18 +1058,17 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
                                 }}
                             />
                         ) : (
-                            <div className="no-image-placeholder"
+                            <img
+                                src={logoImage}
+                                alt="기본 이미지"
+                                className="stay-thumbnail"
                                 style={{
                                     width: '48px',
                                     height: '48px',
-                                    background: '#f8f9fa',
-                                    borderRadius: '4px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                <small className="text-muted">No Image</small>
-                            </div>
+                                    objectFit: 'contain',
+                                    borderRadius: '4px'
+                                }}
+                            />
                         )}
                         <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
                             <div className="text-muted small">{formatDate(date)}</div>
@@ -718,110 +1110,5 @@ const StepButton = ({ id, step, text, currentStep, onClick }) => (
         </div>
     </button>
 );
-
-// 선택된 장소 아이템 컴포넌트
-const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [hours, setHours] = useState(Math.floor(duration / 60));
-    const [minutes, setMinutes] = useState(duration % 60);
-    const [tempHours, setTempHours] = useState(hours);
-    const [tempMinutes, setTempMinutes] = useState(minutes);
-
-    const handleTimeChange = (newHours, newMinutes) => {
-        setTempHours(newHours);
-        setTempMinutes(newMinutes);
-    };
-
-    const handleConfirm = () => {
-        const totalMinutes = (tempHours * 60) + tempMinutes;
-        onDurationChange(place, totalMinutes);
-        setHours(tempHours);
-        setMinutes(tempMinutes);
-        setIsEditing(false);
-    };
-
-    const handleCancel = () => {
-        setTempHours(hours);
-        setTempMinutes(minutes);
-        setIsEditing(false);
-    };
-
-    return (
-        <div className="selected-item">
-            <div className="d-flex align-items-center gap-3">
-                <img
-                    src={place.firstimage}
-                    alt={place.title}
-                    className="selected-item-image"
-                />
-                <div className="selected-item-content">
-                    <div className="fw-bold text-truncate" title={place.title}>
-                        {place.title}
-                    </div>
-                    <small className="text-muted text-truncate d-block" title={place.addr1 || '주소 정보가 없습니다'}>
-                        {place.addr1 || '주소 정보가 없습니다'}
-                    </small>
-                </div>
-                <div className="duration-controls">
-                    {isEditing ? (
-                        <div className="d-flex align-items-center gap-2">
-                            <div className="time-editor">
-                                <div className="time-spinner">
-                                    <button onClick={() => handleTimeChange(tempHours + 1, tempMinutes)} className="spinner-button">▲</button>
-                                    <input
-                                        type="number"
-                                        value={tempHours}
-                                        onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, tempMinutes)}
-                                        className="time-input"
-                                    />
-                                    <button onClick={() => handleTimeChange(Math.max(0, tempHours - 1), tempMinutes)} className="spinner-button">▼</button>
-                                </div>
-                                <span>시간</span>
-                                <div className="time-spinner">
-                                    <button onClick={() => handleTimeChange(tempHours, (tempMinutes + 30) % 60)} className="spinner-button">▲</button>
-                                    <input
-                                        type="number"
-                                        value={tempMinutes}
-                                        onChange={(e) => handleTimeChange(tempHours, parseInt(e.target.value) || 0)}
-                                        className="time-input"
-                                    />
-                                    <button onClick={() => handleTimeChange(tempHours, Math.max(0, tempMinutes - 30))} className="spinner-button">▼</button>
-                                </div>
-                                <span>분</span>
-                            </div>
-                            <div className="d-flex gap-1">
-                                <button
-                                    className="btn btn-sm btn-primary"
-                                    onClick={handleConfirm}
-                                >
-                                    <i className="bi bi-check"></i>
-                                </button>
-                                <button
-                                    className="btn btn-sm btn-secondary"
-                                    onClick={handleCancel}
-                                >
-                                    <i className="bi bi-x"></i>
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <button
-                            className="btn btn-sm btn-outline-secondary duration-button"
-                            onClick={() => setIsEditing(true)}
-                        >
-                            {hours}시간 {minutes > 0 ? `${minutes}분` : ''}
-                        </button>
-                    )}
-                </div>
-                <button
-                    className="btn btn-sm btn-outline-danger flex-shrink-0"
-                    onClick={() => onRemove(place)}
-                >
-                    <i className="bi bi-trash"></i>
-                </button>
-            </div>
-        </div>
-    );
-};
 
 export { SelectedPlaceItem, SelectedStayItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS };

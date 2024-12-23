@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import './ScheduleUI.style.css';
+import './scss/ScheduleUI.scss';
 import { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS, SelectedStayItem } from './SchedulePlace';
 import { generateTravelSchedule } from '../../services/openaiService';
 import TravelSchedulePanel from './TravelSchedulePanel';
@@ -355,39 +355,64 @@ const ScheduleUI = ({ mapRef, setPathType, handleAddPlace: parentHandleAddPlace,
 
             {/* 경로 타입 선택 모달 */}
             {showPathModal && (
-                <div className="modal show d-block">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content path-modal">
-                            <div className="modal-header border-0">
-                                <h5 className="modal-title">이동수단 선택</h5>
-                                <button type="button" className="btn-close" onClick={() => setShowPathModal(false)}></button>
-                            </div>
-                            <div className="modal-body">
-                                <div className="d-flex gap-3">
-                                    <button
-                                        className="path-option-btn flex-grow-1"
-                                        onClick={() => handlePathSelect('car')}
-                                    >
-                                        <div className="icon-wrapper mb-2">
-                                            <i className="bi bi-car-front fs-1"></i>
-                                        </div>
-                                        <span>자동차</span>
-                                    </button>
-                                    <button
-                                        className="path-option-btn flex-grow-1"
-                                        onClick={() => handlePathSelect('transit')}
-                                    >
-                                        <div className="icon-wrapper mb-2">
-                                            <i className="bi bi-bus-front fs-1"></i>
-                                        </div>
-                                        <span>대중교통</span>
-                                    </button>
+                <>
+                    <div className="modal show d-block" tabIndex="-1">
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content border-0 shadow">
+                                <div className="modal-header bg-primary text-white border-0">
+                                    <h5 className="modal-title">
+                                        <i className="bi bi-map me-2"></i>
+                                        일정 생성하기
+                                    </h5>
+                                    <button 
+                                        type="button" 
+                                        className="btn-close btn-close-white" 
+                                        onClick={() => setShowPathModal(false)}
+                                        aria-label="Close"
+                                    />
+                                </div>
+                                <div className="modal-body p-4">
+                                    <p className="text-muted mb-4">선호하시는 이동수단을 선택해주세요.</p>
+                                    <div className="d-flex justify-content-center gap-4">
+                                        <button
+                                            className="transport-card"
+                                            onClick={() => handlePathSelect('car')}
+                                        >
+                                            <div className="card border-0 shadow-sm h-100">
+                                                <div className="card-body text-center p-4">
+                                                    <div className="transport-icon mb-3">
+                                                        <i className="bi bi-car-front"></i>
+                                                    </div>
+                                                    <h6 className="card-title mb-2">자동차</h6>
+                                                    <p className="card-text text-muted small mb-0">
+                                                        자가용/렌트카로 이동
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <button
+                                            className="transport-card"
+                                            onClick={() => handlePathSelect('transit')}
+                                        >
+                                            <div className="card border-0 shadow-sm h-100">
+                                                <div className="card-body text-center p-4">
+                                                    <div className="transport-icon mb-3">
+                                                        <i className="bi bi-bus-front"></i>
+                                                    </div>
+                                                    <h6 className="card-title mb-2">대중교통</h6>
+                                                    <p className="card-text text-muted small mb-0">
+                                                        버스/지하철로 이동
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="modal-backdrop fade show"></div>
-                </div>
+                </>
             )}
         </div>
     );

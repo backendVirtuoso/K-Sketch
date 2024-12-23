@@ -169,7 +169,7 @@ const ScheduleTmap = () => {
   const createMarker = (location, label, order, color) => {
     const markerPosition = new window.Tmapv2.LatLng(location.lat, location.lon);
     
-    // 마커 스타일 설정 - 색상을 매개변수로 받아 적용
+    // 마커 스타일 설정
     const markerHtml = `
       <div style="
         width: 24px;
@@ -189,28 +189,28 @@ const ScheduleTmap = () => {
     `;
 
     const marker = new window.Tmapv2.Marker({
-      position: markerPosition,
-      icon: markerHtml,
-      iconHTML: markerHtml,
-      map: map,
-      title: location.name
+        position: markerPosition,
+        icon: markerHtml,
+        iconHTML: markerHtml,
+        map: map,
+        title: location.name
     });
 
     // 마커 클릭 이벤트 추가
     marker.addListener('click', function() {
-      const infoWindow = new window.Tmapv2.InfoWindow({
-        position: markerPosition,
-        content: `
-          <div style="padding: 8px;">
-            <strong>${location.name}</strong>
-            <p style="margin: 4px 0 0; font-size: 12px; color: #666;">
-              ${location.address || ''}
-            </p>
-          </div>
-        `,
-        type: 2,
-        map: map
-      });
+        const infoWindow = new window.Tmapv2.InfoWindow({
+            position: markerPosition,
+            content: `
+                <div style="padding: 8px;">
+                    <strong>${location.name}</strong>
+                    <p style="margin: 4px 0 0; font-size: 12px; color: #666;">
+                        ${location.address || ''}
+                    </p>
+                </div>
+            `,
+            type: 2,
+            map: map
+        });
     });
 
     return marker;
@@ -294,7 +294,7 @@ const ScheduleTmap = () => {
     }
   };
 
-  // handleAddPlace 함수
+  // handleAddPlace 함수 수정
   const handleAddPlace = (place) => {
     const searchPOI = async (keyword) => {
       const headers = {
@@ -334,6 +334,7 @@ const ScheduleTmap = () => {
     const addPlaceMarker = async () => {
       let locationData;
 
+      // POI 검색 결과에서 위도/경도가 있는 경우
       if (place.mapx && place.mapy) {
         locationData = {
           lat: parseFloat(place.mapy),
@@ -346,6 +347,23 @@ const ScheduleTmap = () => {
       }
 
       if (locationData) {
+        // 지도 중심 이동
+        if (map) {
+          const moveLatLon = new window.Tmapv2.LatLng(locationData.lat, locationData.lon);
+          map.setCenter(moveLatLon);
+          map.setZoom(15); // 적절한 줌 레벨로 설정
+        }
+
+        // 마커 생성 및 표시
+        const marker = createMarker(
+          locationData,
+          locationData.name,
+          currentMarkers.length + 1,
+          DAY_COLORS[0]
+        );
+        setCurrentMarkers(prev => [...prev, { type: 'place', marker }]);
+        
+        // viaPoints에 추가
         setViaPoints(prev => [...prev, locationData]);
       }
     };
@@ -358,16 +376,28 @@ const ScheduleTmap = () => {
     // viaPoints에서 제거
     setViaPoints(prev => prev.filter(p => p.name !== place.title));
 
-    // 해당 장소의 마커 찾아서 제거
-    const markerToRemove = currentMarkers.find(m =>
-      m.type === 'via' && m.marker.getPosition().lat() === parseFloat(place.mapy) &&
-      m.marker.getPosition().lng() === parseFloat(place.mapx)
-    );
+    // 모든 마커 제거 후 재생성
+    currentMarkers.forEach(marker => {
+      if (marker.marker) {
+        marker.marker.setMap(null);
+      }
+    });
 
-    if (markerToRemove) {
-      markerToRemove.marker.setMap(null);
-      setCurrentMarkers(prev => prev.filter(m => m !== markerToRemove));
-    }
+    // 현재 마커 목록 초기화
+    setCurrentMarkers([]);
+
+    // viaPoints에 남아있는 장소들에 대해 마커 재생성
+    viaPoints.forEach((point, index) => {
+      if (point.name !== place.title) { // 삭제된 장소 제외
+        const marker = createMarker(
+          point,
+          point.name,
+          index + 1,
+          DAY_COLORS[0]
+        );
+        setCurrentMarkers(prev => [...prev, { type: 'place', marker }]);
+      }
+    });
   };
 
   return (
