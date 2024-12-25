@@ -47,7 +47,7 @@ const AdminBannerSet = () => {
       const token = localStorage.getItem("token");
       await axios.delete(`http://localhost:8080/api/admin/banner/${bannerId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`, 
+          'Authorization': `Bearer ${token}`,
         },
       });
       alert("배너 삭제 성공");
@@ -85,10 +85,10 @@ const AdminBannerSet = () => {
       <div className="mb-4 text-center" style={{paddingBottom: '70px'}}>
         <h3>배너 추가</h3>
         <input type="file" onChange={handleFileChange} className="mb-2" />
-        <Button 
-          variant="primary" 
-          onClick={handleUpload} 
-          className="px-4 py-2" 
+        <Button
+          variant="primary"
+          onClick={handleUpload}
+          className="px-4 py-2"
           style={{ fontSize: '16px' }}
         >
           배너 업로드
