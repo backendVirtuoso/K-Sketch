@@ -43,6 +43,7 @@ export default function SignIn() {
                     // 토큰과 유저 아이디 저장
                     localStorage.setItem("token", response.data.token);
                     localStorage.setItem("username", response.data.username); // 유저 ID 저장
+                    localStorage.setItem("userRole", response.data.userRole);
 
                     // 리디렉션 처리
                     window.location.replace("/");

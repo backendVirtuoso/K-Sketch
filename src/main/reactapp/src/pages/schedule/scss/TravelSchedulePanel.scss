@@ -1,0 +1,202 @@
+// 변수 정의
+$border-color: #dee2e6;
+$primary: #0d6efd;
+$success: #198754;
+$gray: #6c757d;
+$light-bg: #f8f9fa;
+$white: white;
+
+// 여행 일정 패널 기본 스타일
+.travel-schedule-panel {
+  display: flex;
+  width: 500px;
+  height: 100%;
+  background-color: $white;
+  border-right: 1px solid $border-color;
+}
+
+// 일정 필터 영역
+.schedule-filter {
+  width: 100px;
+  padding: 1rem;
+  border-right: 1px solid $border-color;
+  background-color: $white;
+}
+
+// 일정 목록 영역
+.schedule-days {
+  width: 400px;
+  padding: 1rem;
+  background-color: $white;
+  overflow-y: auto;
+  display: none; // 초기에는 숨김 처리
+
+  &.active {
+    display: block;
+  }
+}
+
+// 일정 카드 스타일
+.day-schedule {
+  padding: 1rem;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: $white;
+
+  &:hover {
+    background-color: $light-bg;
+  }
+
+  &.active {
+    border-color: $primary;
+    background-color: $light-bg;
+  }
+}
+
+// 타임라인 기본 스타일
+.schedule-timeline {
+  position: relative;
+  padding-left: 20px;
+  margin-top: 1rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: $border-color;
+  }
+}
+
+// 타임라인 아이템 기본 스타일
+.timeline-item {
+  position: relative;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: $primary;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    transition: all 0.2s ease;
+  }
+
+  &:hover::before {
+    transform: translateY(-50%);
+  }
+
+  // 숙박 시설 스타일
+  &.stay {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed $border-color;
+
+    &::before {
+      background-color: $success;
+    }
+
+    .timeline-content {
+      color: $success;
+    }
+  }
+}
+
+// 이동수단 아이콘 스타일
+.timeline-transport {
+  position: relative;
+  height: 32px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+
+  .transport-icon-wrapper {
+    position: absolute;
+    left: -20px;
+    width: 20px;
+    height: 20px;
+    background-color: $white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid $border-color;
+    transition: all 0.2s ease;
+    z-index: 1;
+
+    &:hover {
+      border-color: $primary;
+      background-color: $light-bg;
+      transform: scale(1.05);
+    }
+  }
+
+  .transport-text {
+    position: absolute;
+    left: 8px;
+    font-size: 0.75rem;
+    color: $gray;
+    opacity: 0;
+    transition: all 0.2s ease;
+    background-color: $white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    z-index: 2;
+  }
+
+  &:hover .transport-text {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+}
+
+// 순서 뱃지 스타일
+.order-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: $primary;
+  color: $white;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba($primary, 0.2);
+}
+
+// 기타 스타일
+.timeline-time {
+  display: none;
+}
+
+.timeline-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.text-truncate {
+  font-weight: bold;
+}
+
+.bi-house-door {
+  color: $success;
+  margin-right: 0.5rem;
+} 

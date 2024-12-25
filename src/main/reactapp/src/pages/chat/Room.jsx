@@ -61,7 +61,7 @@ const Room = () => {
       const response = await axios.post('http://localhost:8080/api/kafkachat/room', params, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       confirmModalMethod(`${response.data.name} 방 개설에 성공하였습니다.`);
       setRoomName(''); // 방 이름 초기화
       findAllRoom(); // 방 목록 다시 가져오기

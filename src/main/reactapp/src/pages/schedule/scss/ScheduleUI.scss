@@ -1,0 +1,337 @@
+// 변수 정의
+$border-color: #dee2e6;
+$light-bg: #f8f9fa;
+$primary: #0d6efd;
+$gray: #6c757d;
+$white: #fff;
+$shadow: rgba(0, 0, 0, 0.1);
+
+// 스크롤바 커스터마이징
+::-webkit-scrollbar {
+  width: 6px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f5f5f5;
+  border-radius: 10px;
+
+  &:hover {
+    background: #999;
+  }
+}
+
+// 메인 레이아웃
+.tmap-container {
+  display: flex;
+  width: 100vw;
+  height: 88vh;
+}
+
+// 사이드바
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100px;
+  padding: 1rem;
+
+  &-button {
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    &-text {
+      font-size: 12px;
+      text-align: center;
+    }
+  }
+}
+
+// 메인 컨텐츠
+.main-content {
+  display: flex;
+  flex-grow: 1;
+  position: relative;
+}
+
+// 좌측 패널
+.left-panel {
+  width: 400px;
+  height: 100%;
+  background-color: $white;
+  border-right: 1px solid $border-color;
+  padding: 10px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+// 선택된 장소 패널
+.selected-places-panel {
+  width: 400px;
+  height: 100%;
+  background-color: $white;
+  border-right: 1px solid $border-color;
+  box-shadow: 0 2px 6px $shadow;
+  flex-shrink: 0;
+  position: absolute;
+  left: 400px;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+
+  .p-3.border-bottom {
+    background-color: $white;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  h6 {
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+    color: #333;
+  }
+
+  small.text-muted {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    display: inline-block;
+  }
+
+  .form-select-sm {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+// 선택된 장소 아이템
+.selected-item {
+  background-color: $white;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .d-flex {
+    gap: 0.75rem;
+    width: 100%;
+    align-items: center;
+  }
+
+  &-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  &-content {
+    min-width: 0;
+    flex-grow: 1;
+    margin-right: 0.5rem;
+    max-width: calc(100% - 150px);
+
+    .fw-bold, small {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: default;
+    }
+  }
+}
+
+// 시간 관련 컴포넌트
+.time-info-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.duration-controls {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.duration-button {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+// 지도 컨테이너
+.map-container {
+  flex-grow: 1;
+  height: 100%;
+  position: relative;
+}
+
+// 모달 관련 스타일
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal {
+  z-index: 10000;
+
+  &-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  &-dialog {
+    z-index: 10001;
+  }
+
+  &-content {
+    position: relative;
+    z-index: 10002;
+  }
+}
+
+// 여행 일정 패널
+.travel-schedule-panel {
+  width: 400px;
+  height: 100%;
+  background-color: $white;
+  border-right: 1px solid $border-color;
+  box-shadow: 0 2px 6px $shadow;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+// 로딩 오버레이
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.loading-lottie {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  z-index: 10001;
+
+  .lottie-img {
+    max-width: 150px;
+    height: auto;
+  }
+}
+
+// 검색 탭
+.search-tabs {
+  display: flex;
+  border-bottom: 1px solid $border-color;
+  margin-bottom: 1rem;
+
+  .search-tab {
+    padding: 0.75rem 1rem;
+    border: none;
+    background: none;
+    color: $gray;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.active {
+      color: $primary;
+      border-bottom: 2px solid $primary;
+    }
+
+    &:hover:not(.active) {
+      color: $primary;
+      background-color: $light-bg;
+    }
+  }
+}
+
+// POI 검색 결과
+.poi-result {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid $border-color;
+
+  .poi-info {
+    flex-grow: 1;
+  }
+
+  .poi-address {
+    font-size: 0.875rem;
+    color: $gray;
+    margin-top: 0.25rem;
+  }
+}
+
+.modal-content {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+// 이동수단 선택 모달
+.transport-card {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        
+        .card {
+            border-color: var(--bs-primary) !important;
+        }
+    }
+
+    .card {
+        transition: all 0.2s ease;
+        border-radius: 1rem;
+    }
+
+    .transport-icon {
+        font-size: 2.5rem;
+        color: var(--bs-primary);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+} 
