@@ -12,9 +12,6 @@ const usePlaces = (apiType, keyword, contentTypeId) => {
                 setIsLoading(true);
                 const response = await axios.get(`http://localhost:8080/api/${apiType}`, {
                     params: { keyword, contentTypeId },
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
                 });
 
                 if (Array.isArray(response.data)) {

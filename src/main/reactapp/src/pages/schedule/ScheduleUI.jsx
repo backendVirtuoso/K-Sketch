@@ -1,28 +1,22 @@
 import React, { useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import './ScheduleUI.style.css';
-import { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS } from './SchedulePlace';
+import './scss/ScheduleUI.scss';
+import { SelectedPlaceItem, PlaceSelector, StaySelector, DateSelector, StepButton, STEP_BUTTONS, SelectedStayItem } from './SchedulePlace';
+import { generateTravelSchedule } from '../../services/openaiService';
+import TravelSchedulePanel from './TravelSchedulePanel';
+import Loading from '../../common/Loading';
+
+// 선택된 장소들의 총 소요시간 계산
+const calculateTotalDuration = (placeDurations) => {
+    const totalMinutes = Object.values(placeDurations).reduce((sum, duration) => sum + duration, 0);
+    return {
+        hours: Math.floor(totalMinutes / 60),
+        minutes: totalMinutes % 60
+    };
+};
 
 // 메인 UI 컴포넌트
-const ScheduleUI = ({
-    mapRef,
-    keyword,
-    setKeyword,
-    searchType,
-    setSearchType,
-    pathType,
-    setPathType,
-    handleSearch,
-    searchRoute,
-    results,
-    handleSelectLocation,
-    startPoint, endPoint, viaPoints,
-    routeResult,
-    transitDetails,
-    routeDetails,
-    handleAddPlace: parentHandleAddPlace,
-    handleRemovePlace: parentHandleRemovePlace
-}) => {
+const ScheduleUI = ({ mapRef, setPathType, handleAddPlace: parentHandleAddPlace, handleRemovePlace: parentHandleRemovePlace, drawDayRoute, handleDaySelect: parentHandleDaySelect, clearAllRoutes }) => {
     const [currentStep, setCurrentStep] = useState('date');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
     const [selectedStays, setSelectedStays] = useState([]);
@@ -30,7 +24,18 @@ const ScheduleUI = ({
     const [selectedDateRange, setSelectedDateRange] = useState(null);
     const [selectedTimes, setSelectedTimes] = useState([]);
     const [isDateSelectionComplete, setIsDateSelectionComplete] = useState(false);
+    const [showPathModal, setShowPathModal] = useState(false);
+    const [recommendedSchedule, setRecommendedSchedule] = useState(null);
+    const [selectedDay, setSelectedDay] = useState(0);
+    const [showSidebar, setShowSidebar] = useState(true);
+    const [showMainPanel, setShowMainPanel] = useState(true);
+    const [isScheduleGenerated, setIsScheduleGenerated] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
+    // 총 소요시간 계산
+    const { hours: totalHours, minutes: totalMinutes } = calculateTotalDuration(placeDurations);
+
+    // 새로운 장소를 선택 목록에 추가하고 기본 체류시간(2시간) 설정
     const handleAddPlace = (place) => {
         if (!selectedPlaces.some(p => p.title === place.title)) {
             setSelectedPlaces(prev => [...prev, place]);
@@ -42,11 +47,13 @@ const ScheduleUI = ({
         }
     };
 
+    // 선택된 장소를 목록에서 제거
     const handleRemovePlace = (placeToRemove) => {
         setSelectedPlaces(prev => prev.filter(place => place.title !== placeToRemove.title));
         parentHandleRemovePlace(placeToRemove);
     };
 
+    // 새로운 숙박 시설을 선택 목록에 추가
     const handleAddStay = (stay) => {
         if (!selectedStays.some(s => s.title === stay.title)) {
             setSelectedStays(prev => [...prev, stay]);
@@ -54,11 +61,13 @@ const ScheduleUI = ({
         }
     };
 
+    // 선택된 숙박 시설을 목록에서 제거
     const handleRemoveStay = (stayToRemove) => {
         setSelectedStays(prev => prev.filter(stay => stay.title !== stayToRemove.title));
         parentHandleRemovePlace(stayToRemove);
     };
 
+    // 특정 장소의 체류 시간을 변경
     const handleDurationChange = (place, duration) => {
         setPlaceDurations(prev => ({
             ...prev,
@@ -66,12 +75,7 @@ const ScheduleUI = ({
         }));
     };
 
-    // 총 소요 시간 계산
-    const totalDuration = Object.values(placeDurations).reduce((sum, duration) => sum + duration, 0);
-    const totalHours = Math.floor(totalDuration / 60);
-    const totalMinutes = totalDuration % 60;
-
-    // 일자별 총 가용 시간 계산 (분 단위)
+    // 선택된 시간대의 총 가용 시간을 분 단위로 계산
     const calculateTotalAvailableTime = () => {
         if (!selectedTimes || selectedTimes.length === 0) return 0;
 
@@ -83,27 +87,32 @@ const ScheduleUI = ({
         }, 0);
     };
 
-    // 총 가용 시간을 시간:분 형식으로 변환
+    // 분 단위 시간을 "X시간 Y분" 형식의 문자열로 변환
     const formatTotalTime = (minutes) => {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
         return `${hours}시간${mins > 0 ? ` ${mins}분` : ''}`;
     };
 
+    // 선택된 시간대의 총 가용 시간 계산 결과
     const totalAvailableTime = calculateTotalAvailableTime();
 
+    // 장소 선택기에 전달할 props 설정
     const placeSelectorProps = {
         onAddPlace: handleAddPlace,
         onRemovePlace: handleRemovePlace,
         selectedPlaces
     };
 
+    // 숙박시설 선택기에 전달할 props 설정
     const staySelectorProps = {
         onAddPlace: handleAddStay,
         onRemovePlace: handleRemoveStay,
-        selectedPlaces: selectedStays
+        selectedPlaces: selectedStays,
+        selectedTimes: selectedTimes
     };
 
+    // 선택된 여행 날짜 범위를 표시하는 컴포넌트
     const renderDateInfo = () => {
         if (!selectedDateRange) return null;
 
@@ -129,324 +138,282 @@ const ScheduleUI = ({
         );
     };
 
+    // 선택된 경로 타입에 따라 AI 기반 여행 일정을 생성하고 지도에 표시
+    const handlePathSelect = async (type) => {
+        try {
+            setIsLoading(true);
+            setPathType(type);
+            setShowPathModal(false);
+
+            const schedule = await generateTravelSchedule(
+                selectedPlaces,
+                selectedStays,
+                selectedDateRange,
+                selectedTimes
+            );
+            setRecommendedSchedule(schedule);
+
+            // 전체 일정 표시
+            schedule.days.forEach((day, index) => {
+                drawDayRoute(day, index);
+            });
+
+            setShowSidebar(false);
+            setShowMainPanel(false);
+            setIsScheduleGenerated(true);
+        } catch (error) {
+            console.error('일정 생성 중 오류:', error);
+            alert('일정 생성 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 특정 일차 또는 전체 일정을 지도에 표시
+    const handleDaySelect = (dayIndex) => {
+        setSelectedDay(dayIndex);
+        clearAllRoutes(); // 기존 경로 모두 제거
+
+        if (dayIndex === -1) { // 전체 일정 선택
+            recommendedSchedule.days.forEach((day, index) => {
+                drawDayRoute(day, index);
+            });
+        } else { // 특정 일차 선택
+            drawDayRoute(recommendedSchedule.days[dayIndex], dayIndex);
+        }
+    };
+
+    // 경로 타입 선택 모달을 표시하여 일정 생성 시작
+    const generateSchedule = async () => {
+        try {
+            setShowPathModal(true); // 경로 타입 선택 모달 표시
+        } catch (error) {
+            console.error('일정 생성 중 오류:', error);
+            alert('일정 생성 중 오류가 발생했습니다.');
+        }
+    };
+
     return (
         <div className="tmap-container">
-            {/* 사이드바 */}
-            <div className="sidebar">
-                <div className="d-flex flex-column gap-2">
-                    {STEP_BUTTONS.map(({ id, step, text }) => (
-                        <StepButton
-                            key={id}
-                            id={id}
-                            step={step}
-                            text={text}
-                            currentStep={currentStep}
-                            onClick={setCurrentStep}
-                        />
-                    ))}
+            {/* 로딩 오버레이 추가 */}
+            {isLoading && (
+                <div className="loading-overlay">
+                    <Loading />
                 </div>
-            </div>
+            )}
+
+            {/* 사이드바 - 조건부 렌더링 */}
+            {!isScheduleGenerated && (
+                <div className="sidebar">
+                    <div className="d-flex flex-column gap-2">
+                        {STEP_BUTTONS.map(({ id, step, text }) => (
+                            <StepButton
+                                key={id}
+                                id={id}
+                                step={step}
+                                text={text}
+                                currentStep={currentStep}
+                                onClick={setCurrentStep}
+                            />
+                        ))}
+
+                        <button
+                            className="btn btn-primary"
+                            onClick={generateSchedule}
+                        >
+                            일정 생성
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {isScheduleGenerated && (
+                <TravelSchedulePanel
+                    schedule={recommendedSchedule}
+                    onDaySelect={handleDaySelect}
+                    selectedDay={selectedDay}
+                />
+            )}
 
             {/* 메인 컨텐츠 */}
             <div className="main-content">
-                <div className="left-panel">
-                    {currentStep === 'path' ? (
-                        <>
-                            {/* 길찾기 화면 */}
-                            <div className="btn-group w-100 mb-2">
-                                <button
-                                    onClick={() => setSearchType('start')}
-                                    className={`btn btn-sm ${searchType === 'start' ? 'btn-primary' : 'btn-outline-primary'}`}
-                                >
-                                    <i className="bi bi-geo-alt-fill me-1"></i>출발
-                                </button>
-                                <button
-                                    onClick={() => setSearchType('via')}
-                                    className={`btn btn-sm ${searchType === 'via' ? 'btn-primary' : 'btn-outline-primary'}`}
-                                >
-                                    <i className="bi bi-geo-alt me-1"></i>경유지
-                                </button>
-                                <button
-                                    onClick={() => setSearchType('end')}
-                                    className={`btn btn-sm ${searchType === 'end' ? 'btn-primary' : 'btn-outline-primary'}`}
-                                >
-                                    <i className="bi bi-geo-alt me-1"></i>도착
-                                </button>
-                            </div>
-
-                            <div className="input-group input-group-sm mb-2">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    value={keyword}
-                                    onChange={(e) => setKeyword(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                    placeholder="주소 또는 장소 검색"
-                                />
-                                <button className="btn btn-primary" onClick={handleSearch}>
-                                    <i className="bi bi-search"></i>
-                                </button>
-                            </div>
-
-                            <div className="d-flex gap-1">
-                                <select
-                                    className="form-select form-select-sm"
-                                    value={pathType}
-                                    onChange={(e) => setPathType(e.target.value)}
-                                >
-                                    <option value="pedestrian">보행자</option>
-                                    <option value="car">자동차</option>
-                                    <option value="transit">대중교통</option>
-                                </select>
-                                <button className="btn btn-primary btn-sm" onClick={searchRoute}>
-                                    <i className="bi bi-signpost-2"></i>
-                                </button>
-                            </div>
-
-                            <div className="bg-light p-2 rounded mt-2">
-                                <div className="small mb-2">
-                                    <i className="bi bi-geo-alt-fill text-primary me-1"></i>
-                                    <span className="fw-bold">출발:</span>
-                                    <div className="text-truncate">{startPoint?.name || '선택되지 않음'}</div>
-                                </div>
-                                <div className="small mb-2">
-                                    <i className="bi bi-geo-alt text-primary me-1"></i>
-                                    <span className="fw-bold">경유지:</span>
-                                    <div className="text-truncate">
-                                        {viaPoints.length > 0 ? viaPoints.map(v => v.name).join(', ') : '선택되지 않음'}
-                                    </div>
-                                </div>
-                                <div className="small">
-                                    <i className="bi bi-geo-alt-fill text-primary me-1"></i>
-                                    <span className="fw-bold">도착:</span>
-                                    <div className="text-truncate">{endPoint?.name || '선택되지 않음'}</div>
-                                </div>
-                            </div>
-
-                            {routeResult && (
-                                <div className="alert alert-info mt-2 py-1 small mb-0">
-                                    <i className="bi bi-info-circle me-1"></i>{routeResult}
-                                </div>
-                            )}
-
-                            {results.length > 0 && (
-                                <div className="list-group list-group-flush mt-2">
-                                    {results.map((result, index) => (
-                                        <button
-                                            key={index}
-                                            className="list-group-item list-group-item-action py-2"
-                                            onClick={() => handleSelectLocation(result)}
-                                            style={{ borderRadius: '5px', marginBottom: '5px' }}
-                                        >
-                                            <div className="fw-bold">{result.name}</div>
-                                            {result.type === 'poi' && (
-                                                <small className="text-muted d-block">{result.address}</small>
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* 경로 상세 정보 표시 */}
-                            {(transitDetails || routeDetails) && (
-                                <div className="route-details-container">
-                                    <h6 className="mb-2">경로 상세 정보</h6>
-                                    <div>
-                                        {pathType === 'transit' && transitDetails ? (
-                                            // 대중교통 경로 상세 정보
-                                            transitDetails.map((detail, index) => (
-                                                <div key={index} className="route-step">
-                                                    {detail.mode === 'WALK' ? (
-                                                        <div className="d-flex align-items-center">
-                                                            <i className="bi bi-person-walking me-2"></i>
-                                                            <div>
-                                                                <div>도보 {detail.sectionTime}분</div>
-                                                                <small className="text-muted">
-                                                                    {detail.start} → {detail.end} ({detail.distance}km)
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="d-flex align-items-center">
-                                                            <i className={`bi ${detail.mode === 'BUS' ? 'bi-bus-front' : 'bi-train-front'} me-2`}></i>
-                                                            <div>
-                                                                <div>{detail.routeName || detail.routeNumber}</div>
-                                                                <small className="text-muted">
-                                                                    {detail.start} → {detail.end} ({detail.sectionTime}분)
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            // 보행자/자동차 경로 상세 정보
-                                            routeDetails?.features?.map((feature, index) => {
-                                                if (feature.properties.turnType !== undefined) {
-                                                    let icon, description;
-                                                    const distance = (feature.properties.distance || 0).toFixed(1);
-
-                                                    // 보행자 경로 턴타입 처리
-                                                    if (pathType === 'pedestrian') {
-                                                        switch (feature.properties.turnType) {
-                                                            case 211: description = "계단을 이용"; icon = "bi-stairs"; break;
-                                                            case 212: description = "지하보도를 이용"; icon = "bi-arrow-down-circle"; break;
-                                                            case 213: description = "육교를 이용"; icon = "bi-arrow-up-circle"; break;
-                                                            case 214: description = "도보 이동"; icon = "bi-person-walking"; break;
-                                                            case 215: description = "광장을 통해 이동"; icon = "bi-square"; break;
-                                                            case 11: description = "직진"; icon = "bi-arrow-up"; break;
-                                                            case 12: description = "좌회전"; icon = "bi-arrow-left"; break;
-                                                            case 13: description = "우회전"; icon = "bi-arrow-right"; break;
-                                                            case 14: description = "유턴"; icon = "bi-arrow-return-left"; break;
-                                                            default: description = "직진"; icon = "bi-arrow-up";
-                                                        }
-                                                    }
-                                                    // 자동차 경로 턴타입 처리
-                                                    else {
-                                                        switch (feature.properties.turnType) {
-                                                            case 11: description = "직진"; icon = "bi-arrow-up"; break;
-                                                            case 12: description = "좌회전"; icon = "bi-arrow-left"; break;
-                                                            case 13: description = "우회전"; icon = "bi-arrow-right"; break;
-                                                            case 14: description = "유턴"; icon = "bi-arrow-return-left"; break;
-                                                            case 16: description = "8시 방향"; icon = "bi-arrow-left"; break;
-                                                            case 17: description = "10시 방향"; icon = "bi-arrow-left"; break;
-                                                            case 18: description = "2시 방향"; icon = "bi-arrow-right"; break;
-                                                            case 19: description = "4시 방향"; icon = "bi-arrow-right"; break;
-                                                            case 125: description = "로터리 진입"; icon = "bi-arrow-clockwise"; break;
-                                                            case 126: description = "로터리 진출"; icon = "bi-arrow-up-right"; break;
-                                                            case 127: description = "로터리"; icon = "bi-arrow-clockwise"; break;
-                                                            case 128: description = "고가도로 진입"; icon = "bi-arrow-up-circle"; break;
-                                                            case 129: description = "고가도로 진출"; icon = "bi-arrow-down-circle"; break;
-                                                            case 211: case 212: case 213: case 214: case 215:
-                                                                description = "도보 구간"; icon = "bi-person-walking"; break;
-                                                            default: description = "직진"; icon = "bi-arrow-up";
-                                                        }
-                                                    }
-
-                                                    return (
-                                                        <div key={index} className="route-step">
-                                                            <div className="d-flex align-items-center">
-                                                                <i className={`bi ${icon} me-2`}></i>
-                                                                <div>
-                                                                    <div>{description}</div>
-                                                                    <small className="text-muted">
-                                                                        {distance}m {feature.properties.description || ''}
-                                                                    </small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                }
-                                                return null;
-                                            })
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </>
-                    ) : currentStep === 'date' ? (
-                        <DateSelector
-                            onDateSelect={(dateRange, times, isComplete) => {
-                                setSelectedDateRange(dateRange);
-                                setSelectedTimes(times);
-                                setIsDateSelectionComplete(isComplete);
-                                if (isComplete) {
-                                    setCurrentStep('place');
-                                }
-                            }}
-                        />
-                    ) : currentStep === 'stay' ? (
-                        <>
-                            {isDateSelectionComplete && renderDateInfo()}
-                            <StaySelector {...staySelectorProps} />
-                        </>
-                    ) : (
-                        <>
-                            {isDateSelectionComplete && renderDateInfo()}
-                            <PlaceSelector {...placeSelectorProps} />
-                        </>
-                    )}
-                </div>
-
-                {/* 선택된 장소/숙박 목록 패널 */}
-                {(selectedPlaces.length > 0 || selectedStays.length > 0) && (
-                    <div className="selected-places-panel">
-                        <div className="p-3 border-bottom">
-                            <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 className="m-0">선택한 장소/숙박 목록</h6>
-                                    <div className="time-info-container">
-                                        <small className="text-muted">
-                                            총 소요시간: {totalHours}시간 {totalMinutes > 0 ? `${totalMinutes}분` : ''}
-                                        </small>
-                                        {isDateSelectionComplete && totalAvailableTime > 0 && (
-                                            <small className="text-muted">
-                                                / {formatTotalTime(totalAvailableTime)}
-                                            </small>
-                                        )}
-                                    </div>
-                                </div>
-                                <button
-                                    className="btn btn-sm btn-outline-danger"
-                                    onClick={() => {
-                                        setSelectedPlaces([]);
-                                        setSelectedStays([]);
-                                        setPlaceDurations({});
-                                        [...selectedPlaces, ...selectedStays].forEach(place => parentHandleRemovePlace(place));
-                                    }}
-                                >
-                                    전체 초기화
-                                </button>
-                            </div>
-                        </div>
-                        <div className="overflow-auto h-100 p-3">
-                            {selectedPlaces.map((place, index) => (
-                                <SelectedPlaceItem
-                                    key={`place-${index}`}
-                                    place={place}
-                                    duration={placeDurations[place.title] || 120}
-                                    onDurationChange={handleDurationChange}
-                                    onRemove={() => {
-                                        handleRemovePlace(place);
-                                        const newDurations = { ...placeDurations };
-                                        delete newDurations[place.title];
-                                        setPlaceDurations(newDurations);
-                                    }}
-                                />
-                            ))}
-                            {/* 선택된 숙박 시설 목록 */}
-                            {selectedStays.map((stay, index) => (
-                                <div key={`stay-${index}`} className="selected-item">
-                                    <div className="d-flex align-items-center gap-3">
-                                        <img
-                                            src={stay.firstimage}
-                                            alt={stay.title}
-                                            className="selected-item-image"
-                                        />
-                                        <div className="selected-item-content">
-                                            <div className="fw-bold text-truncate">{stay.title}</div>
-                                            <small className="text-muted text-truncate d-block">
-                                                {stay.addr1 || '주소 정보가 없습니다'}
-                                            </small>
-                                        </div>
-                                        <button
-                                            className="btn btn-sm btn-outline-danger flex-shrink-0"
-                                            onClick={() => {
-                                                handleRemoveStay(stay);
-                                                parentHandleRemovePlace(stay);
-                                            }}
-                                        >
-                                            <i className="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                {/* 왼쪽 패널 - 조건부 렌더링 */}
+                {showMainPanel && (
+                    <div className="left-panel">
+                        {currentStep === 'date' ? (
+                            <DateSelector
+                                onDateSelect={(dateRange, times, isComplete) => {
+                                    setSelectedDateRange(dateRange);
+                                    setSelectedTimes(times);
+                                    setIsDateSelectionComplete(isComplete);
+                                    if (isComplete) {
+                                        setCurrentStep('place');
+                                    }
+                                }}
+                            />
+                        ) : currentStep === 'stay' ? (
+                            <>
+                                {isDateSelectionComplete && renderDateInfo()}
+                                <StaySelector {...staySelectorProps} />
+                            </>
+                        ) : (
+                            <>
+                                {isDateSelectionComplete && renderDateInfo()}
+                                <PlaceSelector {...placeSelectorProps} />
+                            </>
+                        )}
                     </div>
                 )}
 
+                {/* 선택된 장소/숙박 록 패널 - 조건부 렌더링 */}
+                {showMainPanel && ((currentStep === 'place' && selectedPlaces.length > 0) ||
+                    (currentStep === 'stay' && selectedStays.length > 0)) && (
+                        <div className="selected-places-panel">
+                            <div className="p-3 border-bottom">
+                                <div className="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 className="m-0">
+                                            {currentStep === 'place' ? '선택한 장소 목록' : '선택한 숙박 목록'}
+                                        </h6>
+                                        {currentStep === 'place' && (
+                                            <div className="time-info-container">
+                                                <small className="text-muted">
+                                                    총 소요시간: {totalHours}시간 {totalMinutes > 0 ? `${totalMinutes}분` : ''}
+                                                </small>
+                                                {isDateSelectionComplete && totalAvailableTime > 0 && (
+                                                    <small className="text-muted">
+                                                        / {formatTotalTime(totalAvailableTime)}
+                                                    </small>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        className="btn btn-sm btn-outline-danger"
+                                        onClick={() => {
+                                            if (currentStep === 'place') {
+                                                setSelectedPlaces([]);
+                                                setPlaceDurations({});
+                                                selectedPlaces.forEach(place => parentHandleRemovePlace(place));
+                                            } else {
+                                                setSelectedStays([]);
+                                                selectedStays.forEach(stay => parentHandleRemovePlace(stay));
+                                            }
+                                        }}
+                                    >
+                                        전체 초기화
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="overflow-auto p-3">
+                                {/* 선택된 장소 목록 */}
+                                {currentStep === 'place' && selectedPlaces.length > 0 && (
+                                    <div>
+                                        {selectedPlaces.map((place, index) => (
+                                            <SelectedPlaceItem
+                                                key={`place-${index}`}
+                                                place={place}
+                                                duration={placeDurations[place.title] || 120}
+                                                onDurationChange={handleDurationChange}
+                                                onRemove={() => {
+                                                    handleRemovePlace(place);
+                                                    const newDurations = { ...placeDurations };
+                                                    delete newDurations[place.title];
+                                                    setPlaceDurations(newDurations);
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* 선택된 숙박 시설 목록 */}
+                                {currentStep === 'stay' && selectedStays.length > 0 && (
+                                    <div>
+                                        {selectedStays.map((stay, index) => (
+                                            <SelectedStayItem
+                                                key={`stay-${index}`}
+                                                stay={stay}
+                                                selectedTimes={selectedTimes}
+                                                selectedStays={selectedStays}
+                                                onDateChange={(stay, date) => {
+                                                    const updatedStays = selectedStays.map(s =>
+                                                        s.title === stay.title ? { ...s, stayDate: date } : s
+                                                    );
+                                                    setSelectedStays(updatedStays);
+                                                }}
+                                                onRemove={handleRemoveStay}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                 <div id="map_div" ref={mapRef} className="map-container" />
             </div>
+
+            {/* 경로 타입 선택 모달 */}
+            {showPathModal && (
+                <>
+                    <div className="modal show d-block" tabIndex="-1">
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content border-0 shadow">
+                                <div className="modal-header bg-primary text-white border-0">
+                                    <h5 className="modal-title">
+                                        <i className="bi bi-map me-2"></i>
+                                        일정 생성하기
+                                    </h5>
+                                    <button 
+                                        type="button" 
+                                        className="btn-close btn-close-white" 
+                                        onClick={() => setShowPathModal(false)}
+                                        aria-label="Close"
+                                    />
+                                </div>
+                                <div className="modal-body p-4">
+                                    <p className="text-muted mb-4">선호하시는 이동수단을 선택해주세요.</p>
+                                    <div className="d-flex justify-content-center gap-4">
+                                        <button
+                                            className="transport-card"
+                                            onClick={() => handlePathSelect('car')}
+                                        >
+                                            <div className="card border-0 shadow-sm h-100">
+                                                <div className="card-body text-center p-4">
+                                                    <div className="transport-icon mb-3">
+                                                        <i className="bi bi-car-front"></i>
+                                                    </div>
+                                                    <h6 className="card-title mb-2">자동차</h6>
+                                                    <p className="card-text text-muted small mb-0">
+                                                        자가용/렌트카로 이동
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <button
+                                            className="transport-card"
+                                            onClick={() => handlePathSelect('transit')}
+                                        >
+                                            <div className="card border-0 shadow-sm h-100">
+                                                <div className="card-body text-center p-4">
+                                                    <div className="transport-icon mb-3">
+                                                        <i className="bi bi-bus-front"></i>
+                                                    </div>
+                                                    <h6 className="card-title mb-2">대중교통</h6>
+                                                    <p className="card-text text-muted small mb-0">
+                                                        버스/지하철로 이동
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modal-backdrop fade show"></div>
+                </>
+            )}
         </div>
     );
 };

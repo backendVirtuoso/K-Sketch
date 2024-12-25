@@ -86,9 +86,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/kafkachat/room").permitAll()
                 .requestMatchers("/api/kafkachat/rooms").permitAll()
                 .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated()
-                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").authenticated()
                 .requestMatchers("/", "/ws/**", "/api/join").permitAll()
                 .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email", "/api/search-pw-email", "/api/pw-change", "/api/userinfo-Modify","/api/userinfo").permitAll()
+                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").permitAll()
         );
 
         // 권한 부족 시 처리 (AccessDeniedHandler 설정)
