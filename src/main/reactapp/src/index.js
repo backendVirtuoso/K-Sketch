@@ -8,6 +8,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import confirmModal from './reducer/confirmModal.js';
+import bannerReducer from './reducer/bannerReducer.js'
 import { RecoilRoot } from "recoil";
 
 // QueryClient 생성
@@ -16,6 +17,7 @@ const queryClient = new QueryClient();
 let store = configureStore({
   reducer: {
     confirmModal,
+    banners: bannerReducer,
   }
 })
 
