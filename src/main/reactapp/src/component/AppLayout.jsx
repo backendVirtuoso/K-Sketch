@@ -108,6 +108,7 @@ const AppLayout = () => {
             <Nav.Link href="/places" className="path">장소 api</Nav.Link>
             <Nav.Link href="/mypage" className="path">마이페이지</Nav.Link>
             <Nav.Link href="#action2 action" className="path">Menu</Nav.Link>
+            <Nav.Link href="#action2 action" className="path">Menu</Nav.Link>
             <div
               className="fauser path"
               onClick={isLoggedIn ? handleLogout : handleLogin}
@@ -115,6 +116,7 @@ const AppLayout = () => {
               <FontAwesomeIcon icon={faUser} />
               {isLoggedIn ? "로그아웃" : "로그인"}
             </div>
+            {/* </div> */}
           </Nav>
         </Navbar.Collapse>
       </Container>
