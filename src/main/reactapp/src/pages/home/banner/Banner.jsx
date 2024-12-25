@@ -1,60 +1,48 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Carousel } from 'react-bootstrap';
-import React from 'react'
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import './Banner.style.css'
-import SearchForm from '../SearchForm';
+import './Banner.style.css';
 
 const Banner = () => {
+  const [banners, setBanners] = useState([]); // 초기값을 빈 배열로 설정
+
+  // 서버에서 배너 목록을 가져오는 함수
+  // 배너 목록 조회 함수
+  const fetchBanners = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/main/banners', {
+      });
+      setBanners(response.data); // 배너 목록을 상태에 저장
+    } catch (error) {
+      console.error("배너 목록을 가져오는 데 실패했습니다:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchBanners(); // 컴포넌트가 마운트될 때 배너 목록 가져오기
+  }, []);
+
   return (
     <div>
-      <Carousel data-bs-theme="dark">
-        <Carousel.Item>
-          <img
-            className="d-block w-100 "
-            src="https://media.triple.guide/triple-cms/c_limit,f_auto,h_1024,w_1024/f3a239f4-cff7-4cc2-aa0d-ad61081c04c7.jpeg"
-            alt="First slide"
-            style={{ maxHeight: "600px" }}
-          />
-          <Carousel.Caption >
-            {/* 
-              <h5>First slide label</h5>
-              <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p> 
-            */}
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-100"
-            src="https://cdn.imweb.me/upload/S201712205a3a0910b89f5/96046ad34f43c.jpg"
-            alt="Second slide"
-            style={{ maxHeight: "600px" }}
-          />
-          <Carousel.Caption>
-
-            {/* <h5>Second slide label</h5>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> */}
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-100"
-            src="https://cdn.ardentnews.co.kr/news/photo/202406/3439_16070_414.jpg"
-            alt="Third slide"
-            style={{ maxHeight: "600px" }}
-          />
-          <Carousel.Caption>
-            {/* 
-            <h5>Third slide label</h5>
-            <p>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-            </p> 
-          */}
-          </Carousel.Caption>
-        </Carousel.Item>
-      </Carousel>
-    </div>
-  )
-}
+        {Array.isArray(banners) && banners.length > 0 ? (
+          <Carousel data-bs-theme="dark">
+            {banners.map((banner, index) => (
+              <Carousel.Item key={index}>
+                <img
+                  className="d-block w-100"
+                  src={banner.imageName} // Base64 URL 사용
+                  alt={`Slide ${index + 1}`}
+                  style={{ height: '600px' }}
+                />
+              </Carousel.Item>
+            ))}
+          </Carousel>
+        ) : (
+          <p>로딩중...</p>
+        )}
+      </div>
+  );
+};
 
 export default Banner

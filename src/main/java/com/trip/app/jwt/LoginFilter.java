@@ -61,6 +61,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 사용자명(아이디) 가져오기
         String username = customUserDetails.getUsername();
 
+        String userRole = customUserDetails.getAuthorities().toString();
+
+
         // 권한 가져오기
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -76,9 +79,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 유저 아이디를 응답 헤더에 추가
         response.addHeader("Username", username);
 
+        response.addHeader("UserRole", userRole);
+
         // JWT 토큰과 유저 아이디를 응답 본문에 추가
         response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\", \"username\":\"" + username + "\"}");
+        response.getWriter().write("{\"token\":\"" + token + "\", \"username\":\"" + username + "\",\"userRole\":\""+ userRole + "\"}");
 
         // JWT 토큰과 로그인 성공 메시지 출력
         System.out.println("JWT 토큰 발급 성공 : " + token);

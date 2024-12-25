@@ -25,6 +25,9 @@ import TravelDetail from "./pages/travel/traveldetail/TravelDetail";
 import ApiPlaces from "./pages/place/ApiPlaces";
 import MyPage from "./pages/mypage/MyPage";
 import UserInfoModify from "./pages/mypage/UserInfoModify";
+import AdminUserManagement from "./pages/admin/AdminUserManagement";
+import AdminUserInfoEdit from "./pages/admin/AdminUserInfoEdit";
+import AdminBannerSet from "./pages/admin/AdminBannerSet";
 
 const App = () => {
   const selector = useSelector((state) => state);
@@ -51,6 +54,9 @@ const App = () => {
         <Route path="/kafka" element={<Room />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/userInfoModify" element={<UserInfoModify />} />
+        <Route path="/admin/userList" element={<AdminUserManagement />} />
+        <Route path="/admin/edit/:loginId" element={<AdminUserInfoEdit />} />
+        <Route path="/admin/bannerSet" element={<AdminBannerSet />} />
         <Route
           path="/api/kafkachat/room/enter/:roomId"
           element={<RoomDetail />}

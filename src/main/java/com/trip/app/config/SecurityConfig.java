@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -80,13 +81,23 @@ public class SecurityConfig {
 
         // 요청 권한 설정
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/main/**").permitAll()
                 .requestMatchers("/api/kafkachat/room").permitAll()
                 .requestMatchers("/api/kafkachat/rooms").permitAll()
                 .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated()
-                .requestMatchers("/admin").hasRole("ADMIN")
                 .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").authenticated()
                 .requestMatchers("/", "/ws/**", "/api/join").permitAll()
                 .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email", "/api/search-pw-email", "/api/pw-change", "/api/userinfo-Modify","/api/userinfo").permitAll()
+        );
+
+        // 권한 부족 시 처리 (AccessDeniedHandler 설정)
+        http.exceptionHandling(exception -> exception
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"Forbidden: Access denied\"}");
+                })
         );
 
         // JWT 필터 추가
@@ -107,11 +118,9 @@ public class SecurityConfig {
                     System.out.println("로그아웃 처리가 완료됨");
                     response.setStatus(HttpServletResponse.SC_OK);
                 })
-                .addLogoutHandler(new LogoutHandler() {
-                    @Override
-                    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                        // 추가적인 로그아웃 처리
-                    }
+                .addLogoutHandler((request, response, authentication) -> {
+                    // SecurityContext 초기화
+                    SecurityContextHolder.clearContext();
                 })
         );
 
