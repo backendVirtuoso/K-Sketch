@@ -84,9 +84,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/kafkachat/rooms").permitAll()
                 .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated()
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").authenticated()
                 .requestMatchers("/", "/ws/**", "/api/join").permitAll()
                 .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email", "/api/search-pw-email", "/api/pw-change", "/api/userinfo-Modify","/api/userinfo").permitAll()
+                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").permitAll()
         );
 
         // JWT 필터 추가

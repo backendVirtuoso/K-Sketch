@@ -363,7 +363,6 @@ const PlaceSelector = ({ onAddPlace, onRemovePlace, selectedPlaces }) => {
             </div>
 
             {activeTab === 'existing' ? (
-                // 기 장소 검색 UI
                 <>
                     <div className="p-3 border-bottom">
                         <div className="input-group mb-3">

@@ -66,6 +66,12 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                             </div>
                         </button>
                     ))}
+                    <button className="btn btn-primary">
+                        편집
+                    </button>
+                    <button className="btn btn-primary">
+                        저장
+                    </button>
                 </div>
             </div>
 
