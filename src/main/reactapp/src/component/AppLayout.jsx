@@ -11,7 +11,6 @@ import { useDispatch } from "react-redux";
 import { confirmModal } from "../reducer/confirmModal";
 import axios from "axios";
 import logo from "../logomakerproject.mp4";
-import { Dropdown } from "react-bootstrap"; // Import Dropdown
 
 const AppLayout = () => {
   const navigate = useNavigate();
