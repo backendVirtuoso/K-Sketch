@@ -93,11 +93,11 @@ public class SecurityConfig {
 
         // 권한 부족 시 처리 (AccessDeniedHandler 설정)
         http.exceptionHandling(exception -> exception
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"message\": \"Forbidden: Access denied\"}");
-                })
+            .accessDeniedHandler((request, response, accessDeniedException) -> {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"message\": \"Forbidden: Access denied\"}");
+            })
         );
 
         // JWT 필터 추가

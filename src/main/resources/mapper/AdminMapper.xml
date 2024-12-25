@@ -4,7 +4,7 @@
 
     <!-- 사용자 목록 조회 -->
     <select id="getAllUsers" resultType="MemberDTO">
-        SELECT loginId, name, phoneNumber, birth FROM user WHERE role = ROLE_USER
+        SELECT loginId, name, phoneNumber, birth FROM user
     </select>
 
     <!-- 특정 사용자 정보 조회 -->

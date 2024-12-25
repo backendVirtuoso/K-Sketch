@@ -79,10 +79,10 @@ const AdminBannerSet = () => {
 
   return (
     <Container>
-      <h2 className="text-center my-4" style={{paddingBottom: '100px', color:'#87CEFA', fontWeight:'bold'}}>배너 설정</h2>
+      <h2 className="text-center my-4" style={{ paddingBottom: '100px', color: '#87CEFA', fontWeight: 'bold' }}>배너 설정</h2>
 
       {/* 배너 업로드 섹션 */}
-      <div className="mb-4 text-center" style={{paddingBottom: '70px'}}>
+      <div className="mb-4 text-center" style={{ paddingBottom: '70px' }}>
         <h3>배너 추가</h3>
         <input type="file" onChange={handleFileChange} className="mb-2" />
         <Button
@@ -99,7 +99,7 @@ const AdminBannerSet = () => {
       <div>
         <h3 className="text-center mb-3">배너 목록</h3>
         {Array.isArray(banners) && banners.length > 0 ? (
-          <Row style={{marginBottom: '100px'}}>
+          <Row style={{ marginBottom: '100px' }}>
             {banners.map((banner) => (
               <Col xs={12} md={6} lg={4} className="mb-4" key={banner.id}>
                 <Card className="shadow-lg rounded">

@@ -42,7 +42,7 @@ export default function AdminUserManagement() {
                     <div className="location">
                         <span><a href="!#">HOME</a><img src="./images/sign/signup/bg_arrow_01.webp" alt="" /></span>
                         <strong>회원목록</strong>
-                        </div>
+                    </div>
                 </div>
                 <div className="table-responsive">
                     <table className="table table-striped table-bordered text-center">
@@ -86,11 +86,11 @@ export default function AdminUserManagement() {
                     <nav>
                         <ul className="pagination justify-content-center">
                             {[...Array(totalPages)].map((_, index) => (
-                                <li 
-                                    key={index} 
+                                <li
+                                    key={index}
                                     className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
                                 >
-                                    <button 
+                                    <button
                                         className="page-link"
                                         onClick={() => handlePageChange(index + 1)}
                                     >

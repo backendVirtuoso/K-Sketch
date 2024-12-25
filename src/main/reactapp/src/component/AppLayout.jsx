@@ -59,7 +59,7 @@ const AppLayout = () => {
   const handleLogout = async () => {
     // 로컬 스토리지에서 토큰 삭제
     confirmModalMethod("로그아웃되었습니다.");
-    
+
     try {
       await axios.post("/api/logout");
       localStorage.removeItem("token");

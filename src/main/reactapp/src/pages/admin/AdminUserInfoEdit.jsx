@@ -12,7 +12,6 @@ export default function AdminUserInfoEdit() {
     const dispatch = useDispatch();
     const selector = useSelector((state) => state);
     const { loginId } = useParams();
-    
 
     const [state, setState] = React.useState({
 
@@ -64,7 +63,7 @@ export default function AdminUserInfoEdit() {
         console.log(loginId);
         if (token) {
             axios
-            .get(`http://localhost:8080/api/admin/userinfo/${loginId}`, { // 수정된 API 경로
+                .get(`http://localhost:8080/api/admin/userinfo/${loginId}`, { // 수정된 API 경로
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -444,7 +443,7 @@ export default function AdminUserInfoEdit() {
         })
     }
 
-    //입력상자 = 성별
+    // 입력상자 = 성별
     const onChangeGender = (e) => {
         let gender = e.target.value;
         let genderGuideText = '';
