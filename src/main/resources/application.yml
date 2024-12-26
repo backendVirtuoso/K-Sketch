@@ -14,15 +14,18 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-      group-id: foo # server 1
-      # group-id: trip # server 2
+      group-id: trip # server 1
+      # group-id: foo # server 2
     template:
       default-topic: chatroom
   data:
     redis:
       host: localhost
       port: 6379
-
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
   security:
     oauth2:
       client:

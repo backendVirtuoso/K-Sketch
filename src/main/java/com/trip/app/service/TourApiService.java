@@ -12,7 +12,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class ApiService {
+public class TourApiService {
     @Value(value = "${service.placeKey}")
     private String servicePlaceKey;
 

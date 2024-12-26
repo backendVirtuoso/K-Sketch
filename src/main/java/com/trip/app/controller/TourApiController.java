@@ -1,6 +1,6 @@
 package com.trip.app.controller;
 
-import com.trip.app.service.ApiService;
+import com.trip.app.service.TourApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +11,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
-public class ApiController {
+public class TourApiController {
 
-    private final ApiService apiService;
+    private final TourApiService tourApiService;
 
     @GetMapping("/{apiType}")
     public ResponseEntity<?> getApiData(
@@ -26,27 +26,27 @@ public class ApiController {
         try {
             return switch (apiType) {
                 case "stay" -> {
-                    String stayList = apiService.getApiPlacesData("stay", null, keyword, contentTypeId, null);
+                    String stayList = tourApiService.getApiPlacesData("stay", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(stayList);
                 }
                 case "common" -> {
-                    String commonInfo = apiService.getApiPlacesData("common", String.valueOf(contentId), keyword, contentTypeId, null);
+                    String commonInfo = tourApiService.getApiPlacesData("common", String.valueOf(contentId), keyword, contentTypeId, null);
                     yield ResponseEntity.ok(commonInfo);
                 }
                 case "festival" -> {
-                    String festivalData = apiService.getApiPlacesData("festival", null, keyword, contentTypeId, null);
+                    String festivalData = tourApiService.getApiPlacesData("festival", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(festivalData);
                 }
                 case "search" -> {
-                    String searchData = apiService.getApiPlacesData("search", null, keyword, contentTypeId, null);
+                    String searchData = tourApiService.getApiPlacesData("search", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(searchData);
                 }
                 case "areaCode" -> {
-                    String areaCode = apiService.getApiPlacesData("areaCode", null, keyword, contentTypeId, null);
+                    String areaCode = tourApiService.getApiPlacesData("areaCode", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(areaCode);
                 }
                 case "areaList" -> {
-                    String areaList = apiService.getApiPlacesData("areaList", null, keyword, contentTypeId, categoryCode);
+                    String areaList = tourApiService.getApiPlacesData("areaList", null, keyword, contentTypeId, categoryCode);
                     yield ResponseEntity.ok(areaList);
                 }
                 default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid API type");

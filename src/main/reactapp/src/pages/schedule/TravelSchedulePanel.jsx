@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './scss/TravelSchedulePanel.scss';
+import { Modal, Button, Form } from 'react-bootstrap';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // 카카오 맵 경로 검색 컴포넌트
 const TransportRoute = ({ start, end, onClick }) => (
@@ -22,11 +25,74 @@ const TransportRoute = ({ start, end, onClick }) => (
 const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
     const [selectedFilter, setSelectedFilter] = React.useState('all');
     const [showDays, setShowDays] = React.useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [tripTitle, setTripTitle] = useState('');
+    const navigate = useNavigate();
 
     // 카카오 맵으로 이동 함수
     const handleRouteClick = (start, end) => {
         const kakaoMapUrl = `https://map.kakao.com/link/to/${end.title},${end.latitude},${end.longitude}/from/${start.title},${start.latitude},${start.longitude}`;
         window.open(kakaoMapUrl, '_blank');
+    };
+
+    const checkLoginStatus = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const response = await axios.get('/api/user/check-login', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return response.data.isLoggedIn;
+        } catch (error) {
+            return false;
+        }
+    };
+
+    const handleSave = async () => {
+        if (!tripTitle.trim()) {
+            alert('여행 제목을 입력해주세요.');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('로그인이 필요한 서비스입니다.');
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const tripData = {
+                title: tripTitle,
+                startDate: schedule.days[0].date,
+                endDate: schedule.days[schedule.days.length - 1].date,
+                tripPlan: JSON.stringify(schedule)
+            };
+
+            const response = await axios.post('/api/trips/save', tripData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.data.success) {
+                alert('여행 일정이 저장되었습니다.');
+                setShowModal(false);
+            }
+        } catch (error) {
+            if (error.response?.status === 401) {
+                alert('로그인이 필요한 서비스입니다.');
+                navigate('/login');
+            } else {
+                alert('저장 중 오류가 발생했습니다.');
+            }
+            console.error(error);
+        }
     };
 
     return (
@@ -40,9 +106,9 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                             setShowDays(true);
                         }}
                         className={`sidebar-button btn border-0 p-3 rounded-3 ${selectedFilter === 'all'
-                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
-                                : 'text-secondary bg-light'
-                            }`}
+                            ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                            : 'text-secondary bg-light'
+                        }`}
                     >
                         <div className="sidebar-button-text">
                             전체일정
@@ -57,9 +123,9 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                                 setShowDays(true);
                             }}
                             className={`sidebar-button btn border-0 p-3 rounded-3 ${selectedFilter === index
-                                    ? 'text-primary fw-bold bg-primary bg-opacity-10'
-                                    : 'text-secondary bg-light'
-                                }`}
+                                ? 'text-primary fw-bold bg-primary bg-opacity-10'
+                                : 'text-secondary bg-light'
+                            }`}
                         >
                             <div className="sidebar-button-text">
                                 {index + 1}일차
@@ -69,7 +135,10 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                     <button className="btn btn-primary">
                         편집
                     </button>
-                    <button className="btn btn-primary">
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => setShowModal(true)}
+                    >
                         저장
                     </button>
                 </div>
@@ -165,6 +234,33 @@ const TravelSchedulePanel = ({ schedule, onDaySelect, selectedDay }) => {
                         );
                     })}
             </div>
+
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>여행 일정 저장</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group>
+                            <Form.Label>여행 제목</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="여행 제목을 입력하세요"
+                                value={tripTitle}
+                                onChange={(e) => setTripTitle(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        취소
+                    </Button>
+                    <Button variant="primary" onClick={handleSave}>
+                        저장
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
