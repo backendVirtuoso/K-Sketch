@@ -33,7 +33,7 @@ const Banner = () => {
                   className="d-block w-100"
                   src={banner.imageName} // Base64 URL 사용
                   alt={`Slide ${index + 1}`}
-                  style={{ height: '600px' }}
+                  style={{ height: '600px', objectFit: 'cover' }}
                 />
               </Carousel.Item>
             ))}
