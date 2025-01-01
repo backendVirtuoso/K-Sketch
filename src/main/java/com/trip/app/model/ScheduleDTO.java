@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ScheduleDTO {
+    private Long tripId;
     private String title;
     private String startDate;
     private String endDate;

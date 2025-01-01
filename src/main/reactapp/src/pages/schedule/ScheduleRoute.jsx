@@ -38,6 +38,7 @@ const ScheduleRoute = ({
     const [tripTitle, setTripTitle] = useState('');
     const navigate = useNavigate();
     const [isEditMode, setIsEditMode] = useState(false);
+    const [tripId, setTripId] = useState(null);
 
     // 카카오 맵으로 이동 함수
     const handleRouteClick = (start, end) => {
@@ -60,6 +61,7 @@ const ScheduleRoute = ({
 
         try {
             const tripData = {
+                tripId: tripId,
                 title: tripTitle,
                 startDate: schedule.days[0].date,
                 endDate: schedule.days[schedule.days.length - 1].date,
@@ -73,6 +75,7 @@ const ScheduleRoute = ({
             });
 
             if (response.data.success) {
+                setTripId(response.data.tripId);
                 alert('여행 일정이 저장되었습니다.');
                 setShowModal(false);
             }

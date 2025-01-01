@@ -10,7 +10,14 @@ public class ScheduleService {
     @Autowired
     private ScheduleMapper scheduleMapper;
 
-    public boolean saveSchedule(ScheduleDTO scheduleDTO) {
-        return scheduleMapper.insertSchedule(scheduleDTO) > 0;
+    public ScheduleDTO saveSchedule(ScheduleDTO scheduleDTO) {
+        if (scheduleDTO.getTripId() == null) {
+            // 새로운 일정 저장
+            scheduleMapper.insertSchedule(scheduleDTO);
+        } else {
+            // 기존 일정 수정
+            scheduleMapper.updateSchedule(scheduleDTO);
+        }
+        return scheduleDTO;
     }
 }

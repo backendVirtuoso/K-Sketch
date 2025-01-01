@@ -2,9 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.trip.app.mapper.ScheduleMapper">
     <!--  여행 정보 저장  -->
-    <insert id="insertSchedule" parameterType="ScheduleDTO">
+    <insert id="insertSchedule" parameterType="ScheduleDTO" useGeneratedKeys="true" keyProperty="tripId">
         INSERT INTO trips (loginId, title, start_date, end_date, tripPlan)
         VALUES (#{loginId}, #{title}, #{startDate}, #{endDate}, #{tripPlan})
     </insert>
+
+    <!--  여행 정보 수정  -->
+    <update id="updateSchedule" parameterType="ScheduleDTO">
+        UPDATE trips 
+        SET title = #{title},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            tripPlan = #{tripPlan}
+        WHERE trip_id = #{tripId} AND loginId = #{loginId}
+    </update>
 </mapper>
 

@@ -30,12 +30,11 @@ public class ScheduleController {
         }
 
         scheduleDTO.setLoginId(loginId);
-        boolean result = scheduleService.saveSchedule(scheduleDTO);
+        ScheduleDTO savedSchedule = scheduleService.saveSchedule(scheduleDTO);
 
-        if (result) {
-            return ResponseEntity.ok().body(Map.of("success", true));
-        } else {
-            return ResponseEntity.badRequest().body(Map.of("success", false));
-        }
+        return ResponseEntity.ok().body(Map.of(
+            "success", true,
+            "tripId", savedSchedule.getTripId()
+        ));
     }
 }
