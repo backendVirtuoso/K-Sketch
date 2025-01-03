@@ -272,7 +272,7 @@ const StayDateModal = ({ stay, selectedTimes, reservedDates, onConfirm, onClose 
     };
 
     const handleDateToggle = (date) => {
-        if (isDateReserved(date)) return; 
+        if (isDateReserved(date)) return;
 
         setSelectedDates(prev => {
             if (prev.includes(date)) {

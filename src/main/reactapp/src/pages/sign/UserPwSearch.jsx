@@ -9,7 +9,7 @@ export default function UserPwSearch() {
         e.preventDefault();
         navigate('/PwSearchEmailAuthentication');
     }
-    
+
     return (
         <div id='userSearch'>
             <div className="container">
