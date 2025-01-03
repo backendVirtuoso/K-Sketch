@@ -49,7 +49,7 @@ const ListItem = styled.div`
         transform: scale(1.05);
     }
 
-    background-image: url(${(props) => props.bgImage || logo});
+    background-image: ${props => `url(${props.bgimage || logo})`};
 
     &::before {
         content: "";
@@ -344,7 +344,7 @@ const MenuList = () => {
                                     {group.slice(rowIndex * 3, rowIndex * 3 + 3).map((data, colIndex) => (
                                         <Col key={colIndex} xs={4} className='d-flex justify-content-center'>
                                             <ListItem
-                                                bgImage={data.firstimage || logo}
+                                                bgimage={data.firstimage || logo}
                                                 onClick={() => handleItemClick(data)}
                                                 style={{ width: "100%", height: "150px" }}
                                             >

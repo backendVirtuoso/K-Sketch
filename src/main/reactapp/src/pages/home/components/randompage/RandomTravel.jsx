@@ -103,7 +103,7 @@ const RandomTravel = () => {
                         </div>
                     </div>
                 ) : (
-                    <p><Loading/></p>
+                    <div><Loading/></div>
                 )}
             </div>
         </div>
