@@ -5,10 +5,8 @@ import "./LoadingLottie.style.css"
 
 const Loading = () => {
   return (
-    <div className="loading-lottie" >
-
+    <div className="loading-lottie">
       <Lottie className="lottie-img" animationData={loadingLottie} />
-      {/* <strong>불러오는 중입니다..</strong> */}
     </div>
   )
 }

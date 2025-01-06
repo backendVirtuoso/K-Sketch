@@ -86,6 +86,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/kafkachat/room").permitAll()
                 .requestMatchers("/api/kafkachat/rooms").permitAll()
                 .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated()
+                .requestMatchers("/api/trips/", "/api/trips/save").authenticated()
                 .requestMatchers("/", "/ws/**", "/api/join").permitAll()
                 .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email", "/api/search-pw-email", "/api/pw-change", "/api/userinfo-Modify","/api/userinfo").permitAll()
                 .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").permitAll()
