@@ -146,7 +146,6 @@ const ApiPlaces = () => {
                                         )}
                                         {selectedPlace.overview ? <p><strong>overview:</strong> {selectedPlace.overview} </p> : ''}
                                     </div>
-                                    {/* 데이터 저장 버튼 */}
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-primary" onClick={() => window.open(`https://map.naver.com/p/search/${encodeURIComponent(selectedPlace.addr1)}`, "_blank")}>위치</button>
                                     </div>
