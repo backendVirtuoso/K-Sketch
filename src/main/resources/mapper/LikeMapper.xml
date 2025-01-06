@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trip.app.mapper.LikeMapper">
+    <!-- 사용자 좋아요 등록 -->
+    <insert id="insertLike">
+        INSERT INTO UserLike(user_id, place_id)
+        VALUES(#{seqNum}, #{title})
+        ON DUPLICATE KEY UPDATE created_at = CURRENT_TIMESTAMP;
+    </insert>
+    <!--  장소 좋아요 수 업데이트  -->
+    <insert id="updatePlaceLikes">
+        INSERT INTO placeLiked (placeName, lat, lon, likes_count)
+        VALUES (#{title}, #{lat}, #{lon}, 1)
+        ON DUPLICATE KEY UPDATE likes_count = likes_count + 1, updated_at = CURRENT_TIMESTAMP;
+    </insert>
+
+</mapper>

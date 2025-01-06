@@ -1,0 +1,82 @@
+// 변수 정의
+$primary-color: #5D2FFF;
+$border-color: #dee2e6;
+$gray-text: #6c757d;
+
+// 시간 선택기 스타일
+.time-selector-container {
+  overflow-y: auto;
+  height: calc(100% - 120px);
+}
+
+.date-cell {
+  width: 120px;
+  padding: 0 12px;
+}
+
+.time-cell {
+  width: 140px;
+  padding: 0 12px;
+}
+
+.arrow-cell {
+  width: 40px;
+  text-align: center;
+}
+
+.time-select {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.time-selector-actions {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 16px;
+  border-top: 1px solid $border-color;
+}
+
+// 탭 스타일
+.search-tabs {
+  display: flex;
+  border-bottom: 1px solid $border-color;
+
+  .tab-button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+
+    &.active {
+      border-bottom: 2px solid $primary-color;
+      color: $primary-color;
+      font-weight: bold;
+    }
+  }
+}
+
+// 숙소 선택 아이템 스타일
+.selected-stay-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid $border-color;
+
+  .stay-info {
+    flex: 1;
+    margin-right: 12px;
+  }
+
+  .stay-title {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+  }
+
+  .date-selector {
+    width: 100%;
+    max-width: 200px;
+  }
+} 

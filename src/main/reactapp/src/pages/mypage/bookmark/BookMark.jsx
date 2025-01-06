@@ -32,7 +32,7 @@ const BookMark = () => {
   }
 
   console.log(data)
-  
+
   return (
     <div>
       <Carousel responsive={responsive}>

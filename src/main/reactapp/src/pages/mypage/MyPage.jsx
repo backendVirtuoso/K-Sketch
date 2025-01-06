@@ -42,7 +42,7 @@ const MyPage = () => {
       confirmModalMethod("로그인이 필요한 서비스입니다.");
       navigate('/login');
     }
-    
+
     axios
       .get("http://localhost:8080/api/userinfo", {
         headers: {

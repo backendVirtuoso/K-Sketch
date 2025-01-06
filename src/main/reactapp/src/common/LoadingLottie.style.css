@@ -1,12 +1,12 @@
 .loading-lottie {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  /* height: 100vh;  */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .loading-lottie .lottie-img {
-  max-width: 150px; /* 이미지 크기 조정 */
-  height: auto;
+    max-width: 150px;
+    /* 이미지 크기 조정 */
+    height: auto;
 }

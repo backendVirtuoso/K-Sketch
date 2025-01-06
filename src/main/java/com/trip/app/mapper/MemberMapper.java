@@ -29,4 +29,7 @@ public interface MemberMapper {
 
     // 사용자 정보 수정
     int updateUserInfo(MemberDTO memberDTO);
+
+    // 사용자 아이디로 시퀀스 넘버찾기
+    int findSeqNum(String id);
 }
