@@ -4,5 +4,6 @@
 <configuration>
     <typeAliases>
         <typeAlias type="com.trip.app.model.MemberDTO" alias="memberDTO"/>
+        <typeAlias type="com.trip.app.model.ScheduleDTO" alias="scheduleDTO"/>
     </typeAliases>
 </configuration>

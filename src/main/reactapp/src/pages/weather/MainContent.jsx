@@ -79,7 +79,7 @@ export default function MainContent() {
     }
 
     return (
-        <main>
+        <>
             <article className={styles.container}>
                 <div className={styles.left}>
                     <CurrentWeather currentWeather={currentWeather} city={city} />
@@ -90,6 +90,6 @@ export default function MainContent() {
                     <HourlyForecast forecastData={forecastData} />
                 </div>
             </article>
-        </main>
+        </>
     );
 }

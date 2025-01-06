@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import SignIn from "./pages/sign/SignIn";
 import OAuth2Success from "./pages/sign/OAuth2Success";
 import SignUp from "./pages/sign/SignUp";
+import SocialSignUp from "./pages/sign/SocialSignUp";
 import UserIdSearch from "./pages/sign/UserIdSearch";
 import UserPwSearch from "./pages/sign/UserPwSearch";
 import IdSearchCom from "./pages/sign/IdSearchCom";
@@ -40,6 +41,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="/oauth2/success" element={<OAuth2Success />} />
+        <Route path="/socialSignUp" element={<SocialSignUp />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/userIdSearch" element={<UserIdSearch />} />
         <Route path="/userPwSearch" element={<UserPwSearch />} />

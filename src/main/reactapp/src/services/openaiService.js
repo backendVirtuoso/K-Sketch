@@ -102,7 +102,7 @@ export const generateTravelSchedule = async (places, stays, dateRange, selectedT
                 }
             ],
             temperature: 0.2,
-            max_tokens: 2048,
+            max_tokens: 4500,
             top_p: 1
         });
 
@@ -119,4 +119,4 @@ export const generateTravelSchedule = async (places, stays, dateRange, selectedT
         console.error('OpenAI API 호출 중 오류:', error);
         throw error;
     }
-}; 
+};

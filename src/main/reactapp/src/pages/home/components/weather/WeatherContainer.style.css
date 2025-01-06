@@ -1,0 +1,37 @@
+@font-face {
+    font-family: 'NoonnuBasicGothicRegular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noon-2410@1.0/NoonnuBasicGothicRegular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.weather-title {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.weather-title-a {
+    font-family: 'NoonnuBasicGothicRegular';
+    color: #87CEEB;
+    font-size: 30px;
+}
+
+.weather-title-b {
+    font-family: 'NoonnuBasicGothicRegular';
+    color: #4E82B4;
+    font-size: 30px;
+}
+
+.weather-title {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .weather-title-a,
+    .weather-title-b {
+        font-size: 20px;
+    }
+}

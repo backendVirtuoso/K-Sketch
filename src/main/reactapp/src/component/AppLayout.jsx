@@ -2,7 +2,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./AppLayout.style.css";
 import { useNavigate } from "react-router-dom";
@@ -74,7 +74,7 @@ const AppLayout = () => {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary navbar-fixed">
+    <Navbar expand="lg" className="bg-white navbar-fixed">
       <Container fluid style={{ backgroundColor: "white" }}>
         <Navbar.Brand href="/" onClick={gotohome} className="header">
           <video src={logo} autoPlay loop muted className="video" />
@@ -116,7 +116,6 @@ const AppLayout = () => {
               <FontAwesomeIcon icon={faUser} />
               {isLoggedIn ? "로그아웃" : "로그인"}
             </div>
-            {/* </div> */}
           </Nav>
         </Navbar.Collapse>
       </Container>

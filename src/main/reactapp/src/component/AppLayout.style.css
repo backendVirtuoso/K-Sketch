@@ -1,96 +1,89 @@
 .navlink {
-  display: flex;
-  position: absolute;
-  right: 30px;
+    display: flex;
+    position: absolute;
+    right: 30px;
 }
 
 .searchform-layout {
-  margin-top: 5px;
-  border-radius: 40px;
+    margin-top: 5px;
+    border-radius: 40px;
 }
 
 .fauser {
-  padding-top: 7.5px;
-  margin-left: 25px;
-  margin-right: 35px;
-  cursor: pointer;
+    padding-top: 7.5px;
+    margin-left: 25px;
+    margin-right: 35px;
+    cursor: pointer;
 }
 
 .action {
-  margin-left: 25px;
+    margin-left: 25px;
 }
 
 .navbarstyle {
-  display: flex;
-  justify-content: flex-end;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .header {
 
-  display: flex;
-  align-items: center;
-  height: 50px;
-  overflow: hidden;
+    display: flex;
+    align-items: center;
+    height: 50px;
+    overflow: hidden;
 }
 
-/* .header video {
-  height: 100%;
-  width: auto;
-} */
-
 .searchform-layout2 {
-  border-radius: 40px;
+    border-radius: 40px;
 }
 
 .navbar-fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 90px;
-  z-index: 1050;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    z-index: 1050;
 }
 
 body {
-  padding-top: 90px;
+    padding-top: 90px;
 }
 
 .video {
-  width: 350px;
-  height: 130px;
-  margin-top: 10px;
+    width: 350px;
+    height: 130px;
+    margin-top: 10px;
 }
-
 
 
 .path:hover {
-  color: #4E82B4;
-  text-decoration: underline;
-  font-weight: 500;
+    color: #4E82B4;
+    text-decoration: underline;
+    font-weight: 500;
 }
 
 @media (max-width: 768px) {
-  /* 모바일 해상도 기준 */
-  .fauser {
-    padding-top: 7.5px;
-    cursor: pointer;
-  }
 
-  .video {
-    width: 150px;
-    height: 130px;
-    /* margin-top:10px; */
-  }
-
-  /* AppLayout.style.css */
-
-  /* 모바일 환경에서 Navbar 요소들이 왼쪽에 붙게 만듦 */
-  @media (max-width: 992px) {
-    /* Bootstrap의 기본 모바일 브레이크포인트 */
-
+    /* 모바일 해상도 기준 */
     .fauser {
-      margin-left: 0;
-      /* 로그인/로그아웃 아이콘도 왼쪽에 붙임 */
+        padding-top: 7.5px;
+        cursor: pointer;
     }
-  }
+
+    .video {
+        width: 150px;
+        height: 130px;
+    }
+
+    /* AppLayout.style.css */
+    /* 모바일 환경에서 Navbar 요소들이 왼쪽에 붙게 만듦 */
+    @media (max-width: 992px) {
+
+        /* Bootstrap의 기본 모바일 브레이크포인트 */
+        .fauser {
+            margin-left: 0;
+            /* 로그인/로그아웃 아이콘도 왼쪽에 붙임 */
+        }
+    }
 }
