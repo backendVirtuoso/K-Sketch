@@ -19,4 +19,6 @@ public interface MemberService {
     MemberDTO findByUsername(String username); // 사용자 정보 조회
     // 사용자 정보 수정
     boolean updateUserInfo(MemberDTO memberDTO);
+    // 로그인한 사용자 시퀀스넘버
+    int findSeqNum(String id);
 }

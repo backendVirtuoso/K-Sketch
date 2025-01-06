@@ -45,5 +45,10 @@
         where loginId = #{loginId}
     </update>
 
+    <!--  아이디로 시퀀스넘버 찾기  -->
+    <select id="findSeqNum" resultType="Integer" parameterType="String">
+        SELECT id FROM user
+        WHERE loginId = #{id};
+    </select>
 
 </mapper>

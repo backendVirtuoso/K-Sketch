@@ -7,6 +7,9 @@ import logo from "../logo3.png";
 import Categories from "./Categories";
 import Detail from "./Detail";
 import CardDetail from "./CardDetail";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import ListItem from './ListItem';
 
 const Container = styled.div`
   font-family: Arial, sans-serif;
@@ -31,43 +34,61 @@ const Error = styled.p`
   font-weight: bold;
 `;
 
-const ListItem = styled.div`
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 200px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px;
-  overflow: hidden;
-  color: #fff;
-  text-align: center;
-  transition: transform 0.3s ease-in-out;
-  font-weight: bold;
+////////////////////// 기능완성되면 삭제 예정
 
-  &:hover {
-    transform: scale(1.05);
-  }
+// const ListItem = styled.div`
+//   position: relative;
+//   display: flex;
+//   align-items: flex-end;
+//   justify-content: center;
+//   height: 200px;
+//   background-size: cover;
+//   background-position: center;
+//   border-radius: 8px;
+//   overflow: hidden;
+//   color: #fff;
+//   text-align: center;
+//   transition: transform 0.3s ease-in-out;
+//   font-weight: bold;
 
-  background-image: url(${(props) => props.bgImage || logo});
+//   &:hover {
+//     transform: scale(1.05);
+//   }
 
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-  }
+//   background-image: url(${(props) => props.bgImage || logo});
 
-  .title {
-    position: relative;
-    padding: 10px;
-    font-size: 1.1em;
-  }
-`;
+//   &::before {
+//     content: "";
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background: rgba(0, 0, 0, 0.4);
+//   }
+
+//   .title {
+//     position: relative;
+//     padding: 10px;
+//     font-size: 1.1em;
+//   }
+// `;
+
+// // 하트아이콘을 위한 스타일컴포넌트
+// const HeartIcon = styled(FontAwesomeIcon)`
+//   position: absolute;
+//   bottom: 10px;
+//   right: 10px;
+//   cursor: pointer;
+//   color: #fff;
+//   transition: color 0.3s ease;
+
+//   &:hover{
+//     color: #ff6b6b;
+//   }
+// `
+
+////////////////////// 기능완성되면 삭제 예정
 
 // 커스텀 화살표 스타일
 const CustomCarousel = styled(Carousel)`
@@ -346,13 +367,21 @@ const MenuList = () => {
                 <Row key={rowIndex} className='mb-3'>
                   {group.slice(rowIndex * 3, rowIndex * 3 + 3).map((data, colIndex) => (
                     <Col key={colIndex} xs={4} className='d-flex justify-content-center'>
-                      <ListItem
+                      {/* 기능완성되면 삭제 예정 */}
+                      {/* <ListItem
                         bgImage={data.firstimage || logo}
                         onClick={() => handleItemClick(data)}
                         style={{ width: "100%", height: "150px" }}
                       >
                         <div className='title'>{data.title}</div>
-                      </ListItem>
+                        <HeartIcon icon={faHeart} size="lg"/>
+                      </ListItem> */}
+                      {/* 기능완성되면 삭제 예정 */}
+                      <ListItem
+                        data={data}
+                        logo={logo}
+                        onClick={() => handleItemClick(data)}
+                      />
                     </Col>
                   ))}
                 </Row>

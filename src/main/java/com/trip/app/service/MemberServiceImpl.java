@@ -113,4 +113,9 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
             return false;  // 예외 발생 시 false
         }
     }
+
+    @Override
+    public int findSeqNum(String id) {
+        return memberMapper.findSeqNum(id);
+    }
 }
