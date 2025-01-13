@@ -4,7 +4,7 @@ import Card from 'react-bootstrap/Card';
 import './TravelCard.style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
-import logoimage2 from "../../../logoimage.png"
+import logoImage from "../../../logoimage.png"
 
 const TravelCard = ({ togotravel }) => {
   console.log("travel", togotravel);
@@ -22,7 +22,7 @@ const TravelCard = ({ togotravel }) => {
           <Card.Img
             variant="top"
             className="image-exist"
-            src={togotravel.firstimage}
+            src={togotravel.firstImage || logoImage}
             onError={handleImageError}
           />
         ) : (
@@ -30,14 +30,16 @@ const TravelCard = ({ togotravel }) => {
             className="image-placeholder"
 
           >
-            <div > <img src={logoimage2} width="200px" /></div>
+            <div > <img src={logoImage} width="200px" /></div>
           </div>
         )}
         <Card.Body className="card-text-holder">
           <Card.Title>{togotravel.title}</Card.Title>
           <Card.Text>
-            <div>{togotravel.addr1}</div>
-            <div>{togotravel.zipcode}</div>
+            {togotravel.addr1}
+          </Card.Text>
+          <Card.Text>
+            {togotravel.zipcode}
           </Card.Text>
 
           <div

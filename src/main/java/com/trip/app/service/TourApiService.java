@@ -109,10 +109,10 @@ public class TourApiService {
                         .append("&MobileOS=ETC")
                         .append("&MobileApp=TravelTest")
                         .append("&_type=json")
-                        .append("&numOfRows=100")
+                        .append("&numOfRows=1000")
                         .append("&pageNo=").append(pageNo)
                         .append("&listYN=Y")
-                        .append("&arrange=A");
+                        .append("&arrange=O");
                 break;
 
             default:
@@ -157,7 +157,7 @@ public class TourApiService {
             do {
                 System.out.println("페이지 " + pageNo + " 데이터 요청 시작");
                 // areaBasedList API 사용, 파라미터를 모두 null로 설정하여 모든 데이터 조회
-                String response = getApiPlacesData("areaList", null, "서울", null, null, pageNo);
+                String response = getApiPlacesData("areaList", null, null, null, null, pageNo);
                 System.out.println("API 응답 데이터: " + response);
                 
                 JsonNode responseJson = objectMapper.readTree(response);
@@ -184,6 +184,7 @@ public class TourApiService {
                         TourApiPlaceDTO place = new TourApiPlaceDTO();
                         place.setContentId(contentId);
                         place.setTitle(item.path("title").asText());
+                        place.setTel(item.path("tel").asText());
                         place.setAddr1(item.path("addr1").asText());
                         place.setAddr2(item.path("addr2").asText());
                         place.setFirstImage(item.path("firstimage").asText());
@@ -194,6 +195,14 @@ public class TourApiService {
                         place.setCat1(item.path("cat1").asText());
                         place.setCat2(item.path("cat2").asText());
                         place.setCat3(item.path("cat3").asText());
+                        place.setOrderNo(item.path("order").asInt());
+                        place.setMlevel(item.path("mlevel").asText());
+                        place.setAreacode(item.path("areacode").asText());
+                        place.setBooktour(item.path("booktour").asText());
+                        place.setCpyrhtDivCd(item.path("cpyrhtDivCd").asText());
+                        place.setCreatedtime(item.path("createdtime").asText());
+                        place.setModifiedtime(item.path("modifiedtime").asText());
+                        place.setSigungucode(item.path("sigungucode").asText());
                         
                         places.add(place);
                         System.out.println("장소 추가됨: " + place.getTitle());
@@ -224,13 +233,25 @@ public class TourApiService {
         }
     }
     
-    public List<TourApiPlaceDTO> searchPlacesFromDb(String keyword, String contentTypeId, int page, int size) {
-        int start = (page - 1) * size;
-        return tourApiMapper.searchPlaces(keyword, contentTypeId, start, size);
+    public List<TourApiPlaceDTO> searchPlacesFromDb(String keyword, String contentTypeId, String areaCode, int page, int size) {
+        try {
+            int start = (page - 1) * size;
+            return tourApiMapper.searchPlaces(keyword, contentTypeId, areaCode, start, size);
+        } catch (Exception e) {
+            System.err.println("데이터베이스 검색 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch data from database", e);
+        }
     }
     
-    public int countPlacesFromDb(String keyword, String contentTypeId) {
-        return tourApiMapper.countPlaces(keyword, contentTypeId);
+    public int countPlacesFromDb(String keyword, String contentTypeId, String areaCode) {
+        try {
+            return tourApiMapper.countPlaces(keyword, contentTypeId, areaCode);
+        } catch (Exception e) {
+            System.err.println("데이터베이스 마운트 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to count data from database", e);
+        }
     }
 
 }

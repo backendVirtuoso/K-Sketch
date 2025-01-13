@@ -26,7 +26,7 @@ const StyledListItem = styled.div`
     transform: scale(1.05);
     }
 
-    background-image: url(${(props) => props.bgImage});
+    background-image: url(${(props) => props.$bgImage});
 
     &::before {
     content: "";
@@ -101,7 +101,7 @@ const ListItem = ({ data, logo, onClick }) => {
 
     return (
         <StyledListItem
-            bgImage={data.firstimage || logo}
+            $bgImage={data.firstimage || logo}
             onClick={onClick}
             style={{ width: "100%", height: "150px"}}>
             <div className="title">{data.title}</div>

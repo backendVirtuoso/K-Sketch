@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import usePlaces from "../../hooks/usePlaces";
 import logoImage from "../../logoimage.png";
 import "./scss/SchedulePlace.scss";
+import axios from "axios";
 
 // 장소 목록 아이템 컴포넌트
 const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
@@ -50,11 +51,12 @@ const PlaceSelector = ({
     onComplete,
     isEditMode,
 }) => {
-    const [activeTab, setActiveTab] = useState("existing"); // 'existing' 또는 'new'
-    const [apiType, setApiType] = useState("search");
+    const [activeTab, setActiveTab] = useState("existing");
     const [inputKeyword, setInputKeyword] = useState("");
-    const [keyword, setKeyword] = useState("서울");
     const [contentTypeId, setContentTypeId] = useState("12");
+    const [places, setPlaces] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const CONTENT_TYPES = [
         { id: "12", text: "관광지" },
@@ -65,11 +67,37 @@ const PlaceSelector = ({
         { id: "39", text: "음식점" },
     ];
 
-    const { places, error, isLoading } = usePlaces(
-        apiType,
-        keyword,
-        contentTypeId
-    );
+    // DB에서 장소 데이터 불러오기
+    const fetchPlaces = async () => {
+        setIsLoading(true);
+        try {
+            let url = `http://localhost:8080/api/db/search`;
+            
+            const response = await axios.get(url);
+            setPlaces(response.data.items || []);
+        } catch (err) {
+            setError("장소 데이터를 불러오는 중 오류가 발생했습니다.");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 컨텐츠 타입 변경 시 데이터 새로 불러오기
+    const handleContentTypeChange = (typeId) => {
+        setContentTypeId(typeId);
+        fetchPlaces();
+    };
+
+    // 검색어 입력 시 데이터 새로 불러오기
+    const handleSearch = () => {
+        fetchPlaces();
+    };
+
+    // 컴포넌트 마운트 시 초기 데이터 로드
+    useEffect(() => {
+        fetchPlaces("", contentTypeId);
+    }, []);
 
     const handleAddPlace = useCallback(
         (place) => {
@@ -86,15 +114,26 @@ const PlaceSelector = ({
         }
     };
 
-    const handleSearch = () => {
-        setKeyword(inputKeyword);
-    };
-
     if (error) return <p>장소 데이터 로드 중 오류가 발생했습니다: {error.message}</p>;
     if (isLoading) return <p>장소 데이터를 로드하는 중입니다...</p>;
 
     return (
         <div className="place-selector-container">
+            <div className="search-tabs">
+                <button
+                    className={`tab-button ${activeTab === 'existing' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('existing')}
+                >
+                    장소 선택
+                </button>
+                <button
+                    className={`tab-button ${activeTab === 'new' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('new')}
+                >
+                    신규 장소 등록
+                </button>
+            </div>
+
             {isEditMode && (
                 <div className="border-top">
                     <button
@@ -130,7 +169,7 @@ const PlaceSelector = ({
                             {CONTENT_TYPES.map((type) => (
                                 <button
                                     key={type.id}
-                                    onClick={() => setContentTypeId(type.id)}
+                                    onClick={() => handleContentTypeChange(type.id)}
                                     className={`btn btn-sm content-type-button ${contentTypeId === type.id
                                         ? "btn-primary"
                                         : "btn-outline-primary"
@@ -197,6 +236,8 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                     resCoordType: "WGS84GEO",
                     reqCoordType: "WGS84GEO",
                     count: 20,
+                    searchType: 'all',
+                    multiPoint: 'N'
                 })}`,
                 { headers }
             );
@@ -219,10 +260,6 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
         }
     };
 
-    const handleSearch = () => {
-        searchPOI(keyword);
-    };
-
     return (
         <div className="p-3">
             <div className="input-group mb-3">
@@ -232,11 +269,11 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                     placeholder="장소명 또는 주소를 입력하세요"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    onKeyDown={(e) => e.key === "Enter" && searchPOI(keyword)}
                 />
                 <button
                     className="btn btn-primary"
-                    onClick={handleSearch}
+                    onClick={() => searchPOI(keyword)}
                     disabled={isLoading}
                 >
                     <i className="bi bi-search"></i>
@@ -271,17 +308,11 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                                 </div>
                             </div>
                             <button
-                                className={`btn ${isPlaceSelected(result)
-                                    ? "btn-primary"
-                                    : "btn-outline-primary"
-                                    } btn-sm`}
+                                className={`btn ${isPlaceSelected(result) ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
                                 onClick={() => onAddPlace(result)}
                                 disabled={isPlaceSelected(result)}
                             >
-                                <i
-                                    className={`bi ${isPlaceSelected(result) ? "bi-check" : "bi-plus"
-                                        }`}
-                                ></i>
+                                <i className={`bi ${isPlaceSelected(result) ? 'bi-check' : 'bi-plus'}`}></i>
                             </button>
                         </div>
                     ))

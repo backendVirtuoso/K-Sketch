@@ -25,7 +25,7 @@ public class TourApiServiceTest {
             tourApiService.syncTourApiData();
             System.out.println("데이터 동기화 완료");
             
-            int totalCount = tourApiMapper.countPlaces(null, null);
+            int totalCount = tourApiMapper.countPlaces(null, null, null);
             System.out.println("동기화된 총 데이터 수: " + totalCount);
             
             assert totalCount > 0 : "데이터가 저장되지 않았습니다.";

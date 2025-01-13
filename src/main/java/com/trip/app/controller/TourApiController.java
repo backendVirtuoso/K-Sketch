@@ -60,18 +60,18 @@ public class TourApiController {
         }
     }
 
-    @GetMapping("/db/{apiType}")
+    @GetMapping("/db/search")
     public ResponseEntity<?> getDbData(
-            @PathVariable("apiType") String apiType,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "contentTypeId", required = false) String contentTypeId,
+            @RequestParam(value = "areaCode", required = false) String areaCode,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size) {
+            @RequestParam(value = "size", defaultValue = "1000") int size) {
         
         try {
             Map<String, Object> response = new HashMap<>();
-            List<TourApiPlaceDTO> places = tourApiService.searchPlacesFromDb(keyword, contentTypeId, page, size);
-            int totalCount = tourApiService.countPlacesFromDb(keyword, contentTypeId);
+            List<TourApiPlaceDTO> places = tourApiService.searchPlacesFromDb(keyword, contentTypeId, areaCode, page, size);
+            int totalCount = tourApiService.countPlacesFromDb(keyword, contentTypeId, areaCode);
             
             response.put("items", places);
             response.put("totalCount", totalCount);
@@ -83,6 +83,12 @@ public class TourApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to fetch data from database");
         }
+    }
+
+    @GetMapping("/db/stays")
+    public ResponseEntity<List<TourApiPlaceDTO>> getStayPlaces() {
+        List<TourApiPlaceDTO> stays = tourApiService.getStayPlaces();
+        return ResponseEntity.ok(stays);
     }
     
     @PostMapping("/sync")

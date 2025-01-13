@@ -142,7 +142,8 @@ const ScheduleUI = ({
         onAddPlace: handleAddStay,
         onRemovePlace: handleRemoveStay,
         selectedPlaces: selectedStays,
-        selectedTimes
+        selectedTimes,
+        stays: []
     };
 
     // 선택된 여행 날짜 범위를 표시하는 컴포넌트

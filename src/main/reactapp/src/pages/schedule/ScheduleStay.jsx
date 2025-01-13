@@ -1,22 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import usePlaces from '../../hooks/usePlaces';
 import logoImage from '../../logoimage.png';
 import './scss/ScheduleStay.scss';
+import axios from 'axios';
 
 // 숙박 선택 컴포넌트
 const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays, selectedTimes }) => {
     const [activeTab, setActiveTab] = useState('existing');
-    const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
-    const [keyword, setKeyword] = useState("서울");
+    const [stays, setStays] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
     const [showDateModal, setShowDateModal] = useState(false);
     const [selectedStay, setSelectedStay] = useState(null);
 
-    const { places: stays, error, isLoading } = usePlaces(apiType, keyword, "32");
+    // DB에서 숙박 데이터 불러오기
+    const fetchStays = async (keyword = "") => {
+        setIsLoading(true);
+        try {
+            let url = `http://localhost:8080/api/db/search`;
+            
+            const response = await axios.get(url);
+            // contentTypeId가 32인 숙박 데이터만 필터링
+            const filteredStays = response.data.items.filter(item => item.contentTypeId === 32);
+            console.log("filteredStays", filteredStays);
+            setStays(filteredStays || []);
+        } catch (err) {
+            setError("숙박 데이터를 불러오는 중 오류가 발생했습니다.");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleSearch = () => {
-        setKeyword(inputKeyword);
+        fetchStays(inputKeyword);
     };
+
+    // 컴포넌트 마운트 시 초기 데이터 로드
+    useEffect(() => {
+        fetchStays();
+    }, []);
 
     const handleStaySelect = (stay) => {
         setSelectedStay(stay);

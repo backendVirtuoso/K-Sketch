@@ -89,7 +89,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/ws/**", "/api/join", "/api/like/userLike").permitAll()
                 .requestMatchers("/api/trips/", "/api/trips/save").authenticated()
                 .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email", "/api/search-pw-email", "/api/pw-change", "/api/userinfo-Modify","/api/userinfo").permitAll()
-                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").permitAll()
+                .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/db/search", "/api/db/stays", "/api/areaCode", "/api/areaList").permitAll()
         );
 
         // 권한 부족 시 처리 (AccessDeniedHandler 설정)
