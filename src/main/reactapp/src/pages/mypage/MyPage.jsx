@@ -53,6 +53,11 @@ const MyPage = () => {
         console.log(response.data);
         setUserInfo(response.data);
         setTravelData(response.data.travels || []);
+        const data = response.data;
+        const birthDate = data.birth;
+        if (birthDate === null || birthDate === "") {
+          navigate("/socialSignUp");
+        }
       })
       .catch((err) => {
         console.error("사용자 정보 요청 실패:", err);

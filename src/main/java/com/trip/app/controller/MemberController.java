@@ -92,4 +92,6 @@ public class MemberController {
         boolean isUpdated = memberService.updateUserInfo(memberDTO);
         return isUpdated ? 1 : 0;  // 성공 시 1 반환, 실패 시 0 반환
     }
+
+    
 }
