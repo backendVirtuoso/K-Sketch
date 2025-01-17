@@ -19,16 +19,21 @@ const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays
     };
 
     const handleStaySelect = (stay) => {
-        setSelectedStay(stay);
+        const stayWithMarkerType = {
+            ...stay,
+            markerType: 'stay'
+        };
+        setSelectedStay(stayWithMarkerType);
         setShowDateModal(true);
     };
 
     const handleDateConfirm = (stay, selectedDates) => {
         const newStay = {
             ...stay,
-            selectedDates: selectedDates
+            selectedDates: selectedDates,
+            markerType: 'stay'
         };
-        onAddPlace(newStay);
+        onAddPlace(newStay, 'stay');
         setShowDateModal(false);
         setSelectedStay(null);
     };
@@ -176,7 +181,8 @@ const StayPoiSearchTab = ({ onStaySelect, selectedStays }) => {
                     addr1: `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`,
                     mapx: poi.noorLon,
                     mapy: poi.noorLat,
-                    firstimage: null  // POI API에서는 이미지를 제공하지 않음
+                    firstimage: null,
+                    markerType: 'stay'
                 }));
                 setSearchResults(results);
             }
@@ -403,7 +409,7 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
             {selectedDates.map((date, index) => (
                 <div key={index} className="stay-date-item p-3 border-bottom">
                     <div className="d-flex align-items-center gap-3">
-                        <div className="stay-number rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                        <div className="stay-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
                             style={{ width: '24px', height: '24px', minWidth: '24px' }}>
                             {index + 1}
                         </div>
@@ -413,8 +419,8 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
                                 alt={stay.title}
                                 className="stay-thumbnail"
                                 style={{
-                                    width: '48px',
-                                    height: '48px',
+                                    width: '40px',
+                                    height: '40px',
                                     objectFit: 'cover',
                                     borderRadius: '4px'
                                 }}
@@ -425,8 +431,8 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
                                 alt="기본 이미지"
                                 className="stay-thumbnail"
                                 style={{
-                                    width: '48px',
-                                    height: '48px',
+                                    width: '40px',
+                                    height: '40px',
                                     objectFit: 'contain',
                                     borderRadius: '4px'
                                 }}

@@ -2,6 +2,7 @@ package com.trip.app.mapper;
 
 import com.trip.app.model.LikeListDTO;
 import com.trip.app.model.TourApiPlaceDTO;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,4 +18,8 @@ public interface LikeMapper {
     List<LikeListDTO> likeList(@Param("seqNum") int seqNum);
     // 좋아요 목록에서 장소이름으로 tour_api_data 데이터에 접근해서 장소에관한 값들을 가져옴
     List<TourApiPlaceDTO> findPlaceByTitles(@Param("titles") List<String> titles);
+    // 사용자의 좋아요 목록 조회
+    List<String> getUserLikes(@Param("seqNum") int seqNum);
+    // 장소의 좋아요 개수 조회
+    int getLikesCount(@Param("title") String title);
 }

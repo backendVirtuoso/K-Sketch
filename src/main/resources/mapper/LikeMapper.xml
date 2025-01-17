@@ -7,6 +7,7 @@
         VALUES(#{seqNum}, #{title})
         ON DUPLICATE KEY UPDATE created_at = CURRENT_TIMESTAMP;
     </insert>
+    
     <!--  장소 좋아요 수 업데이트  -->
     <insert id="updatePlaceLikes">
         INSERT INTO placeLiked (placeName, lat, lon, likes_count)
@@ -26,4 +27,18 @@
         </foreach>
     </select>
 
+    <select id="getUserLikes" resultType="String">
+        SELECT place_id 
+        FROM UserLike 
+        WHERE user_id = #{seqNum}
+    </select>
+    
+    <select id="getLikesCount" resultType="int">
+        SELECT COALESCE(likes_count, 0)
+        FROM placeLiked 
+        WHERE placeName = #{title}
+        UNION ALL
+        SELECT 0
+        LIMIT 1
+    </select>
 </mapper>

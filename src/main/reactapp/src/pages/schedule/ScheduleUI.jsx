@@ -71,8 +71,12 @@ const ScheduleUI = ({
     // 새로운 숙박 시설을 선택 목록에 추가
     const handleAddStay = (stay) => {
         if (!selectedStays.some(s => s.title === stay.title)) {
-            setSelectedStays(prev => [...prev, stay]);
-            parentHandleAddPlace(stay); // 숙박 시설도 경유지로 추가
+            const stayWithType = {
+                ...stay,
+                markerType: 'stay'
+            };
+            setSelectedStays(prev => [...prev, stayWithType]);
+            parentHandleAddPlace(stayWithType, 'stay');
         }
     };
 

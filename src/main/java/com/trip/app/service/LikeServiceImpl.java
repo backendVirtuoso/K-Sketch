@@ -6,6 +6,7 @@ import com.trip.app.model.TourApiPlaceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 import java.util.List;
 
@@ -37,5 +38,14 @@ public class LikeServiceImpl implements LikeService {
     public List<TourApiPlaceDTO> placeDetail(List<String> titles){
         List<TourApiPlaceDTO> apiPlaceDTO = likeMapper.findPlaceByTitles(titles);
         return apiPlaceDTO;
+    }
+    
+    public List<String> getUserLikes(int seqNum) {
+        return likeMapper.getUserLikes(seqNum);
+    }
+
+    @Override
+    public int getLikesCount(String title) {
+        return likeMapper.getLikesCount(title);
     }
 }
