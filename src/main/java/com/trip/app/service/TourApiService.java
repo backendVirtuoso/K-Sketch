@@ -186,7 +186,7 @@ public class TourApiService {
                         place.setTitle(item.path("title").asText());
                         place.setAddr1(item.path("addr1").asText());
                         place.setAddr2(item.path("addr2").asText());
-                        place.setFirstImage(item.path("firstimage").asText());
+                        place.setFirst_image(item.path("first_image").asText());
                         place.setFirstImage2(item.path("firstimage2").asText());
                         place.setMapx(item.path("mapx").asDouble());
                         place.setMapy(item.path("mapy").asDouble());

@@ -33,7 +33,7 @@ const MyPage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
+    console.log(userInfo);
     setTimeout(() => {
       setIsLoading(false); // 2초 후 로딩 상태 종료
     }, 2000);
@@ -106,7 +106,8 @@ const MyPage = () => {
                 {isLoading ? (
                   <div className="loading-text"><Loading /></div>
                 ) : (
-                  <BookMark /> // 데이터가 로딩되면 실제 내용 표시
+                  <BookMark userInfo={userInfo}/> // 데이터가 로딩되면 실제 내용 표시
+                  
                 )}
               </div>
             </Col>
