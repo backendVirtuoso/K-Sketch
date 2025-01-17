@@ -1,9 +1,13 @@
 package com.trip.app.service;
 
 import com.trip.app.mapper.LikeMapper;
+import com.trip.app.model.LikeListDTO;
+import com.trip.app.model.TourApiPlaceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class LikeServiceImpl implements LikeService {
@@ -21,5 +25,17 @@ public class LikeServiceImpl implements LikeService {
         likeMapper.insertLike(seqNum, title);
         // 장소 좋아요 수 업데이트
         likeMapper.updatePlaceLikes(title, lat, lon);
+    }
+
+    @Override
+    public List<LikeListDTO> userLikeList(int seqNum){
+        List<LikeListDTO> likeList = likeMapper.likeList(seqNum);
+        return likeList;
+    }
+
+    @Override
+    public List<TourApiPlaceDTO> placeDetail(List<String> titles){
+        List<TourApiPlaceDTO> apiPlaceDTO = likeMapper.findPlaceByTitles(titles);
+        return apiPlaceDTO;
     }
 }

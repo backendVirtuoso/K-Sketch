@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import { useTravel } from '../../../hooks/useTravel';
 import BookMarkCard from './BookMarkCard';
+import axios from 'axios';
+import BookMarkList from './BookMarkList';
 
 const responsive = {
   superLargeDesktop: {
@@ -24,20 +26,45 @@ const responsive = {
   }
 };
 
-const BookMark = () => {
+const BookMark = ({userInfo}) => {
   const { data, isLoading } = useTravel(); // useTravel에서 로딩 상태도 반환한다고 가정
+  const [ likes, setLikes ] = useState([]); // 좋아요 목록 상태 
+
+  console.log(userInfo);
+  useEffect(() => {
+    
+    const fetchLikes = async () => {
+      try {
+        const response = await axios.post("http://localhost:8080/api/like/userLikeList", {
+          id: userInfo.loginId,
+        });
+        
+        
+        setLikes(response.data);
+      } catch (error) {
+        console.error("리스트 불러오는 중 에러", error);
+      }
+    };
+  
+    if (userInfo) {  
+      fetchLikes();
+    }
+  }, []);
+
+  
 
   if (isLoading) {
     return <div>Loading bookmarks...</div>;
   }
 
-  console.log(data)
-
   return (
     <div>
       <Carousel responsive={responsive}>
-        {data?.map((example) => <div><BookMarkCard example={example} /></div>)}
+        {likes.map((like) => (
+          <BookMarkCard key={like.place_id} likes={like.place_id}/>
+        ))}
       </Carousel>
+      {/* <BookMarkList likes={likes}/>  */}
     </div>
   )
 }

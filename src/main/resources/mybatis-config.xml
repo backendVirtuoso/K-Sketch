@@ -5,5 +5,8 @@
     <typeAliases>
         <typeAlias type="com.trip.app.model.MemberDTO" alias="memberDTO"/>
         <typeAlias type="com.trip.app.model.ScheduleDTO" alias="scheduleDTO"/>
+        <typeAlias type="com.trip.app.model.LikeListDTO" alias="likeListDTO"/>
+        <typeAlias type="com.trip.app.model.LikeListDTO" alias="likeListDTO"/>
+        <typeAlias type="com.trip.app.model.TourApiPlaceDTO" alias="tourApiPlaceDTO"/>
     </typeAliases>
 </configuration>
