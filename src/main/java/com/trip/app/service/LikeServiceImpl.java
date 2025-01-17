@@ -4,6 +4,7 @@ import com.trip.app.mapper.LikeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 public class LikeServiceImpl implements LikeService {
@@ -21,5 +22,15 @@ public class LikeServiceImpl implements LikeService {
         likeMapper.insertLike(seqNum, title);
         // 장소 좋아요 수 업데이트
         likeMapper.updatePlaceLikes(title, lat, lon);
+    }
+
+    @Override
+    public List<String> getUserLikes(int seqNum) {
+        return likeMapper.getUserLikes(seqNum);
+    }
+
+    @Override
+    public int getLikesCount(String title) {
+        return likeMapper.getLikesCount(title);
     }
 }

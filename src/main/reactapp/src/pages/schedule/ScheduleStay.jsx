@@ -1,58 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import usePlaces from '../../hooks/usePlaces';
 import logoImage from '../../logoimage.png';
 import './scss/ScheduleStay.scss';
-import axios from 'axios';
 
 // 숙박 선택 컴포넌트
 const StaySelector = ({ onAddPlace, onRemovePlace, selectedPlaces: selectedStays, selectedTimes }) => {
     const [activeTab, setActiveTab] = useState('existing');
+    const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
-    const [stays, setStays] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [keyword, setKeyword] = useState("서울");
     const [showDateModal, setShowDateModal] = useState(false);
     const [selectedStay, setSelectedStay] = useState(null);
 
-    // DB에서 숙박 데이터 불러오기
-    const fetchStays = async (keyword = "") => {
-        setIsLoading(true);
-        try {
-            let url = `http://localhost:8080/api/db/search`;
-            
-            const response = await axios.get(url);
-            // contentTypeId가 32인 숙박 데이터만 필터링
-            const filteredStays = response.data.items.filter(item => item.contentTypeId === 32);
-            console.log("filteredStays", filteredStays);
-            setStays(filteredStays || []);
-        } catch (err) {
-            setError("숙박 데이터를 불러오는 중 오류가 발생했습니다.");
-            console.error(err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { places: stays, error, isLoading } = usePlaces(apiType, keyword, "32");
 
     const handleSearch = () => {
-        fetchStays(inputKeyword);
+        setKeyword(inputKeyword);
     };
 
-    // 컴포넌트 마운트 시 초기 데이터 로드
-    useEffect(() => {
-        fetchStays();
-    }, []);
-
     const handleStaySelect = (stay) => {
-        setSelectedStay(stay);
+        const stayWithMarkerType = {
+            ...stay,
+            markerType: 'stay'
+        };
+        setSelectedStay(stayWithMarkerType);
         setShowDateModal(true);
     };
 
     const handleDateConfirm = (stay, selectedDates) => {
         const newStay = {
             ...stay,
-            selectedDates: selectedDates
+            selectedDates: selectedDates,
+            markerType: 'stay'
         };
-        onAddPlace(newStay);
+        onAddPlace(newStay, 'stay');
         setShowDateModal(false);
         setSelectedStay(null);
     };
@@ -200,7 +181,8 @@ const StayPoiSearchTab = ({ onStaySelect, selectedStays }) => {
                     addr1: `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`,
                     mapx: poi.noorLon,
                     mapy: poi.noorLat,
-                    firstimage: null  // POI API에서는 이미지를 제공하지 않음
+                    firstimage: null,
+                    markerType: 'stay'
                 }));
                 setSearchResults(results);
             }
@@ -427,7 +409,7 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
             {selectedDates.map((date, index) => (
                 <div key={index} className="stay-date-item p-3 border-bottom">
                     <div className="d-flex align-items-center gap-3">
-                        <div className="stay-number rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                        <div className="stay-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
                             style={{ width: '24px', height: '24px', minWidth: '24px' }}>
                             {index + 1}
                         </div>
@@ -437,8 +419,8 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
                                 alt={stay.title}
                                 className="stay-thumbnail"
                                 style={{
-                                    width: '48px',
-                                    height: '48px',
+                                    width: '40px',
+                                    height: '40px',
                                     objectFit: 'cover',
                                     borderRadius: '4px'
                                 }}
@@ -449,8 +431,8 @@ const SelectedStayItem = ({ stay, selectedTimes, selectedStays, onDateChange, on
                                 alt="기본 이미지"
                                 className="stay-thumbnail"
                                 style={{
-                                    width: '48px',
-                                    height: '48px',
+                                    width: '40px',
+                                    height: '40px',
                                     objectFit: 'contain',
                                     borderRadius: '4px'
                                 }}

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,6 +40,30 @@ public class LikeController {
             return ResponseEntity.status(500).body("입력 실패");
         }
 
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<List<String>> getUserLikes(@RequestParam("id") String id) {
+        try {
+            int seqNum = memberService.findSeqNum(id);
+            List<String> userLikes = likeService.getUserLikes(seqNum);
+            return ResponseEntity.ok(userLikes);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getLikesCount(@RequestParam("title") String title) {
+        try {
+            int count = likeService.getLikesCount(title);
+            System.out.println("좋아요 개수 : " + count);
+            return ResponseEntity.ok(count);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(0);
+        }
     }
 
 }

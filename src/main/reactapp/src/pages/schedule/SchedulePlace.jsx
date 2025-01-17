@@ -1,8 +1,7 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import usePlaces from "../../hooks/usePlaces";
 import logoImage from "../../logoimage.png";
 import "./scss/SchedulePlace.scss";
-import axios from "axios";
 
 // 장소 목록 아이템 컴포넌트
 const PlaceListItem = ({ place, onAddClick, onRemoveClick, isSelected }) => (
@@ -51,12 +50,11 @@ const PlaceSelector = ({
     onComplete,
     isEditMode,
 }) => {
-    const [activeTab, setActiveTab] = useState("existing");
+    const [activeTab, setActiveTab] = useState("existing"); // 'existing' 또는 'new'
+    const [apiType, setApiType] = useState("search");
     const [inputKeyword, setInputKeyword] = useState("");
+    const [keyword, setKeyword] = useState("서울");
     const [contentTypeId, setContentTypeId] = useState("12");
-    const [places, setPlaces] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
 
     const CONTENT_TYPES = [
         { id: "12", text: "관광지" },
@@ -67,37 +65,11 @@ const PlaceSelector = ({
         { id: "39", text: "음식점" },
     ];
 
-    // DB에서 장소 데이터 불러오기
-    const fetchPlaces = async () => {
-        setIsLoading(true);
-        try {
-            let url = `http://localhost:8080/api/db/search`;
-            
-            const response = await axios.get(url);
-            setPlaces(response.data.items || []);
-        } catch (err) {
-            setError("장소 데이터를 불러오는 중 오류가 발생했습니다.");
-            console.error(err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // 컨텐츠 타입 변경 시 데이터 새로 불러오기
-    const handleContentTypeChange = (typeId) => {
-        setContentTypeId(typeId);
-        fetchPlaces();
-    };
-
-    // 검색어 입력 시 데이터 새로 불러오기
-    const handleSearch = () => {
-        fetchPlaces();
-    };
-
-    // 컴포넌트 마운트 시 초기 데이터 로드
-    useEffect(() => {
-        fetchPlaces("", contentTypeId);
-    }, []);
+    const { places, error, isLoading } = usePlaces(
+        apiType,
+        keyword,
+        contentTypeId
+    );
 
     const handleAddPlace = useCallback(
         (place) => {
@@ -112,6 +84,10 @@ const PlaceSelector = ({
         if (onRemovePlace && typeof onRemovePlace === 'function') {
             onRemovePlace(place);
         }
+    };
+
+    const handleSearch = () => {
+        setKeyword(inputKeyword);
     };
 
     if (error) return <p>장소 데이터 로드 중 오류가 발생했습니다: {error.message}</p>;
@@ -169,7 +145,7 @@ const PlaceSelector = ({
                             {CONTENT_TYPES.map((type) => (
                                 <button
                                     key={type.id}
-                                    onClick={() => handleContentTypeChange(type.id)}
+                                    onClick={() => setContentTypeId(type.id)}
                                     className={`btn btn-sm content-type-button ${contentTypeId === type.id
                                         ? "btn-primary"
                                         : "btn-outline-primary"
@@ -200,6 +176,7 @@ const PlaceSelector = ({
                 <PoiSearchTab
                     onAddPlace={handleAddPlace}
                     selectedPlaces={selectedPlaces}
+                    onRemovePlace={handleRemovePlace}
                 />
             )}
         </div>
@@ -207,7 +184,7 @@ const PlaceSelector = ({
 };
 
 // POI 검색 탭 컴포넌트
-const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
+const PoiSearchTab = ({ onAddPlace, selectedPlaces, onRemovePlace }) => {
     const [keyword, setKeyword] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -236,8 +213,6 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                     resCoordType: "WGS84GEO",
                     reqCoordType: "WGS84GEO",
                     count: 20,
-                    searchType: 'all',
-                    multiPoint: 'N'
                 })}`,
                 { headers }
             );
@@ -260,6 +235,18 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
         }
     };
 
+    const handleSearch = () => {
+        searchPOI(keyword);
+    };
+
+    const handlePlaceSelect = (place) => {
+        if (!isPlaceSelected(place)) {
+            onAddPlace(place);
+        } else {
+            onRemovePlace(place);
+        }
+    };
+
     return (
         <div className="p-3">
             <div className="input-group mb-3">
@@ -269,18 +256,18 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                     placeholder="장소명 또는 주소를 입력하세요"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && searchPOI(keyword)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
                 <button
                     className="btn btn-primary"
-                    onClick={() => searchPOI(keyword)}
+                    onClick={handleSearch}
                     disabled={isLoading}
                 >
                     <i className="bi bi-search"></i>
                 </button>
             </div>
 
-            <div className="overflow-auto" style={{ height: "calc(100% - 70px)" }}>
+            <div className="overflow-auto" style={{ height: 'calc(100% - 70px)' }}>
                 {isLoading ? (
                     <div className="text-center p-3">
                         <div className="spinner-border text-primary" role="status">
@@ -309,8 +296,7 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                             </div>
                             <button
                                 className={`btn ${isPlaceSelected(result) ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
-                                onClick={() => onAddPlace(result)}
-                                disabled={isPlaceSelected(result)}
+                                onClick={() => handlePlaceSelect(result)}
                             >
                                 <i className={`bi ${isPlaceSelected(result) ? 'bi-check' : 'bi-plus'}`}></i>
                             </button>
@@ -369,95 +355,69 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                     </small>
                 </div>
                 <div className="duration-controls">
-                    {isEditing ? (
-                        <div className="d-flex align-items-center gap-2">
-                            <div className="time-editor">
-                                <div className="time-spinner">
-                                    <button
-                                        onClick={() => handleTimeChange(tempHours + 1, tempMinutes)}
-                                        className="spinner-button"
-                                    >
-                                        ▲
-                                    </button>
-                                    <input
-                                        type="number"
-                                        value={tempHours}
-                                        onChange={(e) =>
-                                            handleTimeChange(
-                                                parseInt(e.target.value) || 0,
-                                                tempMinutes
-                                            )
-                                        }
-                                        className="time-input"
-                                    />
-                                    <button
-                                        onClick={() =>
-                                            handleTimeChange(Math.max(0, tempHours - 1), tempMinutes)
-                                        }
-                                        className="spinner-button"
-                                    >
-                                        ▼
-                                    </button>
-                                </div>
-                                <span>시간</span>
-                                <div className="time-spinner">
-                                    <button
-                                        onClick={() =>
-                                            handleTimeChange(tempHours, (tempMinutes + 30) % 60)
-                                        }
-                                        className="spinner-button"
-                                    >
-                                        ▲
-                                    </button>
-                                    <input
-                                        type="number"
-                                        value={tempMinutes}
-                                        onChange={(e) =>
-                                            handleTimeChange(tempHours, parseInt(e.target.value) || 0)
-                                        }
-                                        className="time-input"
-                                    />
-                                    <button
-                                        onClick={() =>
-                                            handleTimeChange(tempHours, Math.max(0, tempMinutes - 30))
-                                        }
-                                        className="spinner-button"
-                                    >
-                                        ▼
-                                    </button>
-                                </div>
-                                <span>분</span>
-                            </div>
-                            <div className="d-flex gap-1">
-                                <button
-                                    className="btn btn-sm btn-primary"
-                                    onClick={handleConfirm}
-                                >
-                                    <i className="bi bi-check"></i>
-                                </button>
-                                <button
-                                    className="btn btn-sm btn-secondary"
-                                    onClick={handleCancel}
-                                >
-                                    <i className="bi bi-x"></i>
-                                </button>
-                            </div>
+                {isEditing ? (
+                    <div className="d-flex align-items-center">
+                        <div className="d-flex align-items-center" 
+                            style={{ 
+                                padding: '6px 10px',
+                                background: '#fff',
+                                fontSize: '0.875rem'
+                            }}>
+                            <input
+                                type="number"
+                                value={tempHours}
+                                onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, tempMinutes)}
+                                style={{ 
+                                    width: '32px', 
+                                    border: 'none', 
+                                    textAlign: 'right',
+                                    padding: '0 2px',
+                                    fontWeight: 'bold'
+                                }}
+                            />
+                            <span style={{ margin: '0 2px' }}>시간</span>
+                            <input
+                                type="number"
+                                value={tempMinutes}
+                                onChange={(e) => handleTimeChange(tempHours, parseInt(e.target.value) || 0)}
+                                style={{ 
+                                    width: '32px', 
+                                    border: 'none', 
+                                    textAlign: 'right',
+                                    padding: '0 2px',
+                                    fontWeight: 'bold'
+                                }}
+                            />
+                            <span style={{ marginRight: '6px' }}>분</span>
+                            <button
+                                className="btn btn-link p-0 text-primary"
+                                onClick={handleConfirm}
+                                style={{ 
+                                    textDecoration: 'none',
+                                    fontSize: '0.875rem'
+                                }}
+                            >
+                                완료
+                            </button>
                         </div>
-                    ) : (
+                    </div>
+                ) : (
+                    <>
                         <button
                             className="btn btn-sm btn-outline-secondary duration-button"
                             onClick={() => setIsEditing(true)}
                         >
                             {hours}시간 {minutes > 0 ? `${minutes}분` : ""}
                         </button>
-                    )}
+                        <button
+                            className="btn btn-sm btn-outline-danger flex-shrink-0"
+                            onClick={() => onRemove(place)}
+                        >
+                            <i className="bi bi-trash"></i>
+                        </button>
+                    </>
+                )}
                 </div>
-                <button
-                    className="btn btn-sm btn-outline-danger flex-shrink-0"
-                    onClick={() => onRemove(place)}
-                >
-                    <i className="bi bi-trash"></i>
-                </button>
             </div>
         </div>
     );

@@ -10,30 +10,14 @@ const usePlaces = (apiType, keyword, contentTypeId) => {
         const fetchPlaces = async () => {
             try {
                 setIsLoading(true);
-                let response;
-                
-                // DB에서 데이터를 가져오는 경우
-                if (apiType === 'search') {
-                    response = await axios.get(`http://localhost:8080/api/db/search`, {
-                        params: {
-                            keyword,
-                            contentTypeId,
-                            page: 1,
-                            size: 51771
-                        }
-                    });
-                    setPlaces(response.data.items || []);
-                } else {
-                    // 기존 API 호출
-                    response = await axios.get(`http://localhost:8080/api/${apiType}`, {
-                        params: { keyword, contentTypeId },
-                    });
+                const response = await axios.get(`http://localhost:8080/api/${apiType}`, {
+                    params: { keyword, contentTypeId },
+                });
 
-                    if (Array.isArray(response.data)) {
-                        setPlaces(response.data);
-                    } else if (response.data.response?.body?.items) {
-                        setPlaces(response.data.response.body.items.item);
-                    }
+                if (Array.isArray(response.data)) {
+                    setPlaces(response.data);
+                } else if (response.data.response?.body?.items) {
+                    setPlaces(response.data.response.body.items.item);
                 }
             } catch (error) {
                 console.error('Error fetching place data: ', error);

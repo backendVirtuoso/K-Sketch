@@ -1,5 +1,7 @@
 package com.trip.app.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,4 +11,8 @@ public interface LikeMapper {
     void insertLike(@Param("seqNum") int seqNum, @Param("title")String title);
     // 장소 좋아요 업데이트
     void updatePlaceLikes(@Param("title") String title, @Param("lat") double lat, @Param("lon") double lon);
+    // 사용자의 좋아요 목록 조회
+    List<String> getUserLikes(@Param("seqNum") int seqNum);
+    // 장소의 좋아요 개수 조회
+    int getLikesCount(@Param("title") String title);
 }

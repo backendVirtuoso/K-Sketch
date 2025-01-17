@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import { Button, Carousel, Col, Form, Row, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import logo from "../logoimage.png";
+import logo from "../logo3.png";
 import Detail from "./Detail";
 import CardDetail from "./CardDetail";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -204,12 +204,15 @@ const MenuList = () => {
                 return;
             }
 
-            let url = 'http://localhost:8080/api/db/search';
+            // 지역 및 카테고리 조건을 URL에 반영
+            const url = `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY
+                }&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json${areaCode ? `&areaCode=${areaCode}` : ""}${categoryCode ? `&cat1=${categoryCode}` : ""
+                }`;
 
             try {
                 setLoading(true);
                 const response = await axios.get(url);
-                const items = response.data.items || [];
+                const items = response.data.response.body.items?.item || [];
                 setDatas(items);
                 dataCache.set(cacheKey, items);
             } catch (err) {
@@ -255,31 +258,23 @@ const MenuList = () => {
         setSearchKeyword(event.target.value);
     };
 
-    const handleSearchSubmit = async (e) => {
-        if (e) e.preventDefault();
-        setIsSearchPerformed(true);
-        
-        const keyword = searchKeyword.trim();
+    const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault(); // 폼 제출 기본 동작 방지
+
+        setIsSearchPerformed(true); // 검색 수행 상태를 true로 변경
+        const keyword = searchKeyword.trim().toLowerCase();
+
         if (!keyword) {
-            fetchFilteredData(localSelectedCategory, selectedCategory);
+            setFilteredDatas(datas); // 검색어가 없을 경우 전체 데이터 설정
             return;
         }
 
-        try {
-            setLoading(true);
-            let url = `http://localhost:8080/api/db/search?size=30&page=1&keyword=${encodeURIComponent(keyword)}`;
-            if (localSelectedCategory) url += `&areacode=${localSelectedCategory}`;
-            if (selectedCategory) url += `&cat1=${selectedCategory}`;
+        const filtered = datas.filter((data) => {
+            const title = data.title?.toLowerCase() || ""; // title이 null일 경우 빈 문자열
+            return title.includes(keyword);
+        });
 
-            const response = await axios.get(url);
-            const items = response.data.items || [];
-            setFilteredDatas(items);
-        } catch (err) {
-            setError("검색 중 오류가 발생했습니다.");
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+        setFilteredDatas(filtered);
     };
 
     const handleItemClick = (data) => {
