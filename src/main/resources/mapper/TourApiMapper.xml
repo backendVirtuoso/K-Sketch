@@ -4,56 +4,86 @@
     
     <insert id="insertPlace" parameterType="com.trip.app.model.TourApiPlaceDTO">
         INSERT INTO tour_api_place (
-            content_id, title, addr1, addr2, first_image, first_image2,
-            mapx, mapy, content_type_id, cat1, cat2, cat3
+            content_id, title, tel, addr1, addr2, first_image, first_image2,
+            mapx, mapy, content_type_id, cat1, cat2, cat3, order_no,
+            mlevel, areacode, booktour, cpyrht_div_cd, createdtime,
+            modifiedtime, sigungucode
         ) VALUES (
-            #{contentId}, #{title}, #{addr1}, #{addr2}, #{firstImage}, #{firstImage2},
-            #{mapx}, #{mapy}, #{contentTypeId}, #{cat1}, #{cat2}, #{cat3}
+            #{contentId}, #{title}, #{tel}, #{addr1}, #{addr2}, #{firstImage}, #{firstImage2},
+            #{mapx}, #{mapy}, #{contentTypeId}, #{cat1}, #{cat2}, #{cat3}, #{orderNo},
+            #{mlevel}, #{areacode}, #{booktour}, #{cpyrhtDivCd}, #{createdtime},
+            #{modifiedtime}, #{sigungucode}
         )
     </insert>
     
     <insert id="insertPlaces" parameterType="java.util.List">
         INSERT INTO tour_api_place (
-            content_id, title, addr1, addr2, first_image, first_image2,
-            mapx, mapy, content_type_id, cat1, cat2, cat3
+            content_id, title, tel, addr1, addr2, first_image, first_image2,
+            mapx, mapy, content_type_id, cat1, cat2, cat3, order_no,
+            mlevel, areacode, booktour, cpyrht_div_cd, createdtime,
+            modifiedtime, sigungucode
         ) VALUES 
         <foreach collection="list" item="place" separator=",">
-            (#{place.contentId}, #{place.title}, #{place.addr1}, #{place.addr2}, 
-             #{place.firstImage}, #{place.firstImage2}, #{place.mapx}, #{place.mapy}, 
-             #{place.contentTypeId}, #{place.cat1}, #{place.cat2}, #{place.cat3})
+            (#{place.contentId}, #{place.title}, #{place.tel}, #{place.addr1}, #{place.addr2},
+             #{place.firstImage}, #{place.firstImage2}, #{place.mapx}, #{place.mapy},
+             #{place.contentTypeId}, #{place.cat1}, #{place.cat2}, #{place.cat3}, #{place.orderNo},
+             #{place.mlevel}, #{place.areacode}, #{place.booktour}, #{place.cpyrhtDivCd},
+             #{place.createdtime}, #{place.modifiedtime}, #{place.sigungucode})
         </foreach>
     </insert>
     
     <select id="searchPlaces" resultType="com.trip.app.model.TourApiPlaceDTO">
-        SELECT * FROM tour_api_place
+        SELECT *
+        FROM tour_api_place
         WHERE 1=1
         <if test="keyword != null and keyword != ''">
-            AND (title LIKE CONCAT('%', #{keyword}, '%')
-            OR addr1 LIKE CONCAT('%', #{keyword}, '%'))
+            AND (
+                LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+                OR LOWER(addr1) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+            )
         </if>
         <if test="contentTypeId != null and contentTypeId != ''">
             AND content_type_id = #{contentTypeId}
         </if>
-        ORDER BY id DESC
-        LIMIT #{start}, #{size}
+        <if test="areaCode != null and areaCode != ''">
+            AND area_code = #{areaCode}
+        </if>
+        ORDER BY title
+        LIMIT #{size} OFFSET #{start}
     </select>
     
     <select id="countPlaces" resultType="int">
-        SELECT COUNT(*) FROM tour_api_place
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND (title LIKE CONCAT('%', #{keyword}, '%')
-                OR addr1 LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-            <if test="contentTypeId != null and contentTypeId != ''">
-                AND content_type_id = #{contentTypeId}
-            </if>
-        </where>
+        SELECT COUNT(*)
+        FROM tour_api_place
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+                OR LOWER(addr1) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+            )
+        </if>
+        <if test="contentTypeId != null and contentTypeId != ''">
+            AND content_type_id = #{contentTypeId}
+        </if>
+        <if test="areaCode != null and areaCode != ''">
+            AND area_code = #{areaCode}
+        </if>
     </select>
     
     <select id="existsByContentId" resultType="boolean">
         SELECT EXISTS (
             SELECT 1 FROM tour_api_place WHERE content_id = #{contentId}
         )
+    </select>
+    
+    <select id="getStayPlaces" resultType="com.trip.app.model.TourApiPlaceDTO">
+        SELECT *
+        FROM tour_api_place
+        WHERE content_type_id = '32'
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%')
+            OR addr1 LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        LIMIT #{start}, #{size}
     </select>
 </mapper> 

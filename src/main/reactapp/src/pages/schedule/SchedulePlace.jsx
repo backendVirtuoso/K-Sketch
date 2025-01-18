@@ -95,6 +95,21 @@ const PlaceSelector = ({
 
     return (
         <div className="place-selector-container">
+            <div className="search-tabs">
+                <button
+                    className={`tab-button ${activeTab === 'existing' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('existing')}
+                >
+                    장소 선택
+                </button>
+                <button
+                    className={`tab-button ${activeTab === 'new' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('new')}
+                >
+                    신규 장소 등록
+                </button>
+            </div>
+
             {isEditMode && (
                 <div className="border-top">
                     <button
@@ -161,6 +176,7 @@ const PlaceSelector = ({
                 <PoiSearchTab
                     onAddPlace={handleAddPlace}
                     selectedPlaces={selectedPlaces}
+                    onRemovePlace={handleRemovePlace}
                 />
             )}
         </div>
@@ -168,7 +184,7 @@ const PlaceSelector = ({
 };
 
 // POI 검색 탭 컴포넌트
-const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
+const PoiSearchTab = ({ onAddPlace, selectedPlaces, onRemovePlace }) => {
     const [keyword, setKeyword] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -223,6 +239,14 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
         searchPOI(keyword);
     };
 
+    const handlePlaceSelect = (place) => {
+        if (!isPlaceSelected(place)) {
+            onAddPlace(place);
+        } else {
+            onRemovePlace(place);
+        }
+    };
+
     return (
         <div className="p-3">
             <div className="input-group mb-3">
@@ -243,7 +267,7 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                 </button>
             </div>
 
-            <div className="overflow-auto" style={{ height: "calc(100% - 70px)" }}>
+            <div className="overflow-auto" style={{ height: 'calc(100% - 70px)' }}>
                 {isLoading ? (
                     <div className="text-center p-3">
                         <div className="spinner-border text-primary" role="status">
@@ -271,17 +295,10 @@ const PoiSearchTab = ({ onAddPlace, selectedPlaces }) => {
                                 </div>
                             </div>
                             <button
-                                className={`btn ${isPlaceSelected(result)
-                                    ? "btn-primary"
-                                    : "btn-outline-primary"
-                                    } btn-sm`}
-                                onClick={() => onAddPlace(result)}
-                                disabled={isPlaceSelected(result)}
+                                className={`btn ${isPlaceSelected(result) ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
+                                onClick={() => handlePlaceSelect(result)}
                             >
-                                <i
-                                    className={`bi ${isPlaceSelected(result) ? "bi-check" : "bi-plus"
-                                        }`}
-                                ></i>
+                                <i className={`bi ${isPlaceSelected(result) ? 'bi-check' : 'bi-plus'}`}></i>
                             </button>
                         </div>
                     ))
@@ -338,95 +355,69 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                     </small>
                 </div>
                 <div className="duration-controls">
-                    {isEditing ? (
-                        <div className="d-flex align-items-center gap-2">
-                            <div className="time-editor">
-                                <div className="time-spinner">
-                                    <button
-                                        onClick={() => handleTimeChange(tempHours + 1, tempMinutes)}
-                                        className="spinner-button"
-                                    >
-                                        ▲
-                                    </button>
-                                    <input
-                                        type="number"
-                                        value={tempHours}
-                                        onChange={(e) =>
-                                            handleTimeChange(
-                                                parseInt(e.target.value) || 0,
-                                                tempMinutes
-                                            )
-                                        }
-                                        className="time-input"
-                                    />
-                                    <button
-                                        onClick={() =>
-                                            handleTimeChange(Math.max(0, tempHours - 1), tempMinutes)
-                                        }
-                                        className="spinner-button"
-                                    >
-                                        ▼
-                                    </button>
-                                </div>
-                                <span>시간</span>
-                                <div className="time-spinner">
-                                    <button
-                                        onClick={() =>
-                                            handleTimeChange(tempHours, (tempMinutes + 30) % 60)
-                                        }
-                                        className="spinner-button"
-                                    >
-                                        ▲
-                                    </button>
-                                    <input
-                                        type="number"
-                                        value={tempMinutes}
-                                        onChange={(e) =>
-                                            handleTimeChange(tempHours, parseInt(e.target.value) || 0)
-                                        }
-                                        className="time-input"
-                                    />
-                                    <button
-                                        onClick={() =>
-                                            handleTimeChange(tempHours, Math.max(0, tempMinutes - 30))
-                                        }
-                                        className="spinner-button"
-                                    >
-                                        ▼
-                                    </button>
-                                </div>
-                                <span>분</span>
-                            </div>
-                            <div className="d-flex gap-1">
-                                <button
-                                    className="btn btn-sm btn-primary"
-                                    onClick={handleConfirm}
-                                >
-                                    <i className="bi bi-check"></i>
-                                </button>
-                                <button
-                                    className="btn btn-sm btn-secondary"
-                                    onClick={handleCancel}
-                                >
-                                    <i className="bi bi-x"></i>
-                                </button>
-                            </div>
+                {isEditing ? (
+                    <div className="d-flex align-items-center">
+                        <div className="d-flex align-items-center"
+                            style={{
+                                padding: '6px 10px',
+                                background: '#fff',
+                                fontSize: '0.875rem'
+                            }}>
+                            <input
+                                type="number"
+                                value={tempHours}
+                                onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, tempMinutes)}
+                                style={{
+                                    width: '32px',
+                                    border: 'none',
+                                    textAlign: 'right',
+                                    padding: '0 2px',
+                                    fontWeight: 'bold'
+                                }}
+                            />
+                            <span style={{ margin: '0 2px' }}>시간</span>
+                            <input
+                                type="number"
+                                value={tempMinutes}
+                                onChange={(e) => handleTimeChange(tempHours, parseInt(e.target.value) || 0)}
+                                style={{
+                                    width: '32px',
+                                    border: 'none',
+                                    textAlign: 'right',
+                                    padding: '0 2px',
+                                    fontWeight: 'bold'
+                                }}
+                            />
+                            <span style={{ marginRight: '6px' }}>분</span>
+                            <button
+                                className="btn btn-link p-0 text-primary"
+                                onClick={handleConfirm}
+                                style={{
+                                    textDecoration: 'none',
+                                    fontSize: '0.875rem'
+                                }}
+                            >
+                                완료
+                            </button>
                         </div>
-                    ) : (
+                    </div>
+                ) : (
+                    <>
                         <button
                             className="btn btn-sm btn-outline-secondary duration-button"
                             onClick={() => setIsEditing(true)}
                         >
                             {hours}시간 {minutes > 0 ? `${minutes}분` : ""}
                         </button>
-                    )}
+                        <button
+                            className="btn btn-sm btn-outline-danger flex-shrink-0"
+                            onClick={() => onRemove(place)}
+                        >
+                            <i className="bi bi-trash"></i>
+                        </button>
+                    </>
+                )}
                 </div>
-                <button
-                    className="btn btn-sm btn-outline-danger flex-shrink-0"
-                    onClick={() => onRemove(place)}
-                >
-                    <i className="bi bi-trash"></i>
-                </button>
             </div>
         </div>
     );

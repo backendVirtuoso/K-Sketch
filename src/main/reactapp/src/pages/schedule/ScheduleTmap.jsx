@@ -205,27 +205,47 @@ const ScheduleTmap = () => {
     };
 
     // 마커 생성 함수
-    const createMarker = (location, label, order, color) => {
+    const createMarker = (location, label, order, color, markerType = 'place') => {
         const markerPosition = new window.Tmapv2.LatLng(location.lat, location.lon);
 
         // 마커 스타일 설정
-        const markerHtml = `
-      <div style="
-        width: 24px;
-        height: 24px;
-        background-color: ${color};
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      ">
-        ${order}
-      </div>
-    `;
+        let markerHtml;
+        if (markerType === 'stay') {
+            // 숙소 마커 스타일
+            markerHtml = `
+                <div style="
+                    width: 24px;
+                    height: 24px;
+                    background-color: ${color};
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 12px;
+                ">
+                    <i class="bi bi-house-door"></i>
+                </div>
+            `;
+        } else {
+            // 일반 장소 마커 스타일
+            markerHtml = `
+                <div style="
+                    width: 24px;
+                    height: 24px;
+                    background-color: ${color};
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 12px;
+                ">
+                    ${order || ''}
+                </div>
+            `;
+        }
 
         const marker = new window.Tmapv2.Marker({
             position: markerPosition,
@@ -311,8 +331,8 @@ const ScheduleTmap = () => {
                 if (day.stays && day.stays[0]) {
                     const stayData = viaPoints.find(p => p.name === day.stays[0].title);
                     if (stayData) {
-                        // 숙소 마커 생성 - 같은 색상 사용
-                        const stayMarker = createMarker(stayData, stayData.name, '숙', routeColor);
+                        // 숙소 마커 생성 - 'stay' 타입으로 지정
+                        const stayMarker = createMarker(stayData, stayData.name, null, routeColor, 'stay');
                         setCurrentMarkers(prev => [...prev, { type: 'stay', marker: stayMarker }]);
 
                         await searchRouteBetweenPoints(
@@ -348,7 +368,7 @@ const ScheduleTmap = () => {
     };
 
     // handleAddPlace 함수 수정
-    const handleAddPlace = (place) => {
+    const handleAddPlace = (place, type = 'place') => {
         const searchPOI = async (keyword) => {
             const headers = {
                 appKey: process.env.REACT_APP_TMAP_KEY
@@ -387,7 +407,6 @@ const ScheduleTmap = () => {
         const addPlaceMarker = async () => {
             let locationData;
 
-            // POI 검색 결과에서 위도/경도가 있는 경우
             if (place.mapx && place.mapy) {
                 locationData = {
                     lat: parseFloat(place.mapy),
@@ -400,23 +419,20 @@ const ScheduleTmap = () => {
             }
 
             if (locationData) {
-                // 지도 중심 이동
                 if (map) {
                     const moveLatLon = new window.Tmapv2.LatLng(locationData.lat, locationData.lon);
                     map.setCenter(moveLatLon);
-                    map.setZoom(15); // 적절한 줌 레벨로 설정
+                    map.setZoom(15);
                 }
 
-                // 마커 생성 및 표시
                 const marker = createMarker(
                     locationData,
                     locationData.name,
                     currentMarkers.length + 1,
-                    DAY_COLORS[0]
+                    DAY_COLORS[0],
+                    type
                 );
-                setCurrentMarkers(prev => [...prev, { type: 'place', marker }]);
-
-                // viaPoints에 추가
+                setCurrentMarkers(prev => [...prev, { type, marker }]);
                 setViaPoints(prev => [...prev, locationData]);
             }
         };

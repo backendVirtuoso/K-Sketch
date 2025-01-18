@@ -33,7 +33,7 @@ const MyPage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
+    console.log(userInfo);
     setTimeout(() => {
       setIsLoading(false); // 2초 후 로딩 상태 종료
     }, 2000);
@@ -53,6 +53,11 @@ const MyPage = () => {
         console.log(response.data);
         setUserInfo(response.data);
         setTravelData(response.data.travels || []);
+        const data = response.data;
+        const birthDate = data.birth;
+        if (birthDate === null || birthDate === "") {
+          navigate("/socialSignUp");
+        }
       })
       .catch((err) => {
         console.error("사용자 정보 요청 실패:", err);
@@ -87,10 +92,17 @@ const MyPage = () => {
                   <p className="mypage-p">여행 하루 전입니다!</p>
                 </div>
                 <div className="button-section text-center mt-4 buttonflex">
-                  <Button variant="outline-primary" className="mb-2 mypage-button-1" onClick={handleUserInfoChange} block>
+                  <Button 
+                    variant="outline-primary" 
+                    className="mb-2 mypage-button-1 w-100" 
+                    onClick={handleUserInfoChange}
+                  >
                     개인정보 수정
                   </Button>
-                  <Button variant="outline-secondary" className="mypage-button-1" block>
+                  <Button 
+                    variant="outline-secondary" 
+                    className="mypage-button-1 w-100"
+                  >
                     나의 이전 여행
                   </Button>
                 </div>
@@ -106,7 +118,8 @@ const MyPage = () => {
                 {isLoading ? (
                   <div className="loading-text"><Loading /></div>
                 ) : (
-                  <BookMark /> // 데이터가 로딩되면 실제 내용 표시
+                  <BookMark userInfo={userInfo}/> // 데이터가 로딩되면 실제 내용 표시
+                  
                 )}
               </div>
             </Col>

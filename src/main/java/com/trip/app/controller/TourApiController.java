@@ -30,27 +30,27 @@ public class TourApiController {
         try {
             return switch (apiType) {
                 case "stay" -> {
-                    String stayList = tourApiService.getApiPlacesData("stay", null, keyword, contentTypeId, null, 1);
+                    String stayList = tourApiService.getApiPlacesData("stay", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(stayList);
                 }
                 case "common" -> {
-                    String commonInfo = tourApiService.getApiPlacesData("common", String.valueOf(contentId), keyword, contentTypeId, null, 1);
+                    String commonInfo = tourApiService.getApiPlacesData("common", String.valueOf(contentId), keyword, contentTypeId, null);
                     yield ResponseEntity.ok(commonInfo);
                 }
                 case "festival" -> {
-                    String festivalData = tourApiService.getApiPlacesData("festival", null, keyword, contentTypeId, null, 1);
+                    String festivalData = tourApiService.getApiPlacesData("festival", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(festivalData);
                 }
                 case "search" -> {
-                    String searchData = tourApiService.getApiPlacesData("search", null, keyword, contentTypeId, null, 1);
+                    String searchData = tourApiService.getApiPlacesData("search", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(searchData);
                 }
                 case "areaCode" -> {
-                    String areaCode = tourApiService.getApiPlacesData("areaCode", null, keyword, contentTypeId, null, 1);
+                    String areaCode = tourApiService.getApiPlacesData("areaCode", null, keyword, contentTypeId, null);
                     yield ResponseEntity.ok(areaCode);
                 }
                 case "areaList" -> {
-                    String areaList = tourApiService.getApiPlacesData("areaList", null, keyword, contentTypeId, categoryCode, 1);
+                    String areaList = tourApiService.getApiPlacesData("areaList", null, keyword, contentTypeId, categoryCode);
                     yield ResponseEntity.ok(areaList);
                 }
                 default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid API type");
@@ -60,31 +60,36 @@ public class TourApiController {
         }
     }
 
-    @GetMapping("/db/{apiType}")
+    @GetMapping("/db/search")
     public ResponseEntity<?> getDbData(
-            @PathVariable("apiType") String apiType,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "contentTypeId", required = false) String contentTypeId,
+            @RequestParam(value = "areaCode", required = false) String areaCode,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size) {
-        
+            @RequestParam(value = "size", defaultValue = "1000") int size) {
+
         try {
+            String filteredContentTypeId = contentTypeId;
+            if ("32".equals(contentTypeId)) {
+                filteredContentTypeId = "32";
+            }
+
             Map<String, Object> response = new HashMap<>();
-            List<TourApiPlaceDTO> places = tourApiService.searchPlacesFromDb(keyword, contentTypeId, page, size);
-            int totalCount = tourApiService.countPlacesFromDb(keyword, contentTypeId);
-            
+            List<TourApiPlaceDTO> places = tourApiService.searchPlacesFromDb(keyword, filteredContentTypeId, areaCode, page, size);
+            int totalCount = tourApiService.countPlacesFromDb(keyword, filteredContentTypeId, areaCode);
+
             response.put("items", places);
             response.put("totalCount", totalCount);
             response.put("currentPage", page);
             response.put("size", size);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to fetch data from database");
         }
     }
-    
+
     @PostMapping("/sync")
     public ResponseEntity<String> syncTourApiData() {
         try {

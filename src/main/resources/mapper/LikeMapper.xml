@@ -7,6 +7,7 @@
         VALUES(#{seqNum}, #{title})
         ON DUPLICATE KEY UPDATE created_at = CURRENT_TIMESTAMP;
     </insert>
+    
     <!--  장소 좋아요 수 업데이트  -->
     <insert id="updatePlaceLikes">
         INSERT INTO placeLiked (placeName, lat, lon, likes_count)
@@ -14,4 +15,32 @@
         ON DUPLICATE KEY UPDATE likes_count = likes_count + 1, updated_at = CURRENT_TIMESTAMP;
     </insert>
 
+    <select id="likeList" resultType="likeListDTO">
+        SELECT * FROM UserLike WHERE user_id = #{seqNum}
+    </select>
+
+    <select id="findPlaceByTitles" resultType="tourApiPlaceDTO">
+        SELECT * FROM tour_api_place
+        WHERE title IN
+        <foreach item="title" collection="titles" separator="," open="(" close=")">
+            #{title}
+        </foreach>
+    </select>
+
+    <!--  메인 화면 좋아요  -->
+    <select id="getUserLikes" resultType="String">
+        SELECT place_id 
+        FROM UserLike 
+        WHERE user_id = #{seqNum}
+    </select>
+
+    <!--  메인 화면 좋아요  -->
+    <select id="getLikesCount" resultType="int">
+        SELECT COALESCE(likes_count, 0)
+        FROM placeLiked 
+        WHERE placeName = #{title}
+        UNION ALL
+        SELECT 0
+        LIMIT 1
+    </select>
 </mapper>
