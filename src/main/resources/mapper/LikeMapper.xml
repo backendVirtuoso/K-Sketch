@@ -27,12 +27,14 @@
         </foreach>
     </select>
 
+    <!--  메인 화면 좋아요  -->
     <select id="getUserLikes" resultType="String">
         SELECT place_id 
         FROM UserLike 
         WHERE user_id = #{seqNum}
     </select>
-    
+
+    <!--  메인 화면 좋아요  -->
     <select id="getLikesCount" resultType="int">
         SELECT COALESCE(likes_count, 0)
         FROM placeLiked 

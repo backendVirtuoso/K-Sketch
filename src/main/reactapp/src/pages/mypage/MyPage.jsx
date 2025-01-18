@@ -92,10 +92,17 @@ const MyPage = () => {
                   <p className="mypage-p">여행 하루 전입니다!</p>
                 </div>
                 <div className="button-section text-center mt-4 buttonflex">
-                  <Button variant="outline-primary" className="mb-2 mypage-button-1" onClick={handleUserInfoChange} block>
+                  <Button 
+                    variant="outline-primary" 
+                    className="mb-2 mypage-button-1 w-100" 
+                    onClick={handleUserInfoChange}
+                  >
                     개인정보 수정
                   </Button>
-                  <Button variant="outline-secondary" className="mypage-button-1" block>
+                  <Button 
+                    variant="outline-secondary" 
+                    className="mypage-button-1 w-100"
+                  >
                     나의 이전 여행
                   </Button>
                 </div>

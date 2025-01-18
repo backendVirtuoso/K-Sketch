@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import { Button, Carousel, Col, Form, Row, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import logo from "../logo3.png";
+import logo from "../logoimage.png";
 import Detail from "./Detail";
 import CardDetail from "./CardDetail";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

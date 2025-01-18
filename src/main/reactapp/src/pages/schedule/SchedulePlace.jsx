@@ -357,8 +357,8 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                 <div className="duration-controls">
                 {isEditing ? (
                     <div className="d-flex align-items-center">
-                        <div className="d-flex align-items-center" 
-                            style={{ 
+                        <div className="d-flex align-items-center"
+                            style={{
                                 padding: '6px 10px',
                                 background: '#fff',
                                 fontSize: '0.875rem'
@@ -367,9 +367,9 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                                 type="number"
                                 value={tempHours}
                                 onChange={(e) => handleTimeChange(parseInt(e.target.value) || 0, tempMinutes)}
-                                style={{ 
-                                    width: '32px', 
-                                    border: 'none', 
+                                style={{
+                                    width: '32px',
+                                    border: 'none',
                                     textAlign: 'right',
                                     padding: '0 2px',
                                     fontWeight: 'bold'
@@ -380,9 +380,9 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                                 type="number"
                                 value={tempMinutes}
                                 onChange={(e) => handleTimeChange(tempHours, parseInt(e.target.value) || 0)}
-                                style={{ 
-                                    width: '32px', 
-                                    border: 'none', 
+                                style={{
+                                    width: '32px',
+                                    border: 'none',
                                     textAlign: 'right',
                                     padding: '0 2px',
                                     fontWeight: 'bold'
@@ -392,7 +392,7 @@ const SelectedPlaceItem = ({ place, onRemove, duration, onDurationChange }) => {
                             <button
                                 className="btn btn-link p-0 text-primary"
                                 onClick={handleConfirm}
-                                style={{ 
+                                style={{
                                     textDecoration: 'none',
                                     fontSize: '0.875rem'
                                 }}
