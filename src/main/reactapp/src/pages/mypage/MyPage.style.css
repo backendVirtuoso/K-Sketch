@@ -58,3 +58,23 @@
     display: none;
   }
 }
+
+.travel-section-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.travel-items {
+  margin-bottom: 2rem;
+}
+
+.travel-item {
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.travel-item:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+}

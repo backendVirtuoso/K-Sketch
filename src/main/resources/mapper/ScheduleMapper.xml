@@ -16,5 +16,20 @@
             tripPlan = #{tripPlan}
         WHERE trip_id = #{tripId} AND loginId = #{loginId}
     </update>
+
+    <!-- 여행 정보 조회 -->
+    <select id="getUserTrips" resultType="com.trip.app.model.ScheduleDTO">
+        SELECT 
+            trip_id as tripId,
+            loginId,
+            title,
+            start_date as startDate,
+            end_date as endDate,
+            createAt as createdDate,
+            updateAt as modifiedDate
+        FROM trips 
+        WHERE loginId = #{loginId}
+        ORDER BY start_date DESC
+    </select>
 </mapper>
 

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,8 +26,7 @@ public class ScheduleController {
 
         if (loginId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("success", false,
-                            "message", "로그인이 필요합니다."));
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
 
         scheduleDTO.setLoginId(loginId);
@@ -36,5 +36,18 @@ public class ScheduleController {
             "success", true,
             "tripId", savedSchedule.getTripId()
         ));
+    }
+
+    @GetMapping("/mytrip")
+    public ResponseEntity<?> getUserTrips(@RequestHeader("Authorization") String token, @RequestParam("loginId") String loginId) {
+        String tokenLoginId = jwtUtil.getUsername(token.replace("Bearer ", ""));
+        
+        if (!tokenLoginId.equals(loginId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "권한이 없습니다."));
+        }
+
+        List<ScheduleDTO> trips = scheduleService.getUserTrips(loginId);
+        return ResponseEntity.ok(trips);
     }
 }
