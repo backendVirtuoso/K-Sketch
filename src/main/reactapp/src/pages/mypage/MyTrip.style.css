@@ -1,18 +1,12 @@
 .trips-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 50px); /* 상단 타이틀 영역 제외 */
-}
-
-.upcoming-travels, .past-travels {
-  flex: 1;
+  height: 90vh; 
   padding: 20px;
-  overflow-y: hidden;   /* 스크롤 숨김 */
+  overflow: hidden; 
 }
 
-.upcoming-travels {
-  border-bottom: 1px solid #e0e0e0;
+.all-travels {
+  height: 100%;
+  overflow: hidden;
 }
 
 .travel-section-title {
@@ -24,18 +18,22 @@
   border-bottom: 2px solid #f0f0f0;
 }
 
+.travel-items {
+  height: calc(100% - 60px); /* 제목 영역(travel-section-title) 높이 제외 */
+  overflow-y: auto; /* 여행 리스트 항목만 스크롤 가능 */
+  padding-right: 10px;
+}
+
 .travel-item {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 15px;
-  margin-bottom: 15px;
+  background-color: #fff;
   border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
 }
 
 .travel-item:hover {
-  background-color: #e9ecef;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .travel-header {
@@ -60,6 +58,12 @@
   flex-grow: 1;
   margin-left: 10px;
   font-size: 1.1em;
+}
+
+.travel-modified-date {
+  font-size: 0.75em;
+  color: #888;
+  margin-right: 20px;
 }
 
 .more-options {
@@ -92,19 +96,14 @@
 
 .travel-items::-webkit-scrollbar-track {
   background: #f1f1f1;
+  border-radius: 3px;
 }
 
 .travel-items::-webkit-scrollbar-thumb {
-  background: #a9c9d275;
+  background: #888;
   border-radius: 3px;
 }
 
 .travel-items::-webkit-scrollbar-thumb:hover {
-  background: #a9c9d2;
-}
-
-.travel-modified-date {
-    font-size: 0.75em;
-    color: #888;
-    margin-right: 20px;
+  background: #555;
 } 
