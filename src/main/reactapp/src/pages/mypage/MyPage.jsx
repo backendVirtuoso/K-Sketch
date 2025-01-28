@@ -17,7 +17,7 @@ const MyPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('bookmark'); // 'bookmark', 'myTrip' 중 하나
+  const [activeTab, setActiveTab] = useState('myTrip'); // 'bookmark', 'myTrip' 중 하나
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const navigate = useNavigate();
@@ -70,24 +70,6 @@ const MyPage = () => {
   const handleUserInfoChange = (e) => {
     e.preventDefault();
     navigate('/userInfoModify');
-  };
-
-  // 여행 일정을 미래/과거로 분류하는 함수
-  const categorizeTravels = () => {
-    const now = new Date();
-    const upcoming = [];
-    const past = [];
-
-    travelData.forEach(travel => {
-      const travelDate = new Date(travel.startDate);
-      if (travelDate > now) {
-        upcoming.push(travel);
-      } else {
-        past.push(travel);
-      }
-    });
-
-    return { upcoming, past };
   };
 
   return (

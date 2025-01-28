@@ -26,4 +26,9 @@ public class ScheduleService {
     public List<ScheduleDTO> getUserTrips(String loginId) {
         return scheduleMapper.getUserTrips(loginId);
     }
+
+    public ScheduleDTO getTripSchedule(Long tripId) {
+        return scheduleMapper.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("일정을 찾을 수 없습니다."));
+    }
 }

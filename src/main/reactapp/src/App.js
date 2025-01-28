@@ -63,7 +63,10 @@ const App = () => {
           path="/api/kafkachat/room/enter/:roomId"
           element={<RoomDetail />}
         />
-        <Route path="/schedule" element={<ScheduleTmap />} />
+        <Route path="/schedule">
+          <Route index element={<ScheduleTmap />} />
+          <Route path=":tripId" element={<ScheduleTmap />} />
+        </Route>
         <Route path="travelwith">
           <Route index element={<TravelList />} />
           <Route path=":id" element={<TravelDetail />} />

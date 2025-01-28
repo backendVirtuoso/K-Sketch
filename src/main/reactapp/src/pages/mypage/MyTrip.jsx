@@ -3,11 +3,13 @@ import axios from 'axios';
 import './MyTrip.style.css';
 import { format } from 'date-fns';
 import Loading from '../../common/Loading';
+import { useNavigate } from 'react-router-dom';
 
 const MyTrip = ({ userInfo }) => {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -53,6 +55,14 @@ const MyTrip = ({ userInfo }) => {
     }
   };
 
+  const handleTripClick = (trip) => {
+    navigate(`/schedule/${trip.tripId}`, { 
+      state: { 
+        tripData: trip 
+      }
+    });
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -61,38 +71,34 @@ const MyTrip = ({ userInfo }) => {
     return <div className="error-message">{error}</div>;
   }
 
-  // 현재 날짜를 기준으로 여행 분류
-  const currentDate = new Date();
-  const upcomingTrips = trips.filter(trip => {
-    try {
-      const endDate = new Date(trip.endDate);
-      return endDate >= currentDate;
-    } catch (error) {
-      console.error('날짜 비교 실패:', error);
-      return false;
-    }
-  });
-
-  const pastTrips = trips.filter(trip => {
-    try {
-      const endDate = new Date(trip.endDate);
-      return endDate < currentDate;
-    } catch (error) {
-      console.error('날짜 비교 실패:', error);
-      return false;
-    }
-  });
+  // currentDate를 format된 문자열로 변환
+  const currentDate = format(new Date(), 'yyyy-MM-dd');
 
   return (
     <div className="trips-section">
-      <div className="upcoming-travels">
-        <h2 className="travel-section-title">다가오는 여행</h2>
+      <div className="all-travels">
+        <h2 className="travel-section-title">나의 여행</h2>
         <div className="travel-items">
-          {upcomingTrips.length > 0 ? (
-            upcomingTrips.map((trip) => (
-              <div key={trip.tripId} className="travel-item p-3 mb-3 rounded">
+          {trips.length > 0 ? (
+            trips.map((trip) => (
+              <div 
+                key={trip.tripId} 
+                className="travel-item p-3 mb-3 rounded"
+                onClick={() => handleTripClick(trip)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="travel-header">
-                  <div className="travel-date">D{Math.floor((new Date(trip.startDate) - currentDate) / (1000 * 60 * 60 * 24))}</div>
+                  <div className="travel-date">
+                    {(() => {
+                      const startDate = format(new Date(trip.startDate), 'yyyy-MM-dd');
+                      const diffDays = Math.floor(
+                        (new Date(startDate).getTime() - new Date(currentDate).getTime()) 
+                        / (1000 * 60 * 60 * 24)
+                      );
+                      if (diffDays === 0) return 'D-day';
+                      return diffDays > 0 ? `D-${diffDays}` : `D+${Math.abs(diffDays)}`;
+                    })()}
+                  </div>
                   <h3>{trip.title}</h3>
                   <div className="travel-modified-date">
                     최근 수정일 : {formatDate(trip.modifiedDate)}
@@ -103,30 +109,7 @@ const MyTrip = ({ userInfo }) => {
               </div>
             ))
           ) : (
-            <div className="no-trips">다가오는 여행이 없습니다.</div>
-          )}
-        </div>
-      </div>
-
-      <div className="past-travels">
-        <h2 className="travel-section-title">지난 여행</h2>
-        <div className="travel-items">
-          {pastTrips.length > 0 ? (
-            pastTrips.map((trip) => (
-              <div key={trip.tripId} className="travel-item p-3 mb-3 rounded">
-                <div className="travel-header">
-                  <div className="travel-date">완료</div>
-                  <h3>{trip.title}</h3>
-                  <div className="travel-modified-date">
-                    최근 수정일 : {formatDate(trip.modifiedDate)}
-                  </div>
-                  <div className="more-options">⋮</div>
-                </div>
-                <p className="travel-period">{formatDate(trip.startDate)} ~ {formatDate(trip.endDate)}</p>
-              </div>
-            ))
-          ) : (
-            <div className="no-trips">지난 여행이 없습니다.</div>
+            <div className="no-trips">등록된 여행이 없습니다.</div>
           )}
         </div>
       </div>

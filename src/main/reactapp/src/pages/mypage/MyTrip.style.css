@@ -24,11 +24,6 @@
   border-bottom: 2px solid #f0f0f0;
 }
 
-.travel-items {
-  height: calc(100% - 40px); /* 제목 영역 제외 */
-  overflow-y: auto;
-}
-
 .travel-item {
   background-color: white;
   border-radius: 10px;

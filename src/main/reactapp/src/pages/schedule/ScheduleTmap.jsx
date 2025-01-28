@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ScheduleUI from './ScheduleUI';
+import { useParams, useLocation } from 'react-router-dom';
 
 // 일자별 경로 색상 정의 (10가지 색상)
 const DAY_COLORS = [
@@ -22,6 +23,10 @@ const ScheduleTmap = () => {
     const [currentMarkers, setCurrentMarkers] = useState([]);
     const [currentPolylines, setCurrentPolylines] = useState([]);
     const [viaPoints, setViaPoints] = useState([]);
+    const [savedSchedule, setSavedSchedule] = useState(null);
+    const { tripId } = useParams();
+    const location = useLocation();
+    const tripData = location.state?.tripData;
 
     useEffect(() => {
         const initTmap = () => {
@@ -51,6 +56,32 @@ const ScheduleTmap = () => {
 
         initTmap();
     }, []);
+
+    useEffect(() => {
+        // 저장된 일정 데이터 불러오기
+        const loadSavedSchedule = async () => {
+            if (tripId && tripData) {
+                try {
+                    // tripPlan 문자열을 JSON 객체로 파싱
+                    const parsedSchedule = JSON.parse(tripData.tripPlan);
+                    setSavedSchedule(parsedSchedule);
+
+                    // 일정 데이터로 지도 표시
+                    if (parsedSchedule && parsedSchedule.days) {
+                        clearAllRoutes();
+                        // 전체 일정 표시
+                        parsedSchedule.days.forEach((day, index) => {
+                            drawDayRoute(day, index);
+                        });
+                    }
+                } catch (error) {
+                    console.error('일정 데이터 로드 중 오류:', error);
+                }
+            }
+        };
+
+        loadSavedSchedule();
+    }, [tripId, tripData]);
 
     // 경로 초기화 함수
     const clearAllRoutes = () => {
@@ -478,6 +509,7 @@ const ScheduleTmap = () => {
             drawDayRoute={drawDayRoute}
             handleDaySelect={handleDaySelect}
             clearAllRoutes={clearAllRoutes}
+            savedSchedule={savedSchedule}
         />
     );
 };

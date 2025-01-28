@@ -50,4 +50,25 @@ public class ScheduleController {
         List<ScheduleDTO> trips = scheduleService.getUserTrips(loginId);
         return ResponseEntity.ok(trips);
     }
+
+    @GetMapping("/schedule/{tripId}")
+    public ResponseEntity<?> getTripSchedule(@PathVariable("tripId") Long tripId) {
+        try {
+            ScheduleDTO schedule = scheduleService.getTripSchedule(tripId);
+            if (schedule == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                            "success", false,
+                            "message", "해당 일정을 찾을 수 없습니다."
+                        ));
+            }
+            return ResponseEntity.ok(schedule);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                        "success", false,
+                        "message", "일정을 불러오는데 실패했습니다."
+                    ));
+        }
+    }
 }
