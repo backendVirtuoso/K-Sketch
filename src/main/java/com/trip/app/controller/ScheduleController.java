@@ -71,4 +71,32 @@ public class ScheduleController {
                     ));
         }
     }
+
+    @PostMapping("/update/{tripId}")
+    public ResponseEntity<?> updateTrip(@PathVariable("tripId") Long tripId, 
+                                      @RequestBody ScheduleDTO scheduleDTO, 
+                                      @RequestHeader("Authorization") String token) {
+        String loginId = jwtUtil.getUsername(token.replace("Bearer ", ""));
+
+        if (loginId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        // 기존 일정의 소유자 확인
+        ScheduleDTO existingSchedule = scheduleService.getTripSchedule(tripId);
+        if (!existingSchedule.getLoginId().equals(loginId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "message", "수정 권한이 없습니다."));
+        }
+
+        scheduleDTO.setLoginId(loginId);
+        scheduleDTO.setTripId(tripId);
+        ScheduleDTO updatedSchedule = scheduleService.saveSchedule(scheduleDTO);
+
+        return ResponseEntity.ok().body(Map.of(
+            "success", true,
+            "tripId", updatedSchedule.getTripId()
+        ));
+    }
 }
