@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './scss/ScheduleRoute.scss';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ScheduleEdit from './ScheduleEdit';
 
 // 카카오 맵 경로 검색 컴포넌트
@@ -39,6 +39,16 @@ const ScheduleRoute = ({
     const navigate = useNavigate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [tripId, setTripId] = useState(null);
+    const location = useLocation();
+
+    // URL에서 tripId 가져오기
+    useEffect(() => {
+        const pathSegments = location.pathname.split('/');
+        const urlTripId = pathSegments[pathSegments.length - 1];
+        if (!isNaN(urlTripId)) {
+            setTripId(urlTripId);
+        }
+    }, [location]);
 
     // 카카오 맵으로 이동 함수
     const handleRouteClick = (start, end) => {
@@ -68,16 +78,24 @@ const ScheduleRoute = ({
                 tripPlan: JSON.stringify(schedule)
             };
 
-            const response = await axios.post('/api/trips/save', tripData, {
+            // tripId 존재 여부에 따라 다른 엔드포인트 사용
+            const endpoint = tripId ? `/api/trips/update/${tripId}` : '/api/trips/save';
+            
+            const response = await axios.post(endpoint, tripData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
             if (response.data.success) {
-                setTripId(response.data.tripId);
+                if (!tripId) {
+                    setTripId(response.data.tripId);
+                }
                 alert('여행 일정이 저장되었습니다.');
                 setShowModal(false);
+                
+                // 저장 후 마이페이지로 이동
+                navigate('/mypage');
             }
         } catch (error) {
             if (error.response?.status === 401) {

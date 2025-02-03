@@ -9,6 +9,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { confirmModal } from "../../reducer/confirmModal";
+import MyTrip from './MyTrip';
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -16,6 +17,7 @@ const MyPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('myTrip'); // 'bookmark', 'myTrip' 중 하나
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const navigate = useNavigate();
@@ -75,7 +77,6 @@ const MyPage = () => {
       <Container>
         {userInfo ? (
           <Row>
-            {/* 카테고리 버튼 */}
             <Col lg={3} md={6} xs={12}>
               <div className="mypage-1st-col">
                 {/* 프로필 이미지 */}
@@ -101,9 +102,17 @@ const MyPage = () => {
                   </Button>
                   <Button 
                     variant="outline-secondary" 
-                    className="mypage-button-1 w-100"
+                    className="mb-2 mypage-button-1 w-100"
+                    onClick={() => setActiveTab('bookmark')}
                   >
-                    나의 이전 여행
+                    북마크(좋아요)
+                  </Button>
+                  <Button 
+                    variant="outline-secondary" 
+                    className="mb-2 mypage-button-1 w-100"
+                    onClick={() => setActiveTab('myTrip')}
+                  >
+                    나의 여행
                   </Button>
                 </div>
               </div>
@@ -111,15 +120,13 @@ const MyPage = () => {
 
             <Col lg={9} xs={12}>
               <div className="travel-list-section">
-
-                <div className="mypage-font-style">
-                  <FontAwesomeIcon icon={faAngleRight} /> 마이페이지
-                </div>
                 {isLoading ? (
                   <div className="loading-text"><Loading /></div>
                 ) : (
-                  <BookMark userInfo={userInfo}/> // 데이터가 로딩되면 실제 내용 표시
-                  
+                  <>
+                    {activeTab === 'bookmark' && <BookMark userInfo={userInfo}/>}
+                    {activeTab === 'myTrip' && <MyTrip userInfo={userInfo}/>}
+                  </>
                 )}
               </div>
             </Col>

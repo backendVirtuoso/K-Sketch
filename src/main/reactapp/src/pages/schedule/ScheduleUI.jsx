@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import './scss/ScheduleUI.scss';
 import { DateSelector, StepButton, STEP_BUTTONS } from './ScheduleDate';
@@ -26,7 +26,8 @@ const ScheduleUI = ({
     handleRemovePlace: parentHandleRemovePlace,
     drawDayRoute,
     handleDaySelect: parentHandleDaySelect,
-    clearAllRoutes
+    clearAllRoutes,
+    savedSchedule
 }) => {
     const [currentStep, setCurrentStep] = useState('date');
     const [selectedPlaces, setSelectedPlaces] = useState([]);
@@ -49,6 +50,25 @@ const ScheduleUI = ({
 
     // 총 소요시간 계산
     const { hours: totalHours, minutes: totalMinutes } = calculateTotalDuration(placeDurations);
+
+    useEffect(() => {
+        // 저장된 일정이 있으면 바로 일정 표시 모드로 전환
+        if (savedSchedule) {
+            setRecommendedSchedule(savedSchedule);
+            setIsScheduleGenerated(true);
+            setShowMainPanel(false);
+            setShowSidebar(false);
+            
+            // 경로 타입 설정 (기본값: 'car')
+            setPathType('car');
+            
+            // 전체 일정 표시
+            clearAllRoutes();
+            savedSchedule.days.forEach((day, index) => {
+                drawDayRoute(day, index);
+            });
+        }
+    }, [savedSchedule]);
 
     // 새로운 장소를 선택 목록에 추가하고 기본 체류시간(2시간) 설정
     const handleAddPlace = (place) => {

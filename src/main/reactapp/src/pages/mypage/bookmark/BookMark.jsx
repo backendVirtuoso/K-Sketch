@@ -4,7 +4,6 @@ import 'react-multi-carousel/lib/styles.css';
 import { useTravel } from '../../../hooks/useTravel';
 import BookMarkCard from './BookMarkCard';
 import axios from 'axios';
-import BookMarkList from './BookMarkList';
 
 const responsive = {
   superLargeDesktop: {
@@ -64,7 +63,6 @@ const BookMark = ({userInfo}) => {
           <BookMarkCard key={like.place_id} likes={like.place_id}/>
         ))}
       </Carousel>
-      {/* <BookMarkList likes={likes}/>  */}
     </div>
   )
 }
