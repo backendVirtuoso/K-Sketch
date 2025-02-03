@@ -74,6 +74,11 @@ const PlaceSelector = ({
     const handleAddPlace = useCallback(
         (place) => {
             if (!selectedPlaces.some((p) => p.title === place.title)) {
+                console.log('선택한 장소 좌표:', {
+                    제목: place.title,
+                    위도: place.mapy ? Number(parseFloat(place.mapy).toFixed(6)) : Number(parseFloat(place.latitude).toFixed(6)),
+                    경도: place.mapx ? Number(parseFloat(place.mapx).toFixed(6)) : Number(parseFloat(place.longitude).toFixed(6))
+                });
                 onAddPlace(place);
             }
         },

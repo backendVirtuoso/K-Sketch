@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ScheduleUI from './ScheduleUI';
+import { useParams, useLocation } from 'react-router-dom';
 
 // 일자별 경로 색상 정의 (10가지 색상)
 const DAY_COLORS = [
@@ -22,35 +23,71 @@ const ScheduleTmap = () => {
     const [currentMarkers, setCurrentMarkers] = useState([]);
     const [currentPolylines, setCurrentPolylines] = useState([]);
     const [viaPoints, setViaPoints] = useState([]);
+    const [savedSchedule, setSavedSchedule] = useState(null);
+    const { tripId } = useParams();
+    const location = useLocation();
+    const tripData = location.state?.tripData;
 
     useEffect(() => {
         const initTmap = () => {
-            const mapDiv = mapRef.current;
-            if (!mapDiv) {
-                console.error('지도 div를 찾을 수 없습니다.');
-                return;
-            }
+            const mapDiv = document.getElementById('map_div');
+            if (!mapDiv) return;
 
             try {
-                if (!mapDiv.firstChild) {
-                    const tmap = new window.Tmapv2.Map('map_div', {
-                        center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
-                        width: '100%',
-                        height: '100%',
-                        zoom: 11,
-                        zoomControl: true,
-                        scrollwheel: true,
-                    });
-                    setMap(tmap);
-                    console.log('지도가 성공적으로 초기화되었습니다.');
+                if (!window.Tmapv2) {
+                    console.error('Tmap API가 로드되지 않았습니다.');
+                    return;
                 }
+
+                const tmap = new window.Tmapv2.Map('map_div', {
+                    center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
+                    width: '100%',
+                    height: '100%',
+                    zoom: 11,
+                    zoomControl: true,
+                    scrollwheel: true,
+                });
+                setMap(tmap);
             } catch (error) {
                 console.error('지도 초기화 중 오류:', error);
             }
         };
 
-        initTmap();
+        // 지도 div가 존재하는지 확인 후 초기화
+        const checkAndInitMap = () => {
+            if (document.getElementById('map_div')) {
+                initTmap();
+            } else {
+                setTimeout(checkAndInitMap, 100);
+            }
+        };
+
+        checkAndInitMap();
     }, []);
+
+    useEffect(() => {
+        const loadSavedSchedule = async () => {
+            if (tripId && tripData) {
+                try {
+                    const parsedSchedule = JSON.parse(tripData.tripPlan);
+                    setSavedSchedule(parsedSchedule);
+
+                    if (parsedSchedule && parsedSchedule.days && map) {
+                        clearAllRoutes();
+                        for (const [index, day] of parsedSchedule.days.entries()) {
+                            await drawDayRoute(day, index);
+                        }
+                    }
+                } catch (error) {
+                    console.error('일정 데이터 로드 중 오류:', error);
+                }
+            }
+        };
+
+        if (map) {
+            loadSavedSchedule();
+        }
+    }, [tripId, tripData, map]);
 
     // 경로 초기화 함수
     const clearAllRoutes = () => {
@@ -277,74 +314,65 @@ const ScheduleTmap = () => {
 
     // 일자별 경로 그리는 함수
     const drawDayRoute = async (day, dayIndex) => {
-        // 유효성 검사 추가
-        if (!map) {
-            console.error('지도 객체가 초기화되지 않았습니다.');
-            return;
-        }
-
-        if (!day || !day.places || day.places.length < 2) {
-            console.warn('유효한 일정 데이터가 없습니다.');
+        if (!map || !day || !day.places || day.places.length === 0) {
+            console.error('유효하지 않은 데이터');
             return;
         }
 
         try {
-            // 기존 마커들을 제거하기 전에 유효성 검사
-            if (currentMarkers && currentMarkers.length > 0) {
-                currentMarkers.forEach(marker => {
-                    if (marker && marker.marker) {
-                        marker.marker.setMap(null);
-                    }
-                });
+            const routeColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
+            let allPoints = [...day.places];
+
+            // 숙소 정보가 있으면 마지막 장소로 추가
+            if (day.stays && day.stays[0]) {
+                allPoints.push(day.stays[0]);
             }
-            setCurrentMarkers([]);
 
-            // 각 장소에 대한 좌표 데이터 확인
-            const dayPlaces = day.places.map(place => {
-                if (!place.latitude || !place.longitude) {
-                    console.error('장소 좌표 데이터가 없습니다:', place);
-                    return null;
-                }
-                return {
-                    name: place.title,
-                    lat: place.latitude,
-                    lon: place.longitude,
-                    address: place.addr1
-                };
-            }).filter(place => place !== null);
+            // 모든 장소에 대해 마커 생성
+            allPoints.forEach((point, index) => {
+                const isStay = index === allPoints.length - 1 && day.stays && day.stays[0];
+                const marker = createMarker(
+                    {
+                        lat: point.latitude,
+                        lon: point.longitude,
+                        name: point.title,
+                        address: point.addr1
+                    },
+                    point.title,
+                    index + 1,
+                    routeColor,
+                    isStay ? 'stay' : 'place'
+                );
+                setCurrentMarkers(prev => [...prev, { type: isStay ? 'stay' : 'place', marker }]);
+            });
 
-            if (dayPlaces.length >= 2) {
-                const routeColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
+            // 경로 그리기
+            for (let i = 0; i < allPoints.length - 1; i++) {
+                const start = allPoints[i];
+                const end = allPoints[i + 1];
+                await searchRouteBetweenPoints(
+                    {
+                        latitude: start.latitude,
+                        longitude: start.longitude
+                    },
+                    {
+                        latitude: end.latitude,
+                        longitude: end.longitude
+                    },
+                    routeColor
+                );
+            }
 
-                // 모든 장소에 대해 마커 생성 - 색상 전달
-                dayPlaces.forEach((place, index) => {
-                    const marker = createMarker(place, place.name, index + 1, routeColor);
-                    setCurrentMarkers(prev => [...prev, { type: 'place', marker }]);
+            // 지도 범위 조정
+            if (allPoints.length > 0) {
+                const bounds = new window.Tmapv2.LatLngBounds();
+                allPoints.forEach(point => {
+                    bounds.extend(new window.Tmapv2.LatLng(point.latitude, point.longitude));
                 });
-
-                // 모든 연속된 장소 간의 경로 검색
-                for (let i = 0; i < dayPlaces.length - 1; i++) {
-                    await searchRouteBetweenPoints(dayPlaces[i], dayPlaces[i + 1], routeColor);
-                }
-
-                // 마지막 장소에서 숙소로의 경로 (숙소가 있는 경우)
-                if (day.stays && day.stays[0]) {
-                    const stayData = viaPoints.find(p => p.name === day.stays[0].title);
-                    if (stayData) {
-                        // 숙소 마커 생성 - 'stay' 타입으로 지정
-                        const stayMarker = createMarker(stayData, stayData.name, null, routeColor, 'stay');
-                        setCurrentMarkers(prev => [...prev, { type: 'stay', marker: stayMarker }]);
-
-                        await searchRouteBetweenPoints(
-                            dayPlaces[dayPlaces.length - 1],
-                            stayData,
-                            routeColor
-                        );
-                    }
-                }
+                map.fitBounds(bounds, { padding: 50 });
             }
         } catch (error) {
-            console.error('일차별 경로 그리기 오류:', error);
+            console.error('경로 그리기 중 오류:', error);
         }
     };
 
@@ -478,6 +506,7 @@ const ScheduleTmap = () => {
             drawDayRoute={drawDayRoute}
             handleDaySelect={handleDaySelect}
             clearAllRoutes={clearAllRoutes}
+            savedSchedule={savedSchedule}
         />
     );
 };

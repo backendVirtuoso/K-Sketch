@@ -1,6 +1,6 @@
 .mypage-1st-col {
   background-color: #a9c9d275; /* 하늘색 배경 */
-  height: 900px; /* 컬럼의 높이를 100%로 설정하여 전체 영역에 배경색이 적용되도록 합니다. */
+  height: 90vh; 
 }
 
 .profile-img {
@@ -57,4 +57,24 @@
   .mypage-button-1 {
     display: none;
   }
+}
+
+.travel-section-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.travel-items {
+  margin-bottom: 2rem;
+}
+
+.travel-item {
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.travel-item:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
 }

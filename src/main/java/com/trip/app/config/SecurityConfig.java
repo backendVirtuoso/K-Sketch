@@ -5,7 +5,6 @@ import com.trip.app.jwt.JwtFilter;
 import com.trip.app.jwt.JwtUtil;
 import com.trip.app.jwt.LoginFilter;
 import com.trip.app.service.CustomOAuth2UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,12 +13,10 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -87,7 +84,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/kafkachat/rooms").permitAll()
                 .requestMatchers("/api/kafkachat/room/{roomId}", "/api/kafkachat/room").authenticated()
                 .requestMatchers("/", "/ws/**", "/api/join", "/api/like/userLike", "/api/like/userLikeList", "/api/like/likePlaceList", "/api/like/check", "/api/like/count").permitAll()
-                .requestMatchers("/api/trips/", "/api/trips/save").authenticated()
+                .requestMatchers("/api/trips/", "/api/trips/save", "/api/trips/update/{tripId}", "/api/trips/mytrip").authenticated()
                 .requestMatchers("/api/check-duplicate-id", "/api/check-duplicate-email", "/api/search-id-email", "/api/search-pw-email", "/api/pw-change", "/api/userinfo-Modify","/api/userinfo").permitAll()
                 .requestMatchers("/api/festival", "/api/stay", "/api/common", "/api/search", "/api/areaCode", "/api/areaList").permitAll()
         );

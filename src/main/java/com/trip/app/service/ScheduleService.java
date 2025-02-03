@@ -5,19 +5,30 @@ import com.trip.app.model.ScheduleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ScheduleService {
     @Autowired
     private ScheduleMapper scheduleMapper;
 
+    // 여행 정보 저장
     public ScheduleDTO saveSchedule(ScheduleDTO scheduleDTO) {
         if (scheduleDTO.getTripId() == null) {
-            // 새로운 일정 저장
             scheduleMapper.insertSchedule(scheduleDTO);
         } else {
-            // 기존 일정 수정
             scheduleMapper.updateSchedule(scheduleDTO);
         }
         return scheduleDTO;
+    }
+
+    // 여행 정보 조회
+    public List<ScheduleDTO> getUserTrips(String loginId) {
+        return scheduleMapper.getUserTrips(loginId);
+    }
+
+    public ScheduleDTO getTripSchedule(Long tripId) {
+        return scheduleMapper.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("일정을 찾을 수 없습니다."));
     }
 }

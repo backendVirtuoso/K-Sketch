@@ -8,6 +8,8 @@ public class ScheduleDTO {
     private String title;
     private String startDate;
     private String endDate;
+    private String createdDate;
+    private String modifiedDate;
     private String tripPlan;
     private String loginId;
 }
