@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trip.app.mapper.ChatMessageMapper">
+    
+    <insert id="insertMessage" parameterType="com.trip.app.model.ChatMessage">
+        INSERT INTO chat_messages (room_id, sender, message, timestamp, type)
+        VALUES (#{roomId}, #{sender}, #{message}, #{timestamp}, #{type})
+    </insert>
+    
+    <select id="findByRoomIdOrderByTimestampDesc" resultType="com.trip.app.model.ChatMessage">
+        SELECT 
+            id,
+            room_id as roomId,
+            sender,
+            message,
+            timestamp,
+            type
+        FROM chat_messages
+        WHERE room_id = #{roomId}
+        ORDER BY timestamp DESC
+    </select>
+    
+    <select id="findTop100ByRoomIdOrderByTimestampDesc" resultType="com.trip.app.model.ChatMessage">
+        SELECT 
+            id,
+            room_id as roomId,
+            sender,
+            message,
+            timestamp,
+            type
+        FROM chat_messages
+        WHERE room_id = #{roomId}
+        ORDER BY timestamp DESC
+        LIMIT 100
+    </select>
+    
+</mapper> 

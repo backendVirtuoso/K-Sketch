@@ -8,5 +8,6 @@
         <typeAlias type="com.trip.app.model.LikeListDTO" alias="likeListDTO"/>
         <typeAlias type="com.trip.app.model.LikeListDTO" alias="likeListDTO"/>
         <typeAlias type="com.trip.app.model.TourApiPlaceDTO" alias="tourApiPlaceDTO"/>
+        <typeAlias type="com.trip.app.model.ChatMessage" alias="chatMessage"/>
     </typeAliases>
 </configuration>
