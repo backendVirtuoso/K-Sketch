@@ -53,16 +53,16 @@ const ScheduleTmap = () => {
             }
         };
 
-        // 지도 div가 존재하는지 확인 후 초기화
-        const checkAndInitMap = () => {
-            if (document.getElementById('map_div')) {
+        // T map 스크립트 로드 상태 확인
+        const checkTmapScript = () => {
+            if (window.Tmapv2) {
                 initTmap();
             } else {
-                setTimeout(checkAndInitMap, 100);
+                setTimeout(checkTmapScript, 100);
             }
         };
 
-        checkAndInitMap();
+        checkTmapScript();
     }, []);
 
     useEffect(() => {
