@@ -57,19 +57,29 @@ const AppLayout = () => {
 
   // 로그아웃
   const handleLogout = async () => {
-    // 로컬 스토리지에서 토큰 삭제
     confirmModalMethod("로그아웃되었습니다.");
 
     try {
-      await axios.post("/api/logout");
+      // 백엔드 서버 URL을 명시적으로 지정
+      await axios.post("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/logout");
+      
+      // 로컬 스토리지 클리어
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("userRole");
+      
+      setIsLoggedIn(false);
+      navigate("/");
+      
+      console.log("토큰 사라짐? : ", localStorage.getItem("token"));
+    } catch (error) {
+      console.error("로그아웃 중 오류 발생 : ", error);
+      // 에러가 발생하더라도 로컬 스토리지는 클리어
       localStorage.removeItem("token");
       localStorage.removeItem("username");
       localStorage.removeItem("userRole");
       setIsLoggedIn(false);
       navigate("/");
-      console.log("토큰 사라짐? : ", localStorage.getItem("token"));
-    } catch (error) {
-      console.error("로그아웃 중 오류 발생 : ", error);
     }
   };
 
