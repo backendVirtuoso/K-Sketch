@@ -46,7 +46,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             String encodedUsername = URLEncoder.encode(username, "UTF-8");
 
             // React 클라이언트로 리디렉션 (JWT와 사용자 이름 포함)
-            String redirectUrl = "http://localhost:3000/oauth2/success?token=" + token + "&username=" + encodedUsername;
+            String redirectUrl = "https://web-frontend-m8uaask821ad767f.sel4.cloudtype.app/oauth2/success?token=" + token + "&username=" + encodedUsername;
             response.sendRedirect(redirectUrl);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

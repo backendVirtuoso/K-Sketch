@@ -3,7 +3,7 @@ import axios from "axios";
 const API_KEY = process.env.REACT_APP_API_KEY;
 
 const api = axios.create({
-  baseURL: "http://apis.data.go.kr/B551011",
+  baseURL: "https://apis.data.go.kr/B551011",
   headers: {
     Accept: "application/json",
   },

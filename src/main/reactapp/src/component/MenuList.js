@@ -173,7 +173,7 @@ const MenuList = () => {
     const fetchLocalCategories = useCallback(async () => {
         try {
             const response = await axios.get(
-                `http://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
+                `https://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
             );
             setLocalCategories(response.data.response.body.items.item);
         } catch (err) {
@@ -185,7 +185,7 @@ const MenuList = () => {
     const fetchCategories = useCallback(async () => {
         try {
             const response = await axios.get(
-                `http://apis.data.go.kr/B551011/KorService1/categoryCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
+                `https://apis.data.go.kr/B551011/KorService1/categoryCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
             );
             setCategories(response.data.response.body.items.item);
             console.log(response.data.response.body.items.item);
@@ -205,7 +205,7 @@ const MenuList = () => {
             }
 
             // 지역 및 카테고리 조건을 URL에 반영
-            const url = `http://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY
+            const url = `https://apis.data.go.kr/B551011/KorService1/areaBasedList1?serviceKey=${process.env.REACT_APP_API_KEY
                 }&numOfRows=100&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json${areaCode ? `&areaCode=${areaCode}` : ""}${categoryCode ? `&cat1=${categoryCode}` : ""
                 }`;
 

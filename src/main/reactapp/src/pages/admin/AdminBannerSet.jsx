@@ -24,7 +24,7 @@ const AdminBannerSet = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post('http://localhost:8080/api/admin/banner/upload', formData, {
+      const response = await axios.post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/admin/banner/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
@@ -45,7 +45,7 @@ const AdminBannerSet = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:8080/api/admin/banner/${bannerId}`, {
+      await axios.delete(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/admin/banner/${bannerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -62,7 +62,7 @@ const AdminBannerSet = () => {
   const fetchBanners = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get('http://localhost:8080/api/admin/banners', {
+      const response = await axios.get('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/admin/banners', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

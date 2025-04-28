@@ -12,7 +12,7 @@ export default function AdminUserManagement() {
         const token = localStorage.getItem("token");
 
         axios
-            .get("http://localhost:8080/api/admin/users", {
+            .get("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/admin/users", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

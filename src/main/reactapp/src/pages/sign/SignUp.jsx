@@ -127,7 +127,7 @@ export default function SignUp() {
         } else {
             // 유효성 검사 통과 후 중복 확인 API 호출
             console.log("중복 확인 API 호출: ", state.loginId);  // API 호출 전 로그인 아이디 확인
-            axios.post('http://localhost:8080/api/check-duplicate-id', {
+            axios.post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/check-duplicate-id', {
                 loginId: state.loginId // 서버로 아이디 전달
             })
                 .then((response) => {
@@ -298,7 +298,7 @@ export default function SignUp() {
             })
         }
         else {
-            axios.post('http://localhost:8080/api/check-duplicate-email', {
+            axios.post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/check-duplicate-email', {
                 email: state.email
             })
                 .then((response) => {
@@ -581,7 +581,7 @@ export default function SignUp() {
             };
 
             axios
-                .post("http://localhost:8080/api/join", userData)
+                .post("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/join", userData)
                 .then((res) => {
                     console.log(res.data);
                     if (res.status === 200) {

@@ -33,7 +33,7 @@ export default function SignIn() {
 
             // 로그인 요청
             axios
-                .post("http://localhost:8080/api/login", {
+                .post("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/login", {
                     loginId: id,
                     password: pwd,
                 })
@@ -62,15 +62,15 @@ export default function SignIn() {
 
     const onNaverLogin = () => {
 
-        window.location.href = "http://localhost:8080/oauth2/authorization/naver"
+        window.location.href = "https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/oauth2/authorization/naver"
     }
 
     const onGoogleLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+        window.location.href = "https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/oauth2/authorization/google";
     }
 
     const onKakoLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
+        window.location.href = "https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/oauth2/authorization/kakao";
     }
 
     return (

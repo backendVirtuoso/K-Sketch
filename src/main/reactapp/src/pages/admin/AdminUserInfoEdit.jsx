@@ -63,7 +63,7 @@ export default function AdminUserInfoEdit() {
         console.log(loginId);
         if (token) {
             axios
-                .get(`http://localhost:8080/api/admin/userinfo/${loginId}`, { // 수정된 API 경로
+                .get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/admin/userinfo/${loginId}`, { // 수정된 API 경로
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -295,7 +295,7 @@ export default function AdminUserInfoEdit() {
         } else {
             // 3. 이메일 중복 확인 요청
             axios
-                .post('http://localhost:8080/api/check-duplicate-email', {
+                .post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/check-duplicate-email', {
                     email: state.email,
                 })
                 .then((response) => {
@@ -578,7 +578,7 @@ export default function AdminUserInfoEdit() {
 
             // 서버에 요청
             axios
-                .post('http://localhost:8080/api/userinfo-Modify', userData)
+                .post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/userinfo-Modify', userData)
                 .then((res) => {
                     console.log(res.status);
                     if (res.status === 200) {

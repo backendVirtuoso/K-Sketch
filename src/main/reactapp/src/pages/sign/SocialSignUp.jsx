@@ -68,7 +68,7 @@ export default function SocialSignUp() {
 
         if (token) {
             axios
-                .get("http://localhost:8080/api/userinfo", {
+                .get("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/userinfo", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -173,7 +173,7 @@ export default function SocialSignUp() {
             })
         }
         else {
-            axios.post('http://localhost:8080/api/check-duplicate-email', {
+            axios.post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/check-duplicate-email', {
                 email: state.email
             })
                 .then((response) => {
@@ -440,7 +440,7 @@ export default function SocialSignUp() {
 
             // 서버에 요청
             axios
-                .post('http://localhost:8080/api/userinfo-Modify', userData)
+                .post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/userinfo-Modify', userData)
                 .then((res) => {
                     console.log(res.status);
                     if (res.status === 200) {

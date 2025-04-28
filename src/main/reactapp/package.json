@@ -48,7 +48,7 @@
     "web-vitals": "^2.1.4",
     "xml2js": "^0.6.2"
   },
-  "proxy": "http://localhost:8080",
+  "proxy": "https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

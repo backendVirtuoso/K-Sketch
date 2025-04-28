@@ -19,7 +19,7 @@ const RoomDetail = ({ roomId, onClose, messages, onSendMessage }) => {
 
     const loadPreviousMessages = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/chat/messages/${roomId}`, {
+            const response = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/chat/messages/${roomId}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -69,7 +69,7 @@ const RoomDetail = ({ roomId, onClose, messages, onSendMessage }) => {
         disconnect();
 
         try {
-            const sock = new SockJS("http://localhost:8080/ws");
+            const sock = new SockJS("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/ws");
             ws.current = Stomp.over(sock);
             ws.current.debug = null;
 
@@ -178,7 +178,7 @@ const RoomDetail = ({ roomId, onClose, messages, onSendMessage }) => {
 
     const findRoom = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/kafkachat/room/${roomId}`, {
+            const response = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/kafkachat/room/${roomId}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }

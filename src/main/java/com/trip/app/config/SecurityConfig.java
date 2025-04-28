@@ -52,7 +52,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 클라이언트 주소
+        configuration.setAllowedOrigins(Arrays.asList("https://web-frontend-m8uaask821ad767f.sel4.cloudtype.app")); // React 클라이언트 주소
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 허용
         configuration.setAllowedHeaders(Arrays.asList("*")); // 모든 헤더 허용

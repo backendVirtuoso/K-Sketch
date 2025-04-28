@@ -97,7 +97,7 @@ export default function PwSearchCom() {
                 email: state.email,
             };
 
-            axios.post('http://localhost:8080/api/search-pw-email', userData)
+            axios.post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/search-pw-email', userData)
                 .then((response) => {
                     if (response.status === 200) {
                         console.log(response.data);  // response.data는 MemberDTO 객체 또는 null

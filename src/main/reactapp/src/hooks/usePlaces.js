@@ -10,7 +10,7 @@ const usePlaces = (apiType, keyword, contentTypeId) => {
         const fetchPlaces = async () => {
             try {
                 setIsLoading(true);
-                const response = await axios.get(`http://localhost:8080/api/${apiType}`, {
+                const response = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/${apiType}`, {
                     params: { keyword, contentTypeId },
                 });
 

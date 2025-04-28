@@ -22,7 +22,7 @@ const BookMarkCard = ({ likes }) => {
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const response = await axios.post("http://localhost:8080/api/like/likePlaceList", {
+        const response = await axios.post("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/likePlaceList", {
           title: likes,
         });
         setPlaces(response.data);

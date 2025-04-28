@@ -15,7 +15,7 @@ const ApiPlaces = () => {
     useEffect(() => {
         const fetchPlaces = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/${apiType}`, {
+                const response = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/${apiType}`, {
                     params: { keyword, contentTypeId }, // 검색어와 contentTypeId를 쿼리 파라미터로 전달
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,

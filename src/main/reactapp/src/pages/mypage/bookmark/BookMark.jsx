@@ -34,7 +34,7 @@ const BookMark = ({userInfo}) => {
     
     const fetchLikes = async () => {
       try {
-        const response = await axios.post("http://localhost:8080/api/like/userLikeList", {
+        const response = await axios.post("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/userLikeList", {
           id: userInfo.loginId,
         });
         

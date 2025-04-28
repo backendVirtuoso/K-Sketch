@@ -33,7 +33,7 @@ const Room = () => {
         try {
             const token = localStorage.getItem('token'); // 로컬 스토리지에서 JWT 토큰 가져오기
             const headers = token ? { Authorization: `Bearer ${token}` } : {}; // 토큰이 있으면 헤더에 추가
-            const response = await axios.get('http://localhost:8080/api/kafkachat/rooms', {
+            const response = await axios.get('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/kafkachat/rooms', {
                 headers: headers, // 인증 헤더 추가
             });
             setChatrooms(response.data); // 방 목록을 상태에 저장
@@ -58,7 +58,7 @@ const Room = () => {
 
             const params = new URLSearchParams();
             params.append("name", roomName); // 새 방 이름 추가
-            const response = await axios.post('http://localhost:8080/api/kafkachat/room', params, {
+            const response = await axios.post('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/kafkachat/room', params, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

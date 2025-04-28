@@ -16,7 +16,7 @@ const MyTrip = ({ userInfo }) => {
       try {
         const token = localStorage.getItem('token');
         if (userInfo && userInfo.loginId) {
-          const response = await axios.get('http://localhost:8080/api/trips/mytrip', {
+          const response = await axios.get('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/trips/mytrip', {
             headers: {
               Authorization: `Bearer ${token}`
             },

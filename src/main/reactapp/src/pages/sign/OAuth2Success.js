@@ -29,7 +29,7 @@ export default function OAuth2Success() {
             localStorage.setItem("username", username);
 
             axios
-                .get("http://localhost:8080/api/userinfo", {
+                .get("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/userinfo", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
