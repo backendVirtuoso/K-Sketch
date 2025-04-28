@@ -31,15 +31,17 @@ const Room = () => {
     // 방 목록을 가져오는 함수
     const findAllRoom = async () => {
         try {
-            const token = localStorage.getItem('token'); // 로컬 스토리지에서 JWT 토큰 가져오기
-            const headers = token ? { Authorization: `Bearer ${token}` } : {}; // 토큰이 있으면 헤더에 추가
+            const token = localStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
             const response = await axios.get('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/kafkachat/rooms', {
-                headers: headers, // 인증 헤더 추가
+                headers: headers,
             });
-            setChatrooms(response.data); // 방 목록을 상태에 저장
+            // 응답 데이터가 배열인지 확인하고 설정
+            setChatrooms(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             console.error("방 목록을 가져오는 데 실패했습니다.", error);
-            setError("방 목록을 가져오는 데 실패했습니다."); // 에러 메시지 상태 업데이트
+            setError("방 목록을 가져오는 데 실패했습니다.");
+            setChatrooms([]); // 에러 발생 시 빈 배열로 초기화
         }
     };
 
@@ -98,42 +100,48 @@ const Room = () => {
         <div className="container my-5">
             <h3 className="text-center mb-4">
                 {selectedRoom ?
-                    "채팅방: " + chatrooms.find(room => room.roomId === selectedRoom)?.name :
+                    "채팅방: " + (chatrooms.find(room => room.roomId === selectedRoom)?.name || "알 수 없는 방") :
                     "채팅방 리스트"
                 }
             </h3>
-            {error && <div className="alert alert-danger">{error}</div>} {/* 에러 메시지 표시 */}
-            {!selectedRoom ? ( // 선택된 방이 없으면 방 목록을 보여줌
+            {error && <div className="alert alert-danger">{error}</div>}
+            {!selectedRoom ? (
                 <>
                     <div className="input-group mb-4">
                         <input
                             type="text"
                             className="form-control"
                             value={roomName}
-                            onChange={(e) => setRoomName(e.target.value)} // 방 이름 입력 시 상태 업데이트
-                            onKeyUp={(e) => e.key === 'Enter' && createRoom()} // 엔터 키로 방 생성
+                            onChange={(e) => setRoomName(e.target.value)}
+                            onKeyUp={(e) => e.key === 'Enter' && createRoom()}
                             placeholder="채팅방 제목을 입력하세요"
                         />
                         <button className="btn btn-primary" type="button" onClick={createRoom}>방 만들기</button>
                     </div>
                     <ul className="list-group">
-                        {chatrooms.map(item => ( // 채팅방 목록을 표시
-                            <li
-                                key={item.roomId}
-                                className="list-group-item list-group-item-action"
-                                onClick={() => enterRoom(item.roomId)} // 방 클릭 시 해당 방으로 이동
-                            >
-                                {item.name}
+                        {Array.isArray(chatrooms) && chatrooms.length > 0 ? (
+                            chatrooms.map(item => (
+                                <li
+                                    key={item.roomId}
+                                    className="list-group-item list-group-item-action"
+                                    onClick={() => enterRoom(item.roomId)}
+                                >
+                                    {item.name}
+                                </li>
+                            ))
+                        ) : (
+                            <li className="list-group-item text-center">
+                                {error ? "오류가 발생했습니다." : "채팅방이 없습니다."}
                             </li>
-                        ))}
+                        )}
                     </ul>
                 </>
-            ) : ( // 방을 선택하면 RoomDetail 컴포넌트로 방 내용을 표시
+            ) : (
                 <RoomDetail
                     roomId={selectedRoom}
-                    onClose={closeRoomDetail} // 방 상세보기 닫기
-                    messages={messages[selectedRoom] || []} // 해당 방의 메시지 전달
-                    onSendMessage={(msg) => addMessage(selectedRoom, msg)} // 메시지 추가
+                    onClose={closeRoomDetail}
+                    messages={messages[selectedRoom] || []}
+                    onSendMessage={(msg) => addMessage(selectedRoom, msg)}
                 />
             )}
         </div>
