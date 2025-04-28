@@ -70,6 +70,7 @@ const HeartIcon = styled(FontAwesomeIcon)`
     cursor: pointer;
     color: ${(props) => (props.$liked ? '#ff6b6b' : '#fff')};
     transition: color 0.3s ease;
+    z-index: 10;
 `;
 
 const LikeCount = styled.span`
@@ -148,7 +149,10 @@ const ListItem = ({ data, logo, onClick }) => {
                 <HeartIcon
                     icon={liked ? filledHeart : emptyHeart}
                     size="lg"
-                    onClick={handleLikeClick}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleLikeClick(e);
+                    }}
                     $liked={liked}
                 />
                 <LikeCount>{likeCount}</LikeCount>
