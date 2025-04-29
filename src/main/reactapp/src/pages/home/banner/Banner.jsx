@@ -10,7 +10,7 @@ const Banner = () => {
   // 배너 목록 조회 함수
   const fetchBanners = async () => {
     try {
-      const response = await axios.get('https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/main/banners', {
+      const response = await axios.get('/api/main/banners', {
       });
       setBanners(response.data); // 배너 목록을 상태에 저장
     } catch (error) {
