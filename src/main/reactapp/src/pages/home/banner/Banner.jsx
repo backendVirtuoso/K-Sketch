@@ -3,21 +3,26 @@ import axios from 'axios';
 import { Carousel } from 'react-bootstrap';
 import './Banner.style.css';
 
+// CORS 우회 인스턴스 생성
+const apiClient = axios.create({
+  baseURL: 'https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 const Banner = () => {
   const [banners, setBanners] = useState([]); // 초기값을 빈 배열로 설정
 
-  // 서버에서 배너 목록을 가져오는 함수
   // 배너 목록 조회 함수
   const fetchBanners = async () => {
     try {
-      const response = await axios.get('/api/main/banners', {
-      });
-      setBanners(response.data); // 배너 목록을 상태에 저장
+      const response = await apiClient.get('/api/main/banners');
+      setBanners(response.data);
     } catch (error) {
       console.error("배너 목록을 가져오는 데 실패했습니다:", error);
     }
   };
-
 
   useEffect(() => {
     fetchBanners(); // 컴포넌트가 마운트될 때 배너 목록 가져오기
