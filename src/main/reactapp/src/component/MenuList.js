@@ -175,7 +175,8 @@ const MenuList = () => {
             const response = await axios.get(
                 `https://apis.data.go.kr/B551011/KorService1/areaCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
             );
-            setLocalCategories(response.data.response.body.items.item);
+            const items = response.data?.response?.body?.items?.item || [];
+            setLocalCategories(items);
         } catch (err) {
             setError("데이터를 불러오는 중 오류가 발생했습니다.");
             console.error(err);
@@ -187,8 +188,9 @@ const MenuList = () => {
             const response = await axios.get(
                 `https://apis.data.go.kr/B551011/KorService1/categoryCode1?serviceKey=${process.env.REACT_APP_API_KEY}&numOfRows=20&pageNo=1&MobileOS=ETC&MobileApp=TestApp&_type=json`
             );
-            setCategories(response.data.response.body.items.item);
-            console.log(response.data.response.body.items.item);
+            const items = response.data?.response?.body?.items?.item || [];
+            setCategories(items);
+            console.log(items);
         } catch (err) {
             setError("데이터를 불러오는 중 오류가 발생했습니다.");
             console.error(err);
@@ -212,7 +214,7 @@ const MenuList = () => {
             try {
                 setLoading(true);
                 const response = await axios.get(url);
-                const items = response.data.response.body.items?.item || [];
+                const items = response.data?.response?.body?.items?.item || [];
                 setDatas(items);
                 dataCache.set(cacheKey, items);
             } catch (err) {
