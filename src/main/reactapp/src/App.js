@@ -4,6 +4,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
+import { config } from '@fortawesome/fontawesome-svg-core';
 import SignIn from "./pages/sign/SignIn";
 import OAuth2Success from "./pages/sign/OAuth2Success";
 import SignUp from "./pages/sign/SignUp";
@@ -34,7 +35,8 @@ import AdminUserManagement from "./pages/admin/AdminUserManagement";
 import AdminUserInfoEdit from "./pages/admin/AdminUserInfoEdit";
 import AdminBannerSet from "./pages/admin/AdminBannerSet";
 
-// FontAwesome 라이브러리 초기화
+// FontAwesome 설정
+config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically
 library.add(fas, far, fab);
 
 const App = () => {
