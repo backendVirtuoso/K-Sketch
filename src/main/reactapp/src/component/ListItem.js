@@ -105,13 +105,13 @@ const ListItem = ({ data, logo, onClick }) => {
             try {
                 // 로그인한 경우 좋아요 상태 확인
                 if (token && userId) {
-                    const likeResponse = await axios.get(`/api/like/check?id=${userId}`);
+                    const likeResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/check?id=${userId}`);
                     const userLikes = likeResponse.data;
                     setLiked(userLikes.includes(data.title));
                 }
                 
                 // 좋아요 개수 확인 (로그인 상태와 관계없이 조회)
-                const countResponse = await axios.get(`/api/like/count?title=${encodeURIComponent(data.title)}`);
+                const countResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/count?title=${encodeURIComponent(data.title)}`);
                 if (countResponse.data !== undefined) {
                     setLikeCount(countResponse.data);
                 }
@@ -132,7 +132,7 @@ const ListItem = ({ data, logo, onClick }) => {
         }
 
         try {
-            await axios.post("/api/like/userLike", {
+            await axios.post("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/userLike", {
                 title: data.title,
                 id: userId,
                 lat: data.mapy,
@@ -144,7 +144,7 @@ const ListItem = ({ data, logo, onClick }) => {
             setLiked(newLiked);
             
             // 좋아요 개수 업데이트 (API에서 새로운 좋아요 개수 가져오기)
-            const countResponse = await axios.get(`/api/like/count?title=${encodeURIComponent(data.title)}`);
+            const countResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/count?title=${encodeURIComponent(data.title)}`);
             if (countResponse.data !== undefined) {
                 setLikeCount(countResponse.data);
             }
