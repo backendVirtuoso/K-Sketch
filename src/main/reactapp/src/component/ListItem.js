@@ -105,9 +105,17 @@ const ListItem = ({ data, logo, onClick }) => {
             try {
                 // 로그인한 경우 좋아요 상태 확인
                 if (token && userId) {
-                    const likeResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/check?id=${userId}`);
-                    const userLikes = likeResponse.data;
-                    setLiked(userLikes.includes(data.title));
+                    const likeResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/check?id=${encodeURIComponent(userId)}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (likeResponse.data) {
+                        const userLikes = likeResponse.data;
+                        setLiked(Array.isArray(userLikes) && userLikes.includes(data.title));
+                    }
                 }
                 
                 // 좋아요 개수 확인 (로그인 상태와 관계없이 조회)
@@ -117,6 +125,10 @@ const ListItem = ({ data, logo, onClick }) => {
                 }
             } catch (error) {
                 console.error('좋아요 상태 확인 실패:', error);
+                if (error.response) {
+                    console.error('에러 응답:', error.response.data);
+                    console.error('에러 상태:', error.response.status);
+                }
             }
         };
 
@@ -137,6 +149,11 @@ const ListItem = ({ data, logo, onClick }) => {
                 id: userId,
                 lat: data.mapy,
                 lon: data.mapx,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
             
             // 좋아요 상태 토글
@@ -150,6 +167,11 @@ const ListItem = ({ data, logo, onClick }) => {
             }
         } catch (error) {
             console.error("좋아요 처리 중 에러 발생", error);
+            if (error.response) {
+                console.error('에러 응답:', error.response.data);
+                console.error('에러 상태:', error.response.status);
+            }
+            alert('좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
     };
 
