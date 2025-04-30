@@ -64,6 +64,7 @@ const LikeContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 5px;
+    z-index: 10;
 `;
 
 const HeartIcon = styled(FontAwesomeIcon)`
@@ -83,8 +84,13 @@ const LikeCount = styled.span`
 const getUserIdFromToken = (token) => {
     if (!token) return null;
 
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.username;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.username;
+    } catch (error) {
+        console.error('토큰 파싱 오류:', error);
+        return null;
+    }
 }
 
 const ListItem = ({ data, logo, onClick }) => {
@@ -96,17 +102,19 @@ const ListItem = ({ data, logo, onClick }) => {
     // 컴포넌트 마운트 시 좋아요 상태와 개수 확인
     useEffect(() => {
         const checkLikeStatus = async () => {
-            if (!token || !userId) return;
-
             try {
-                // 좋아요 상태 확인
-                const likeResponse = await axios.get(`/api/like/check?id=${userId}`);
-                const userLikes = likeResponse.data;
-                setLiked(userLikes.includes(data.title));
+                // 로그인한 경우 좋아요 상태 확인
+                if (token && userId) {
+                    const likeResponse = await axios.get(`/api/like/check?id=${userId}`);
+                    const userLikes = likeResponse.data;
+                    setLiked(userLikes.includes(data.title));
+                }
                 
-                // 좋아요 개수 확인
+                // 좋아요 개수 확인 (로그인 상태와 관계없이 조회)
                 const countResponse = await axios.get(`/api/like/count?title=${encodeURIComponent(data.title)}`);
-                setLikeCount(countResponse.data);
+                if (countResponse.data !== undefined) {
+                    setLikeCount(countResponse.data);
+                }
             } catch (error) {
                 console.error('좋아요 상태 확인 실패:', error);
             }
@@ -131,9 +139,15 @@ const ListItem = ({ data, logo, onClick }) => {
                 lon: data.mapx,
             });
             
-            setLiked(prev => !prev);
-            // 좋아요를 누르면 카운트 증가, 취소하면 감소
-            setLikeCount(prev => liked ? prev - 1 : prev + 1);
+            // 좋아요 상태 토글
+            const newLiked = !liked;
+            setLiked(newLiked);
+            
+            // 좋아요 개수 업데이트 (API에서 새로운 좋아요 개수 가져오기)
+            const countResponse = await axios.get(`/api/like/count?title=${encodeURIComponent(data.title)}`);
+            if (countResponse.data !== undefined) {
+                setLikeCount(countResponse.data);
+            }
         } catch (error) {
             console.error("좋아요 처리 중 에러 발생", error);
         }
@@ -149,10 +163,7 @@ const ListItem = ({ data, logo, onClick }) => {
                 <HeartIcon
                     icon={liked ? filledHeart : emptyHeart}
                     size="lg"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleLikeClick(e);
-                    }}
+                    onClick={handleLikeClick}
                     $liked={liked}
                 />
                 <LikeCount>{likeCount}</LikeCount>
