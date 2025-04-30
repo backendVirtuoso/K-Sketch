@@ -5,8 +5,6 @@ import { faHeart as filledHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as emptyHeart } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 
-
-
 const StyledListItem = styled.div`
     position: relative;
     display: flex;
@@ -23,7 +21,7 @@ const StyledListItem = styled.div`
     font-weight: bold;
 
     &:hover {
-    transform: scale(1.05);
+        transform: scale(1.05);
     }
 
     ${props => `background-image: url(${props.$bgImage});`}
@@ -80,7 +78,7 @@ const LikeCount = styled.span`
     font-weight: bold;
 `;
 
-// jwt토큰에서 사용자 아이디 추출 함수수
+// JWT 토큰에서 사용자 아이디 추출 함수
 const getUserIdFromToken = (token) => {
     if (!token) return null;
 
@@ -91,7 +89,7 @@ const getUserIdFromToken = (token) => {
         console.error('토큰 파싱 오류:', error);
         return null;
     }
-}
+};
 
 const ListItem = ({ data, logo, onClick }) => {
     const [liked, setLiked] = useState(false);
@@ -99,21 +97,23 @@ const ListItem = ({ data, logo, onClick }) => {
     const token = localStorage.getItem("token");
     const userId = getUserIdFromToken(token);
 
-    // 컴포넌트 마운트 시 좋아요 상태와 개수 확인
     useEffect(() => {
         const checkLikeStatus = async () => {
             try {
-                // 로그인한 경우 좋아요 상태 확인
                 if (token && userId) {
                     const likeResponse = await axios.get(`/api/like/check?id=${userId}`);
                     const userLikes = likeResponse.data;
                     setLiked(userLikes.includes(data.title));
                 }
-                
-                // 좋아요 개수 확인 (로그인 상태와 관계없이 조회)
+
                 const countResponse = await axios.get(`/api/like/count?title=${encodeURIComponent(data.title)}`);
                 if (countResponse.data !== undefined) {
-                    setLikeCount(countResponse.data);
+                    const count = parseInt(countResponse.data, 10);
+                    if (!isNaN(count)) {
+                        setLikeCount(count);
+                    } else {
+                        console.warn('좋아요 개수가 숫자가 아닙니다:', countResponse.data);
+                    }
                 }
             } catch (error) {
                 console.error('좋아요 상태 확인 실패:', error);
@@ -125,7 +125,7 @@ const ListItem = ({ data, logo, onClick }) => {
 
     const handleLikeClick = async (e) => {
         e.stopPropagation(); // 이벤트 버블링 방지
-        
+
         if (!token) {
             alert('로그인한 사용자만 좋아요를 누를 수 있습니다.');
             return;
@@ -138,15 +138,16 @@ const ListItem = ({ data, logo, onClick }) => {
                 lat: data.mapy,
                 lon: data.mapx,
             });
-            
-            // 좋아요 상태 토글
+
             const newLiked = !liked;
             setLiked(newLiked);
-            
-            // 좋아요 개수 업데이트 (API에서 새로운 좋아요 개수 가져오기)
+
             const countResponse = await axios.get(`/api/like/count?title=${encodeURIComponent(data.title)}`);
             if (countResponse.data !== undefined) {
-                setLikeCount(countResponse.data);
+                const count = parseInt(countResponse.data, 10);
+                if (!isNaN(count)) {
+                    setLikeCount(count);
+                }
             }
         } catch (error) {
             console.error("좋아요 처리 중 에러 발생", error);
@@ -157,7 +158,8 @@ const ListItem = ({ data, logo, onClick }) => {
         <StyledListItem
             $bgImage={data.firstimage || logo}
             onClick={onClick}
-            style={{ width: "100%", height: "150px" }}>
+            style={{ width: "100%", height: "150px" }}
+        >
             <div className="title">{data.title}</div>
             <LikeContainer>
                 <HeartIcon
