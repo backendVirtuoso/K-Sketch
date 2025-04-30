@@ -5,8 +5,6 @@ import { faHeart as filledHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as emptyHeart } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 
-
-
 const StyledListItem = styled.div`
     position: relative;
     display: flex;
@@ -80,7 +78,7 @@ const LikeCount = styled.span`
     font-weight: bold;
 `;
 
-// jwt토큰에서 사용자 아이디 추출 함수수
+// JWT 토큰에서 사용자 아이디 추출 함수
 const getUserIdFromToken = (token) => {
     if (!token) return null;
 
@@ -98,14 +96,21 @@ const ListItem = ({ data, logo, onClick }) => {
     const [likeCount, setLikeCount] = useState(0);
     const token = localStorage.getItem("token");
     const userId = getUserIdFromToken(token);
+    const API_BASE_URL = 'https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api';
 
     // 컴포넌트 마운트 시 좋아요 상태와 개수 확인
     useEffect(() => {
         const checkLikeStatus = async () => {
+            if (!data || !data.title) {
+                console.error('데이터가 유효하지 않습니다:', data);
+                return;
+            }
+
             try {
                 // 로그인한 경우 좋아요 상태 확인
                 if (token && userId) {
-                    const likeResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/check?id=${encodeURIComponent(userId)}`, {
+                    const likeResponse = await axios.get(`${API_BASE_URL}/like/check`, {
+                        params: { id: userId },
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
@@ -119,9 +124,14 @@ const ListItem = ({ data, logo, onClick }) => {
                 }
                 
                 // 좋아요 개수 확인 (로그인 상태와 관계없이 조회)
-                const countResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/count?title=${encodeURIComponent(data.title)}`);
-                if (countResponse.data !== undefined) {
-                    setLikeCount(countResponse.data);
+                if (data.title) {
+                    const countResponse = await axios.get(`${API_BASE_URL}/like/count`, {
+                        params: { title: data.title }
+                    });
+                    
+                    if (countResponse.data !== undefined) {
+                        setLikeCount(countResponse.data);
+                    }
                 }
             } catch (error) {
                 console.error('좋아요 상태 확인 실패:', error);
@@ -132,8 +142,10 @@ const ListItem = ({ data, logo, onClick }) => {
             }
         };
 
-        checkLikeStatus();
-    }, [token, userId, data.title]);
+        if (data && data.title) {
+            checkLikeStatus();
+        }
+    }, [token, userId, data]);
 
     const handleLikeClick = async (e) => {
         e.stopPropagation(); // 이벤트 버블링 방지
@@ -143,13 +155,25 @@ const ListItem = ({ data, logo, onClick }) => {
             return;
         }
 
+        if (!data || !data.title || !userId) {
+            console.error('필수 데이터가 없습니다:', { data, userId });
+            alert('좋아요 처리에 필요한 정보가 없습니다.');
+            return;
+        }
+
         try {
-            await axios.post("https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/userLike", {
+            // 데이터 유효성 검사
+            const payload = {
                 title: data.title,
                 id: userId,
-                lat: data.mapy,
-                lon: data.mapx,
-            }, {
+                lat: data.mapy || null,
+                lon: data.mapx || null,
+            };
+
+            console.log('좋아요 요청 데이터:', payload);
+
+            // API 요청
+            await axios.post(`${API_BASE_URL}/like/userLike`, payload, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -160,20 +184,37 @@ const ListItem = ({ data, logo, onClick }) => {
             const newLiked = !liked;
             setLiked(newLiked);
             
-            // 좋아요 개수 업데이트 (API에서 새로운 좋아요 개수 가져오기)
-            const countResponse = await axios.get(`https://port-0-backend-m8uaask821ad767f.sel4.cloudtype.app/api/like/count?title=${encodeURIComponent(data.title)}`);
+            // 좋아요 개수 업데이트
+            const countResponse = await axios.get(`${API_BASE_URL}/like/count`, {
+                params: { title: data.title }
+            });
+            
             if (countResponse.data !== undefined) {
                 setLikeCount(countResponse.data);
             }
         } catch (error) {
             console.error("좋아요 처리 중 에러 발생", error);
+            
             if (error.response) {
                 console.error('에러 응답:', error.response.data);
                 console.error('에러 상태:', error.response.status);
             }
-            alert('좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+            
+            // 좀 더 상세한 에러 메시지 제공
+            let errorMsg = '좋아요 처리 중 오류가 발생했습니다.';
+            if (error.response && error.response.data && error.response.data.message) {
+                errorMsg += ` ${error.response.data.message}`;
+            }
+            
+            alert(errorMsg);
         }
     };
+
+    // 데이터 유효성 확인
+    if (!data || !data.title) {
+        console.warn('ListItem에 유효하지 않은 데이터가 전달되었습니다:', data);
+        return null;
+    }
 
     return (
         <StyledListItem
