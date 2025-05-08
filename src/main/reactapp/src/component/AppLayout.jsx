@@ -111,14 +111,13 @@ const AppLayout = () => {
                 </Dropdown.Menu>
               </Dropdown>
             )}
-            <Nav.Link onClick={isLoggedIn ? kafkaChatPage : error} className="path">
-              채팅
-            </Nav.Link>
+            {/*<Nav.Link onClick={isLoggedIn ? kafkaChatPage : error} className="path">*/}
+            {/*  채팅*/}
+            {/*</Nav.Link>*/}
             <Nav.Link href="/schedule" className="path">일정생성</Nav.Link>
-            <Nav.Link href="/places" className="path">장소 api</Nav.Link>
             <Nav.Link href="/mypage" className="path">마이페이지</Nav.Link>
-            <Nav.Link href="#action2 action" className="path">Menu</Nav.Link>
-            <Nav.Link href="#action2 action" className="path">Menu</Nav.Link>
+            {/*<Nav.Link href="#action2 action" className="path">Menu</Nav.Link>*/}
+            {/*<Nav.Link href="#action2 action" className="path">Menu</Nav.Link>*/}
             <div
               className="fauser path"
               onClick={isLoggedIn ? handleLogout : handleLogin}
