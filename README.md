@@ -14,6 +14,28 @@ Kafka 메시지 브로커를 활용한 확장 가능한 채팅 시스템과 Redi
 
 ---
 
+## 📑 목차
+
+- [프로젝트 개요](#-프로젝트-개요)
+- [핵심 성과](#-핵심-성과)
+- [기술 스택](#️-기술-스택)
+- [주요 기능](#-주요-기능)
+- [핵심 기술 구현 상세](#-핵심-기술-구현-상세)
+  - [Kafka 기반 분산 채팅 시스템](#1-kafka-기반-분산-채팅-시스템)
+  - [Redis 캐싱 전략과 성능 최적화](#2-redis-캐싱-전략과-성능-최적화)
+  - [JWT + OAuth2 통합 인증 시스템](#3-jwt--oauth2-통합-인증-시스템)
+- [트러블슈팅](#-트러블슈팅)
+- [사용 예시](#-사용-예시)
+- [프로젝트 구조](#-프로젝트-구조)
+- [실행 방법](#-실행-방법)
+- [팀 구성 및 역할](#-팀-구성-및-역할)
+- [성능 지표](#-성능-지표)
+- [기술적 학습 및 성장](#-기술적-학습-및-성장)
+- [라이선스](#-라이선스)
+- [연락처](#-연락처)
+
+---
+
 ## 🎯 프로젝트 개요
 
 | 항목 | 내용 |
@@ -692,6 +714,190 @@ public List<Schedule> getSchedules(String userId) {
 
 ---
 
+## 💻 사용 예시
+
+### 1. 회원가입 및 로그인
+
+**일반 로그인**
+
+```bash
+# 회원가입
+curl -X POST http://localhost:8080/api/join \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "user@example.com",
+    "password": "password123",
+    "name": "홍길동",
+    "email": "user@example.com"
+  }'
+
+# 로그인
+curl -X POST http://localhost:8080/api/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "user@example.com",
+    "password": "password123"
+  }'
+```
+
+**소셜 로그인**
+
+```javascript
+// React 컴포넌트에서
+const handleSocialLogin = (provider) => {
+  window.location.href = `http://localhost:8080/oauth2/authorization/${provider}`;
+  // provider: 'naver', 'google', 'kakao'
+};
+```
+
+### 2. 여행지 검색
+
+```bash
+# 키워드로 검색
+curl -X GET "http://localhost:8080/api/places/search?keyword=서울" \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+
+# 지역 + 카테고리 검색
+curl -X GET "http://localhost:8080/api/places/search?region=강원도&category=관광지" \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
+**응답 예시:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "경복궁",
+      "address": "서울특별시 종로구",
+      "category": "관광지",
+      "tel": "02-3700-3900",
+      "image": "http://example.com/image.jpg",
+      "mapX": 126.977041,
+      "mapY": 37.579617
+    }
+  ],
+  "cached": true,
+  "responseTime": "52ms"
+}
+```
+
+### 3. 실시간 채팅
+
+**WebSocket 연결**
+
+```javascript
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+
+// WebSocket 연결
+const socket = new SockJS('http://localhost:8080/ws');
+const stompClient = new Client({
+  webSocketFactory: () => socket,
+  debug: (str) => console.log(str),
+  onConnect: () => {
+    console.log('Connected');
+    
+    // 채팅방 구독
+    stompClient.subscribe('/topic/room/1', (message) => {
+      const chatMessage = JSON.parse(message.body);
+      console.log('Received:', chatMessage);
+    });
+  }
+});
+
+stompClient.activate();
+
+// 메시지 전송
+const sendMessage = (roomId, content) => {
+  stompClient.publish({
+    destination: '/app/chat.send',
+    body: JSON.stringify({
+      roomId: roomId,
+      content: content,
+      sender: 'username'
+    })
+  });
+};
+```
+
+### 4. 여행 일정 관리
+
+```bash
+# 일정 생성
+curl -X POST http://localhost:8080/api/schedules \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {JWT_TOKEN}" \
+  -d '{
+    "title": "서울 2박 3일 여행",
+    "startDate": "2024-12-01",
+    "endDate": "2024-12-03",
+    "places": [
+      {
+        "placeId": 1,
+        "day": 1,
+        "order": 1,
+        "memo": "오전 10시 방문"
+      }
+    ]
+  }'
+
+# 일정 조회
+curl -X GET http://localhost:8080/api/schedules \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
+### 5. 성능 모니터링
+
+**Redis 캐시 상태 확인**
+
+```bash
+# Redis CLI에서
+redis-cli
+
+# 캐시 키 확인
+KEYS places:*
+
+# 캐시 히트율 확인
+INFO stats
+```
+
+**Kafka 메시지 확인**
+
+```bash
+# Kafka 토픽 목록
+kafka-topics.sh --list --bootstrap-server localhost:9092
+
+# 메시지 소비 테스트
+kafka-console-consumer.sh \
+  --bootstrap-server localhost:9092 \
+  --topic chat-messages \
+  --from-beginning
+```
+
+### 📸 스크린샷
+
+<details>
+<summary>주요 화면 보기</summary>
+
+**메인 화면**
+- 여행지 검색 및 카테고리별 탐색
+- 인기 여행지 추천
+
+**채팅 화면**
+- 실시간 메시지 전송/수신
+- 채팅방 목록 및 참여자 관리
+
+**일정 관리 화면**
+- 드래그 앤 드롭으로 일정 편집
+- 지도 연동 경로 표시
+
+</details>
+
+---
+
 ## 📂 프로젝트 구조
 
 ```
@@ -933,6 +1139,48 @@ npm start
 - [ ] CI/CD 파이프라인 구축 (GitHub Actions)
 - [ ] API 문서 자동화 (Swagger)
 - [ ] 모니터링 시스템 도입 (Prometheus, Grafana)
+
+---
+
+## 📄 라이선스
+
+이 프로젝트는 **MIT License**를 따릅니다.
+
+```
+MIT License
+
+Copyright (c) 2024 K-Sketch Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+### 사용된 오픈소스 라이선스
+
+| 라이브러리 | 버전 | 라이선스 |
+|----------|------|----------|
+| Spring Boot | 3.3.5 | Apache License 2.0 |
+| React | 18.3.1 | MIT License |
+| Apache Kafka | Latest | Apache License 2.0 |
+| Redis | Latest | BSD 3-Clause License |
+| MySQL Connector | Latest | GPL 2.0 with FOSS Exception |
+| JWT (jjwt) | 0.12.3 | Apache License 2.0 |
+| MyBatis | 3.0.3 | Apache License 2.0 |
 
 ---
 
