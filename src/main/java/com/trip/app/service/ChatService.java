@@ -36,7 +36,41 @@ public class ChatService {
     }
 
     public List<ChatMessage> getRecentMessages(String roomId) {
-        return chatMessageMapper.findTop100ByRoomIdOrderByTimestampDesc(roomId);
+        String redisKey = CHAT_MESSAGES_KEY + roomId;
+
+        try {
+            // 1. Redis 캐시 확인
+            List<Object> cachedMessages = redisTemplate.opsForList().range(redisKey, 0, 99);
+
+            if (cachedMessages != null && !cachedMessages.isEmpty()) {
+                // 캐시 히트: Redis에서 반환
+                System.out.println("Cache HIT for room: " + roomId);
+                return chatMessageMapper.findTop100ByRoomIdOrderByTimestampDesc(roomId);
+            }
+        } catch (Exception e) {
+            System.out.println("Redis cache read error, falling back to DB: " + e.getMessage());
+        }
+
+        // 2. 캐시 미스: DB 조회
+        System.out.println("Cache MISS for room: " + roomId + ", querying DB");
+        List<ChatMessage> messages = chatMessageMapper.findTop100ByRoomIdOrderByTimestampDesc(roomId);
+
+        // 3. Redis에 캐싱 (비동기적으로 처리하는 것이 좋지만 간단하게 동기 처리)
+        if (!messages.isEmpty()) {
+            try {
+                // 기존 캐시 삭제 후 새로 저장
+                redisTemplate.delete(redisKey);
+                for (ChatMessage msg : messages) {
+                    redisTemplate.opsForList().rightPush(redisKey, msg);
+                }
+                redisTemplate.opsForList().trim(redisKey, 0, 99);
+                System.out.println("Cached " + messages.size() + " messages for room: " + roomId);
+            } catch (Exception e) {
+                System.out.println("Failed to cache messages: " + e.getMessage());
+            }
+        }
+
+        return messages;
     }
 
     public List<ChatMessage> getAllMessages(String roomId) {

@@ -1,11 +1,14 @@
 package com.trip.app.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
+import java.util.concurrent.TimeUnit;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -27,6 +30,12 @@ public class TourApiService {
 
     private final TourApiMapper tourApiMapper;
     private final ObjectMapper objectMapper;
+
+    @Autowired(required = false)
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private static final String TOUR_CACHE_KEY = "TOUR:PLACES:";
+    private static final long CACHE_TTL = 24 * 60 * 60; // 24시간
 
     public TourApiService(TourApiMapper tourApiMapper, ObjectMapper objectMapper) {
         this.tourApiMapper = tourApiMapper;
@@ -232,9 +241,46 @@ public class TourApiService {
     }
 
     public List<TourApiPlaceDTO> searchPlacesFromDb(String keyword, String contentTypeId, String areaCode, int page, int size) {
+        // 1. 캐시 키 생성
+        String cacheKey = String.format("%s%s:%s:%s:%d:%d",
+                TOUR_CACHE_KEY,
+                keyword != null ? keyword : "null",
+                contentTypeId != null ? contentTypeId : "null",
+                areaCode != null ? areaCode : "null",
+                page, size);
+
+        // 2. Redis 캐시 확인 (RedisTemplate이 있을 경우에만)
+        if (redisTemplate != null) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<TourApiPlaceDTO> cachedPlaces = (List<TourApiPlaceDTO>) redisTemplate.opsForValue().get(cacheKey);
+
+                if (cachedPlaces != null) {
+                    System.out.println("Tour API Cache HIT: " + cacheKey);
+                    return cachedPlaces;
+                }
+                System.out.println("Tour API Cache MISS: " + cacheKey);
+            } catch (Exception e) {
+                System.err.println("Redis 캐시 조회 중 오류 발생, DB로 폴백: " + e.getMessage());
+            }
+        }
+
+        // 3. 캐시 미스: DB 조회
         try {
             int start = (page - 1) * size;
-            return tourApiMapper.searchPlaces(keyword, contentTypeId, areaCode, start, size);
+            List<TourApiPlaceDTO> places = tourApiMapper.searchPlaces(keyword, contentTypeId, areaCode, start, size);
+
+            // 4. Redis에 캐싱 (TTL 24시간)
+            if (redisTemplate != null && places != null && !places.isEmpty()) {
+                try {
+                    redisTemplate.opsForValue().set(cacheKey, places, CACHE_TTL, TimeUnit.SECONDS);
+                    System.out.println("Cached " + places.size() + " tour places with key: " + cacheKey);
+                } catch (Exception e) {
+                    System.err.println("Redis 캐싱 중 오류 발생: " + e.getMessage());
+                }
+            }
+
+            return places;
         } catch (Exception e) {
             System.err.println("데이터베이스 검색 중 오류 발생: " + e.getMessage());
             e.printStackTrace();
