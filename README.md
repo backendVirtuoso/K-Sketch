@@ -121,6 +121,13 @@
 
 ---
 
+## 📂 프로젝트 아키텍처
+
+![k-sketch](https://github.com/user-attachments/assets/6a89c634-e48c-4a8f-b4bc-dcae021c2235)
+![k-sketch erd](https://github.com/user-attachments/assets/f937fd66-e347-456f-a823-7cb9d5bb65ad)
+
+---
+
 ## 📂 프로젝트 구조
 
 ```
